@@ -759,7 +759,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoPagination",
               "http_method": "POST",
@@ -821,7 +821,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
@@ -879,7 +879,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
@@ -936,7 +936,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
@@ -998,7 +998,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
@@ -1075,7 +1075,7 @@
           "source": {
             "type": "get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoList",
               "http_method": "POST",
@@ -1156,7 +1156,7 @@
           "source": {
             "type": "get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoList",
               "http_method": "POST",
@@ -1237,7 +1237,7 @@
           "source": {
             "type": "get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoList",
               "http_method": "POST",
@@ -1339,7 +1339,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
@@ -1401,7 +1401,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "http",
-            "host": "172.19.64.151:8080",
+            "host": "172.17.9.26:8080",
             "request": {
               "url": "/supGoods/getSupGoodsInfoByCatIdsPagination",
               "http_method": "POST",
