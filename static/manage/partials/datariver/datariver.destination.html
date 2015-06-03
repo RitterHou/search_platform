@@ -1,0 +1,13 @@
+<div class="form-group">
+    <label class="col-sm-2 control-label">数据终点</label>
+
+    <div class="col-sm-10">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="add_destination_list_row()">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-primary btn-xs" ng-click="delete_destination_list_row()">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <div ui-grid="destination_list_grid" ui-grid-edit ui-grid-selection></div>
+    </div>
+</div>

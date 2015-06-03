@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="刘兆明 <liuzhaoming@qianmi.com>">
+    <title>搜索平台集群管理</title>
+    <link rel="stylesheet" href="/static/module/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/module/bootstrap/css/bootstrap-theme.min.css">
+</head>
+<body>
+<div class="container" id="id_product_main">
+    <p></p>
+
+    <div class="row">
+        <!-- 排序分页区域-->
+        <div id="id_host_list">
+            {% for host in hosts %}
+                <div id="id_{{ host.host }}" class="panel panel-default">
+                    <div class="panel-heading">主机: <strong class="text-danger"
+                                                           id="id_hostname_{{ host.host }}">{{ host.host }}</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group ">
+                            <ul class="list-inline" id="id_selected_condition_list">
+                                <li><label class="control-label"
+                                           id="id_main_process_state_{{ host.host }}">主进程状态：{{ host.state }}</label>
+                                </li>
+                                <li><label class="control-label"
+                                           id="id_main_process_id_{{ host.host }}">主进程ID：{{ host.pid }}</label></li>
+                            </ul>
+                        </div>
+                        <div class="form-group ">
+                            <ul class="list-inline" id="id_selected_condition_list">
+                                <li><a class="btn btn-default btn-sm" onclick="doAction('{{ host.host }}', 'restart')">重启所有子进程</a>
+                                </li>
+                                <li><a class="btn btn-default btn-sm" onclick="doAction('{{ host.host }}', 'stop')">停止所有子进程</a>
+                                </li>
+                                <li><a class="btn btn-default btn-sm" target="_blank"
+                                       href="/manage/process/viewlog?host={{ host.host }}">查看日志</a>
+                                </li>
+                                <li><a class="btn btn-default btn-sm"
+                                       onclick="doAction('{{ host.host }}', 'clear_log')">清空日志</a></li>
+                            </ul>
+                        </div>
+                        <div class="form-group ">
+                            <table class="table table-responsive table-striped table-condensed">
+                                <thead>
+                                <tr>
+                                    <th>子进程组名</th>
+                                    <th>状态</th>
+                                    <th>描述</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="id_sub_process_list_{{ host.host }}">
+                                {% for process in host.sub_process_list %}
+                                    <tr data-type="selected_condition">
+                                        <th>{{ process.group }}</th>
+                                        <th>{{ process.statename }}</th>
+                                        <th>{{ process.description }}</th>
+                                        <th>
+                                            <ul class="list-inline" id="id_selected_condition_list">
+                                                <li><a class="" href="javascript:void(0)"
+                                                       onclick="doAction('{{ host.host }}', 'restart', '{{ process.group }}')">重启</a>
+                                                </li>
+                                                <li><a class="" href="javascript:void(0)"
+                                                       onclick="doAction('{{ host.host }}', 'stop', '{{ process.group }}')">停止</a>
+                                                </li>
+                                                <li><a class="" target="_blank"
+                                                       href="/manage/process/viewlog?host={{ host.host }}&process={{ process.group }}">查看日志</a>
+                                                </li>
+                                                <li><a class="" href="javascript:void(0)"
+                                                       onclick="doAction('{{ host.host }}', 'clear_log', '{{ process.group }}')">清空日志</a>
+                                                </li>
+                                            </ul>
+                                        </th>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<script src="/static/module/jquery/jquery.min.js"></script>
+<script src="/static/module/bootstrap/js/bootstrap.min.js"></script>
+<script>
+    var cluster_info_list = []
+    function jsonpCallback(result) {
+        console.log(result)
+    }
+    $(document).ready(function () {
+
+    });
+
+    function updateHostUI(host) {
+        sub_process_dom_id = 'id_sub_process_list_' + host
+        $('#id_sub_process_list_' + host).empty();
+        $.each(cluster_info_list, function (i, host_info) {
+
+        });
+    }
+
+    function doAction(host, action, process) {
+        $.ajax({
+            url: "/manage/process/action.do",
+            data: {host: host, action: action, process: process},
+            type: 'POST',
+            async: false
+        })
+        doRefresh();
+    }
+
+    function viewLogAction(host, action, process) {
+        response = $.ajax({
+            url: "/manage/process/action.do",
+            data: {host: host, action: action, process: process},
+            type: 'POST',
+            async: false
+        })
+        log_text = response.result
+        doRefresh();
+    }
+
+    function doRefresh() {
+        window.location.href = '/manage/process/'
+    }
+
+</script>
+</body>
+</html>

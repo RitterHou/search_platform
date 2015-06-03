@@ -1,0 +1,122 @@
+{
+  "notification_types": [
+    {
+      "value": "MQ",
+      "display_value": "ActiveMQ"
+    }
+  ],
+  "filter_union_operator": [
+    {
+      "value": "and",
+      "display_value": "与"
+    },
+    {
+      "value": "or",
+      "display_value": "或"
+    }
+  ],
+  "filter_union_msg_type": [
+    {
+      "value": "TextMessage",
+      "display_value": "MQ文本消息"
+    }
+  ],
+  "condition_match_operator": [
+    {
+      "value": "is",
+      "display_value": "是"
+    },
+    {
+      "value": "not",
+      "display_value": "否"
+    }
+  ],
+  "condition_match_type": [
+    {
+      "value": "regex",
+      "display_value": "正则表达式"
+    }
+  ],
+  "data_parser_type": [
+    {
+      "value": "regex",
+      "display_value": "正则表达式"
+    },
+    {
+      "value": "fixed",
+      "display_value": "固定值"
+    },
+    {
+      "value": "python_script",
+      "display_value": "Python脚本"
+    },
+    {
+      "value": "source",
+      "display_value": "数据透传"
+    }
+  ],
+  "source_types": [
+    {
+      "value": "get",
+      "display_value": "GET"
+    },
+    {
+      "value": "iterator_get",
+      "display_value": "分页GET"
+    },
+    {
+      "value": "passthrough",
+      "display_value": "数据透传"
+    }
+  ],
+  "source_protocals": [
+    {
+      "value": "dubbo",
+      "display_value": "JSON-RPC"
+    },
+    {
+      "value": "http",
+      "display_value": "HTTP"
+    }
+  ],
+  "source_http_methods": [
+    {
+      "value": "POST",
+      "display_value": "POST"
+    }
+  ],
+  "destination_types": [
+    {
+      "value": "elasticsearch",
+      "display_value": "ElasticSearch"
+    }
+  ],
+  "destination_clear_policy": [
+    {
+      "value": "",
+      "display_value": "无"
+    },
+    {
+      "value": "everh_msg,all",
+      "display_value": "清除所有记录"
+    }
+  ],
+  "destination_operations": [
+    {
+      "value": "create",
+      "display_value": "创建"
+    },
+    {
+      "value": "update",
+      "display_value": "更新"
+    },
+    {
+      "value": "delete",
+      "display_value": "删除"
+    },
+    {
+      "value": "init",
+      "display_value": "初始化"
+    }
+  ]
+}

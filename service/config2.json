@@ -1,0 +1,681 @@
+{
+  "default": {
+    "version": "1.2.3",
+    "es_index_setting": {
+      "product": {
+        "host": "http://172.19.65.66:9200",
+        "index": "qmshop-{adminID}-{version}",
+        "type": "Product",
+        "id": "{}",
+        "mapping": {
+          "properties": {
+            "category": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "tags": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "costPrice": {
+              "index": "no",
+              "type": "double"
+            },
+            "marketPrice": {
+              "index": "no",
+              "type": "double"
+            },
+            "onSale": {
+              "type": "boolean"
+            },
+            "weight": {
+              "index": "no",
+              "type": "string"
+            },
+            "spuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "type": {
+              "index": "no",
+              "type": "string"
+            },
+            "salePoint": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "cats": {
+              "properties": {
+                "id": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "childs": {
+                  "properties": {
+                    "id": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "childs": {
+                      "properties": {
+                        "id": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "name": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "childs": {
+                          "properties": {
+                            "id": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "name": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "childs": {
+                              "properties": {
+                                "id": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "childs": {
+                                  "properties": {
+                                    "id": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "childs": {
+                                      "type": "nested"
+                                    }
+                                  },
+                                  "type": "nested"
+                                }
+                              },
+                              "type": "nested"
+                            }
+                          },
+                          "type": "nested"
+                        }
+                      },
+                      "type": "nested"
+                    }
+                  },
+                  "type": "nested"
+                }
+              },
+              "type": "nested"
+            },
+            "unit": {
+              "index": "no",
+              "type": "string"
+            },
+            "title": {
+              "index_analyzer": "ansj_index",
+              "store": true,
+              "search_analyzer": "ansj_query",
+              "boost": 2,
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "stock": {
+              "properties": {
+                "count": {
+                  "index": "no",
+                  "type": "long"
+                },
+                "status": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "regions": {
+                  "properties": {
+                    "count": {
+                      "index": "no",
+                      "type": "long"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "type": "nested"
+            },
+            "skuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "brand": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "images": {
+              "index": "no",
+              "type": "string"
+            },
+            "salePrice": {
+              "precision_step": 4,
+              "type": "double"
+            },
+            "props": {
+              "properties": {
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "value": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              },
+              "type": "nested"
+            }
+          },
+          "_all": {
+            "store": true,
+            "analyzer": "standard",
+            "auto_boost": true
+          }
+        }
+      },
+      "suggest": {
+        "host": "http://172.19.65.66:9200",
+        "index": "qmshop-{adminID}-{version}",
+        "type": "ProductSuggest",
+        "id": "{id}",
+        "mapping": {
+          "properties": {
+            "id": {
+              "index": "not_analyzed",
+              "store": true,
+              "type": "string"
+            },
+            "name": {
+              "index": "not_analyzed",
+              "store": true,
+              "type": "string"
+            },
+            "suggest": {
+              "max_input_length": 50,
+              "preserve_separators": true,
+              "payloads": true,
+              "index_analyzer": "simple",
+              "search_analyzer": "simple",
+              "preserve_position_increments": true,
+              "type": "completion"
+            }
+          }
+        }
+      }
+    },
+    "data_river": {
+      "rivers": [
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://0.0.0.0:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=update"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              },
+              "fields_update": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);",
+                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields_update"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "update",
+              "id": "{ids}"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://0.0.0.0:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=delete"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              },
+              "fields_update": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);",
+                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields_update"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "delete",
+              "id": "{ids}"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://0.0.0.0:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=init"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "http",
+            "host": "127.0.0.1:8000",
+            "request": {
+              "url": "/test/products/{adminID}/{version}",
+              "http_method": "POST",
+              "body": {
+                "adminID": "{adminID}",
+                "version": "{version}",
+                "ids": "{ids}",
+                "from": "{from}",
+                "size": "{size}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "operation": "create",
+              "reference": "product",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://0.0.0.0:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "msg_type=add"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "http",
+            "host": "127.0.0.1:8000",
+            "request": {
+              "url": "/test/products/{adminID}/{version}/{ids}/",
+              "http_method": "POST",
+              "timeout": 10,
+              "body": {
+                "adminID": "{adminID}",
+                "version": "{version}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "create"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "operation": "create",
+              "host": "http://172.19.65.66:9200",
+              "index": "qmshoptest2-{adminID}-{version}",
+              "type": "Product",
+              "id": "{id}",
+              "mapping": {
+                "properties": {
+                  "id": {
+                    "index": "not_analyzed",
+                    "store": true,
+                    "type": "string"
+                  },
+                  "name112222": {
+                    "type": "string",
+                    "store": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "topic.search_platform_test.update",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "type=update"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "id": "id=(?P<id>[\\d\\D]+?);",
+                "name": "name=(?P<name>[\\d\\D]+?);",
+                "brand": "brand=(?P<brand>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "create",
+              "index": "search_platform-{adminID}-{version}",
+              "id": "{id}"
+            }
+          ]
+        }
+      ]
+    },
+    "query": {
+      "chain": [
+        {
+          "res_type": "product",
+          "http_method": "GET",
+          "url_format": "^products/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "products/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "products/(?P<adminID>[\\d\\D]+)",
+              "ids": "ids=(?P<ids>[\\d\\D]+?);"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "product"
+          },
+          "response": {
+            "json": {
+              "format": "json",
+              "data_parser": {
+                "language": "python",
+                "script": "script.python.data_parser"
+              }
+            }
+          }
+        },
+        {
+          "res_type": "aggregation",
+          "http_method": "GET",
+          "url_format": "^aggregations/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "aggregations/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "aggregations/(?P<adminID>[\\d\\D]+)",
+              "ids": "ids=(?P<ids>[\\d\\D]+?);"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "product"
+          },
+          "response": {
+            "json": {
+              "format": "json",
+              "data_parser": {
+                "language": "python",
+                "script": "script.python.data_parser"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "suggest": {
+      "lock": {
+        "store_type": "redis",
+        "store_host": "redis://127.0.0.1:6379/1"
+      },
+      "rivers": [
+        {
+          "notification": {
+            "type": "elasticsearch_regularly_scan",
+            "key": "elasticsearch_regularly_scan_1",
+            "crontab": {
+              "second": 0,
+              "minute": "*",
+              "hour": 20
+            },
+            "host": "http://172.19.65.66:9200",
+            "filter": {
+              "type": "es_regex",
+              "union_operator": "and",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "field": "index",
+                  "expression": "^qmshop-test[\\d\\D]*"
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "field": "type",
+                  "expression": "^QmShopProduct$"
+                }
+              ]
+            }
+          },
+          "source": {
+            "type": "iterator_es_get",
+            "size": 50,
+            "data_parser": {
+              "type": "map",
+              "keyword_filter_regex": "^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z0-9]+$",
+              "fields": {
+                "title": "title",
+                "brand": "brand",
+                "category": "type"
+              }
+            },
+            "param_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": {
+                  "field": "index",
+                  "type": "regex",
+                  "expression": "^qmshop-(?P<adminID>[\\d\\D]+?)$"
+                }
+              }
+            }
+          },
+          "processing": {
+            "type": "basic_processing",
+            "output": {
+              "weight": {
+                "type": "script",
+                "language": "mvel",
+                "script": "ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)",
+                "param": {
+                  "type": "math_expression",
+                  "fields": {
+                    "current_weight": "int((hits**0.25 + source_type_weight)/2)"
+                  }
+                }
+              },
+              "payloads": {
+                "type": "map",
+                "fields": {
+                  "source_type": "source_type",
+                  "hits": "hits"
+                }
+              },
+              "common_fields": {
+                "type": "map",
+                "fields": {
+                  "id": "id"
+                }
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch_processed",
+              "reference": "suggest",
+              "operation": "create"
+            }
+          ]
+        }
+      ]
+    },
+    "consts": {
+      "global": {
+        "service_debug_level": "DEBUG",
+        "lock_store":"redis://127.0.0.1:6379/1"
+      },
+      "filter": {
+        "default_match_result": "true"
+      },
+      "source": {
+        "default_iteration_get_size": 2
+      },
+      "suggest": {
+        "default_es_iterator_get_size": 100,
+        "source_type": {
+          "1": 1,
+          "2": 10
+        }
+      },
+      "celery": {
+        "broker_url": "redis://127.0.0.1:6379/0",
+        "backend_url": "redis://127.0.0.1:6379/0"
+      }
+    }
+  }
+}

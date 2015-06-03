@@ -1,0 +1,70 @@
+<div>
+    <div class="alert alert-info">
+        <p>You can always globally configure the pagination</p>
+        <p>
+            Look at
+            <a href="#gettingStarted"
+               ng-click="scrollTo('gettingStarted', $event)">
+                Getting Started (Configure Pagination)
+            </a>
+            to see how to configure it.
+        </p>
+    </div>
+
+    <markdown>
+        ### The ajaxConfig Object is required. There are three major fields required url, method and params:
+        {
+            url: 'http://ws.audioscrobbler.com/2.0/', // api url
+            method: 'JSONP', // calling method 'GET', 'POST' or 'JSONP'
+            params: {
+                api_key: '9b0cdcf446cc96dea3e747787ad23575',
+                artist: 'cher',
+                method: 'artist.search',
+                format: 'json'
+            }, // any other params should go here. table will watch this object for changes and refresh
+            paginationConfig: { // this configuration will override $adPagingProvider.defaults
+                response: {
+                    totalItems: 'results.opensearch:totalResults',
+                    itemsLocation: 'results.artistmatches.artist'
+                }
+            }
+        }
+    </markdown>
+    <markdown>
+        ### The column definition object is an array of definition objects
+        ### The definition object should have properties shown in the example below:
+        {
+            columnHeaderDisplayName: 'String', // Not Required if columnHeaderTemplate is specified
+            columnHeaderTemplate: 'String', // Not Required if columnHeaderDisplayName is specified.
+            displayProperty: 'String || Function', // - Not required if templateUrl is specified - which attribute of the item object to render. In case of function, result of the function (item passed to the function) is printed.
+            cellFilter: 'String', // - Optional - the filter expression to apply to the displayProperty
+            templateUrl: 'String', // - Not required if displayProperty is specified - look at artistPicture.html
+            template: 'String', // - Not required if displayProperty or templateUrl specified. - inline template string
+            sortKey: 'String', // - Optional - specified key (in most cases: same as displayProperty) will be used for sorting
+            width: 'String' // - Optional - the explicitly specify width of the column. (Ex: '10em', '30px'). If not specified, width is calculated automatically based on content width.
+            visible: 'Boolean' // - Optional - hide column by setting this to false
+        }
+    </markdown>
+    <markdown>
+        ### You can pass in your own page loader. If you pass your own page loader, it is your responsibility to load models from the api.
+
+        ### Page loader function will be called with following parameters object:
+        {
+            pageNumber: // - Number - page number to be loaded,
+            pageSize: // - Number - number of items to be loaded,
+            sortKey: // - String - key to sort by,
+            sortDirection: // - Boolean - true for descending and false for ascending,
+            token: // - Number - the token that you need to return.
+        }
+
+        the page loader should return a promise that resolves with following object or rejects in case of error:
+        {
+          items: // - Array - array of models (Objects)
+          currentPage: // - Number - current page number,
+          totalPages: // - Number - total number of pages in the result set,
+          totalItems: // - Number - total number of items in the result set,
+          pagingArray: // - Array - this is the pagination array that will show up in pagination. Ex: if current page is 5, this array would look like [3,4,5,6,7],
+          token: options.token // - Number - simply return the token that was passed in to you in the options parameter.
+        }
+    </markdown>
+</div>

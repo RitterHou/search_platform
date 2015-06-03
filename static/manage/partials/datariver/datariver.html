@@ -1,0 +1,13 @@
+<tabset>
+    <tab heading="数据流列表" active>
+        <div ui-view="datariver_list"></div>
+    </tab>
+
+    <tab ng-click="" ng-repeat="tab in tabs" active="tab.active">
+        <tab-heading>
+            {{ tab.title }}
+        </tab-heading>
+
+        <div ui-view="datariver_op"></div>
+    </tab>
+</tabset>

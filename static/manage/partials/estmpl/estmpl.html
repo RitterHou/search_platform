@@ -1,0 +1,13 @@
+<tabset>
+    <tab heading="ElasticSearch模板列表" active>
+        <div ui-view="estmpl_list"></div>
+    </tab>
+
+    <tab ng-click="" ng-repeat="tab in tabs" active="tab.active">
+        <tab-heading>
+            {{ tab.title }}
+        </tab-heading>
+
+        <div ui-view="estmpl_op"></div>
+    </tab>
+</tabset>

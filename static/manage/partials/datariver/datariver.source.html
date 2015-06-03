@@ -1,0 +1,93 @@
+<div class="form-group">
+    <label class="col-sm-2 control-label">数据源取值协议</label>
+
+    <div class="col-sm-10">
+        <select class="form-control" ng-model="source.protocol"
+                ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.source_protocals">
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">数据源取值操作</label>
+
+    <div class="col-sm-10">
+        <select class="form-control" ng-model="source.type"
+                ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.source_types">
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">主机地址</label>
+
+    <div class="col-sm-10">
+        <input type="text" ng-model="source.host" class="form-control">
+    </div>
+</div>
+<div class="form-group" ng-show="source.protocol == 'dubbo'">
+    <label class="col-sm-2 control-label">服务接口</label>
+
+    <div class="col-sm-10">
+        <input type="text" ng-model="source.service_interface" class="form-control">
+    </div>
+</div>
+<div class="form-group" ng-show="source.protocol == 'dubbo'">
+    <label class="col-sm-2 control-label">方法名称</label>
+
+    <div class="col-sm-10">
+        <input type="text" ng-model="source.request.method" class="form-control">
+    </div>
+</div>
+
+<div class="form-group" ng-show="source.protocol == 'http'">
+    <label class="col-sm-2 control-label">URL</label>
+
+    <div class="col-sm-10">
+        <input type="text" ng-model="source.request.url" class="form-control">
+    </div>
+</div>
+
+<div class="form-group" ng-show="source.protocol == 'http'">
+    <label class="col-sm-2 control-label">HTTP操作类型</label>
+
+    <div class="col-sm-10">
+        <select class="form-control" ng-model="source.request.http_method"
+                ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.source_http_methods">
+        </select>
+    </div>
+</div>
+
+<div class="form-group" ng-show="source.protocol == 'http'">
+    <label class="col-sm-2 control-label">超时时间</label>
+
+    <div class="col-sm-10">
+        <input type="number" ng-model="source.request.timeout" class="form-control" value="60">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">请求参数</label>
+
+    <div class="col-sm-10">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="add_source_request_body_row()">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-primary btn-xs" ng-click="delete_source_request_body_row()">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <div ui-grid="source_request_body" ui-grid-edit ui-grid-selection></div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">返回结果</label>
+
+    <div class="col-sm-10">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="add_source_response_row()">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-primary btn-xs" ng-click="delete_source_response_row()">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <div ui-grid="source_response_body" ui-grid-edit ui-grid-selection></div>
+    </div>
+</div>

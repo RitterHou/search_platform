@@ -1,0 +1,31 @@
+<div class="col-lg-2" ui-tree="options" data-drag-enabled="false" data-empty-placeholder-enabled="false">
+    <ol ui-tree-nodes ng-model="groups" data-type="group"
+        ng-init="select_ids=['101']">
+        <li ng-repeat="group in groups" ui-tree-node>
+            <div class="group-title angular-ui-tree-handle">
+                <div>&nbsp;{{ group.name }}</div>
+            </div>
+            <ol ui-tree-nodes ng-model="group.categories" data-type="category">
+                <li ng-repeat="category in group.categories" ui-tree-node>
+                    <div class="category-title angular-ui-tree-handle text-danger active"
+                         ng-style="def_styles[category.id]">
+                        <a ui-sref="node.{{ category.id }}.info" href="javascript:void(0)" class="text-capitalize "
+                           ng-style="def_text_styles[category.id]"
+                           ng-click="select_ids[0]=category.id;setStyle(category.id)">
+                            &nbsp;{{ category.name }}
+                        </a>
+                    </div>
+                </li>
+            </ol>
+        </li>
+    </ol>
+</div>
+<div class="col-lg-10">
+    <div>
+        <alert ng-repeat="alert in alerts" type="{{ alert.type }}" close="alert.close()">
+            <span data-ng-bind-html="alert.msg"></span>
+        </alert>
+    </div>
+    <div ui-view>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+{
+  "filter_match_types": [
+    {
+      "value": "true",
+      "display_value": "通过"
+    },
+    {
+      "value": "false",
+      "display_value": "不通过"
+    }
+  ],
+  "log_levels": [
+    {
+      "value": "DEBUG",
+      "display_value": "DEBUG"
+    },
+    {
+      "value": "INFO",
+      "display_value": "INFO"
+    },
+    {
+      "value": "WARNING",
+      "display_value": "WARNING"
+    },
+    {
+      "value": "ERROR",
+      "display_value": "ERROR"
+    }
+  ]
+}

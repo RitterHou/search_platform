@@ -1,0 +1,22 @@
+<div>
+
+    <div class="btn-group btn-group-xs">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </div>
+    <input type="text" placeholder="过滤字段" ng-model="search_text"/>
+
+    <ad-table-lite table-name="estmplList"
+                   column-definition="tmplTableColumnDefinition"
+                   local-data-source="tmpls"
+                   page-sizes="[10, 20]"
+                   pagination-btn-group-classes="pagination pagination-sm"
+                   table-classes="table table-bordered"
+                   on-click-sort-direction="DEC"
+                   snug-sort-icons="true"
+                   search-text="search_text"
+                   row-expand-template="../static/manage/partials/estmpl/estmpl.tmpl.detail.html"
+                   row-expand-callback="rowExpanded">
+    </ad-table-lite>
+</div>

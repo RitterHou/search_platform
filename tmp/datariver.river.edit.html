@@ -1,0 +1,82 @@
+<div>
+    <p></p>
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">数据流名称</label>
+
+                <div class="col-sm-10">
+                    <input type="text" ng-model="mirror_river.name" class="form-control" placeholder="数据流名称">
+                </div>
+            </div>
+        </form>
+
+        <div class="panel-group" ng-init="isCollapsed_notification=false">
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab">
+            <span class="panel-title">
+                <a ng-click="isCollapsed_notification = !isCollapsed_notification" href="javascript:void(0)">
+                    触发器
+                </a>
+            </span>
+                </div>
+                <div class="panel-body">
+                    <div collapse="isCollapsed_notification">
+                        <form class="form-horizontal">
+                            <div ui-view="notification"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab">
+            <span class="panel-title">
+                <a ng-click="isCollapsed_source = !isCollapsed_source" href="javascript:void(0)">
+                    数据源
+                </a>
+            </span>
+                </div>
+                <div class="panel-body">
+                    <div collapse="isCollapsed_source">
+                        <form class="form-horizontal">
+                            <div ui-view="source"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab">
+            <span class="panel-title">
+                <a ng-click="isCollapsed_destination = !isCollapsed_destination" href="javascript:void(0)">
+                    数据终点
+                </a>
+            </span>
+                </div>
+                <div class="panel-body">
+                    <div collapse="isCollapsed_destination">
+                        <form class="form-horizontal">
+                            <div ui-view="destination"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary btn-sm btn-block " ng-click="save_data_river()">
+                        保存
+                    </button>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary  btn-sm btn-block" ng-click="close_tab()">取消
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

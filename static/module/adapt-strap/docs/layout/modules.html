@@ -1,0 +1,47 @@
+<div class="container-fluid">
+    <div class="module-section" ng-repeat="module in modules" id="{{ module.moduleName }}">
+        <h3>{{ module.displayName }}</h3>
+        <p class="text-muted">- {{ module.description }}</p>
+        <div ng-controller="treebrowserCtrl">
+            <div class="row">
+                <div class="col-md-6 col-sm-6">
+                    <h4 class="text-danger">Code</h4>
+                    <code-navigator files="module.docFiles"
+                                    base-path="src/{{module.moduleName}}/docs/"></code-navigator>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    <h4 class="text-primary">
+                      Demo
+                      <a class="btn btn-link btn-sm"
+                         target="_blank"
+                         ng-if="module.playGroundUrl"
+                         ng-href="{{ module.playGroundUrl }}">
+                        <i class="glyphicon glyphicon-edit"></i> jsFiddle
+                      </a>
+                    </h4>
+                    <ng-include src="'src/' + module.moduleName + '/docs/' + module.moduleName + '.view.html'"></ng-include>
+                </div>
+            </div>
+            <div>
+                <div>
+                  <span class="btn btn-link btn-lg" ng-click="module.showOptions = !module.showOptions">
+                    <i class="fa fa-plus" ng-hide="module.showOptions"></i>
+                    <i class="fa fa-minus" ng-show="module.showOptions"></i>
+                    Options
+                  </span>
+                </div>
+                <component-options module="module" ng-if="module.showOptions"></component-options>
+            </div>
+            <div>
+              <div>
+                 <span class="btn btn-link btn-lg" ng-click="module.showMoreInfo = !module.showMoreInfo">
+                   <i class="fa fa-plus" ng-hide="module.showMoreInfo"></i>
+                   <i class="fa fa-minus" ng-show="module.showMoreInfo"></i>
+                   More Info
+                 </span>
+              </div>
+              <ng-include ng-if="module.showMoreInfo" src="'src/' + module.moduleName + '/docs/' + module.moduleName + '.info.html'"></ng-include>
+            </div>
+        </div>
+    </div>
+</div>

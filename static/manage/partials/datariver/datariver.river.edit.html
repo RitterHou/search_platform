@@ -1,0 +1,51 @@
+<div>
+    <p></p>
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">数据流名称</label>
+
+                <div class="col-sm-10">
+                    <input type="text" ng-model="mirror_river.name" class="form-control" placeholder="数据流名称">
+                </div>
+            </div>
+        </form>
+
+
+        <accordion close-others="false">
+            <accordion-group is-open="true">
+                <accordion-heading>触发器</accordion-heading>
+                <form class="form-horizontal">
+                    <div ui-view="notification"></div>
+                </form>
+            </accordion-group>
+            <accordion-group is-open="true">
+                <accordion-heading>数据源</accordion-heading>
+                <form class="form-horizontal">
+                    <div ui-view="source"></div>
+                </form>
+            </accordion-group>
+            <accordion-group is-open="true">
+                <accordion-heading>数据终点</accordion-heading>
+                <form class="form-horizontal">
+                    <div ui-view="destination"></div>
+                </form>
+            </accordion-group>
+        </accordion>
+
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary btn-sm btn-block " ng-click="save_data_river()">
+                        保存
+                    </button>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary  btn-sm btn-block" ng-click="close_tab()">取消
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,12 @@
+<div class="code-navigator">
+    <div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li ng-class="{active: currentFile == file}" ng-repeat="file in files">
+                <a class="cursor-pointer" ng-click="setCurrentFile(file)">{{ file }}</a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <markdown src="{{ basePath + currentFile }}"></markdown>
+    </div>
+</div>

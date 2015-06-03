@@ -1,0 +1,151 @@
+# -*- coding: utf-8 -*-
+from common.scripts import python_invoker
+from common.utils import get_dict_value_by_path, unbind_variable, COMBINE_SIGN
+from common.loggers import app_log
+
+__author__ = 'liuzhaoming'
+
+
+class DataParser(object):
+    """
+    数据解析器
+    """
+
+    def parse(self, data, parser_config):
+        """
+        解析数据
+        :param data:
+        :param parser_config:
+        :return:
+        """
+        parse_result = {}
+        parser_type = get_dict_value_by_path('type', parser_config)
+        for fields_name in parser_config:
+            if fields_name.startswith('fields'):
+                fields_config = parser_config.get(fields_name)
+                field_key_value_list = [item_parser.parse_item(data, item_config, field_name, parser_type) for
+                                        field_name, item_config in
+                                        fields_config.iteritems()]
+                parse_result[fields_name] = dict(filter(lambda (key, value): value, field_key_value_list))
+        return parse_result
+
+
+class ItemParser(object):
+    def parse_item(self, data, item_config, field_name, parent_parser_type=None):
+        """
+        解析单个字段
+        """
+        if isinstance(item_config, str) or isinstance(item_config, unicode):
+            item_config = {'expression': item_config, 'type': parent_parser_type}
+        item_config_key = self.__get_item_parser_cfg_key(item_config, parent_parser_type)
+        item_parser = _ITEM_PARSER_CONTAINER.get(item_config_key)
+        if not item_parser:
+            app_log.error('Cannot get item parser item_config={0} , field_name={1} , parent_parser_type={2}',
+                          item_config, field_name, parent_parser_type)
+            return field_name, None
+        return item_parser.parse_item(data, item_config, field_name)
+
+    @staticmethod
+    def __get_item_parser_cfg_key(item_config, parent_parser_type):
+        """
+        获取属性解析器主键
+        """
+        parser_type = item_config.get('type') or parent_parser_type
+        language = item_config.get('language')
+        return COMBINE_SIGN.join((parser_type, language) if language else [parser_type])
+
+
+class RegexItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name):
+        """
+        通过正则表达式解析单个字段
+        """
+        expression = item_config.get('expression')
+        if not expression:
+            app_log.warning('RegexItemParser parse item fail, because has not expression config, {0} , {1}',
+                            item_config, field_name)
+            return field_name, None
+        if not isinstance(data, str):
+            data = str(data)
+        return unbind_variable(expression, field_name, data)
+
+
+class PythonScriptItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name):
+        """
+        通过Python脚本解析字段
+        """
+        input_param = data
+        parse_result = None
+        # 解析脚本执行入参
+        if 'input_param' in item_config:
+            input_param_config = item_config['input_param']
+            input_param = data_parser.parse(data, input_param_config).get('fields')
+
+        try:
+            parse_result = python_invoker.invoke(item_config, input_param)
+        except Exception as e:
+            app_log.error('Parse item error, data={0} , item_config={1}, field_name={2}', e, data, item_config,
+                          field_name)
+        return field_name, parse_result
+
+
+class FixedItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name):
+        """
+        固定值
+        """
+        expression = item_config.get('expression')
+        if not expression:
+            app_log.warning('FixedItemParser parse item fail, because has not expression config, {0} , {1}',
+                            item_config, field_name)
+            return field_name, None
+        return field_name, expression
+
+
+class SourceItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name):
+        """
+        直接返回解析器输入值
+        :param data:
+        :param item_config:
+        :param field_name:
+        :return:
+        """
+        return field_name, data
+
+
+_ITEM_PARSER_CONTAINER = {'regex': RegexItemParser(), 'fixed': FixedItemParser(), 'source': SourceItemParser(),
+                          'script' + COMBINE_SIGN + 'python': PythonScriptItemParser()}
+data_parser = DataParser()
+item_parser = ItemParser()
+
+if __name__ == '__main__':
+    parser_config = {
+        "type": "regex",
+        "fields": {
+            "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+            "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+            "skuids": {
+                "type": "script",
+                "language": "python",
+                "obj_path": "script_data_parsers.parse_skuids_from_pc_mq_msg",
+                "input_param": {
+                    "fields": {
+                        "pc_ids": {
+                            "type": "regex",
+                            "expression": "\"ids\":\"(?P<pc_ids>[\\d\\D]+?)\""
+                        },
+                        "sep_char": {
+                            "type": "fixed",
+                            "expression": ","
+                        }
+                    }
+                }
+            }
+        }
+    }
+    data = '{"chainMasterId":"A857673","ids":"21182:g4903;21188:g4951;21224:g4989;","operation":"stock","sys":2,"type":"update"}'
+    print data_parser.parse(data, parser_config)
+    data = '{"chainMasterId":"A857673","ids":"21182:g4903;","operation":"stock","sys":2,"type":"update"}'
+    print data_parser.parse(data, parser_config)

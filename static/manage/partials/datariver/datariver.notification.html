@@ -1,0 +1,86 @@
+<div class="form-group">
+    <label class="col-sm-2 control-label">触发器类型</label>
+
+    <div class="col-sm-10">
+        <select class="form-control" ng-model="notification.type"
+                ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.notification_types"
+                ng-change="select_notification_type()">
+        </select>
+    </div>
+</div>
+<div ng-show="notification.type | filter:MQ">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">MQ服务器URL</label>
+
+        <div class="col-sm-10">
+            <input type="text" ng-model="notification.host" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group" ng-show="!notification.queue || notification.queue.length == 0">
+        <label class="col-sm-2 control-label">消息主题</label>
+
+        <div class="col-sm-10">
+            <input type="text" ng-model="notification.topic" class="form-control">
+        </div>
+    </div>
+
+    <div class="form-group" ng-show="!notification.topic || notification.topic.length == 0">
+        <label class="col-sm-2 control-label">消息队列</label>
+
+        <div class="col-sm-10">
+            <input type="text" ng-model="notification.queue" class="form-control">
+        </div>
+    </div>
+</div>
+<div id="notification_filters">
+    <div class="form-group">
+        <label class="col-sm-2 control-label">条件之间的逻辑关系</label>
+
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="notification.filter.union_operator"
+                    ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.filter_union_operator"
+                    >
+            </select>
+        </div>
+    </div>
+    <div class="form-group" ng-show="notification.type | filter:MQ">
+        <label class="col-sm-2 control-label">MQ消息类型</label>
+
+        <div class="col-sm-10">
+            <select class="form-control" ng-model="notification.filter.msg_type"
+                    ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.filter_union_msg_type"
+                    >
+            </select>
+        </div>
+    </div>
+    <div class="form-group" ng-if="notification.type == 'MQ'">
+        <label class="col-sm-2 control-label">消息过滤器</label>
+
+        <div class="col-sm-10">
+            <button type="button" class="btn btn-primary btn-xs" ng-click="add_filter_row()">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <button type="button" class="btn btn-primary btn-xs" ng-click="delete_filter_row()">
+                <span class="glyphicon glyphicon-remove"></span>
+            </button>
+            <div ui-grid="filter_options" ui-grid-selection ui-grid-edit ui.grid.autoResize></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">变量解析器</label>
+
+        <div class="col-sm-10">
+            <button type="button" class="btn btn-primary btn-xs" ng-click="add_parser_row()">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <button type="button" class="btn btn-primary btn-xs" ng-click="delete_parser_row()">
+                <span class="glyphicon glyphicon-remove"></span>
+            </button>
+            <div ui-grid="filter_data_parser_fields" ui-grid-edit ui-grid-selection></div>
+        </div>
+    </div>
+</div>
+
+
