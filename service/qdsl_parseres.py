@@ -428,7 +428,7 @@ class ExtendQdslParser(object):
 
     def __init__(self):
         self.regex = '(?P<op_type>[\\d\\D]+?)\\((?P<field_str>[\\d\\D]+?)\\)'
-        self.dsl_regex = 'tmpl=(?P<tmpl>[\\d\\D]+?),param=(?P<param>[\\d\\D]+)'
+        self.dsl_regex = 'tmpl:\\((?P<tmpl>[\\d\\D]+?)\\),param:\\((?P<param>[\\d\\D]*)\\)'
         self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment, 'range': self.__get_query_range_fragment,
                                        'ids': self.__get_query_ids_fragment, 'match': self.__get_query_match_fragment,
                                        'querystring': self.__get_query_querystring_fragment}
@@ -467,8 +467,8 @@ class ExtendQdslParser(object):
         input_qdsl_param_str = query_params.get('ex_dsl')
         if not input_qdsl_param_str:
             return {}
-        temp_name, dsl_tmpl = unbind_variable(self.regex, 'tmpl', input_qdsl_param_str)
-        temp_name, param_str = unbind_variable(self.regex, 'param', input_qdsl_param_str)
+        temp_name, dsl_tmpl = unbind_variable(self.dsl_regex, 'tmpl', input_qdsl_param_str)
+        temp_name, param_str = unbind_variable(self.dsl_regex, 'param', input_qdsl_param_str)
         if not dsl_tmpl:
             return None
         if param_str:

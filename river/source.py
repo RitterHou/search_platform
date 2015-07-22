@@ -29,8 +29,8 @@ class DataSource(object):
         if not _data_source:
             app_log.warning("Cannot find data source with source_config = {0}", source_config)
         data = _data_source.pull(source_config, request_param)
-        if not isinstance(data, list) and not isinstance(data, tuple) and data:
-            data = [data]
+        # if not isinstance(data, list) and not isinstance(data, tuple) and data:
+        #     data = [data]
         return data
 
     @staticmethod

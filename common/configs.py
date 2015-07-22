@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
+
 __author__ = 'liuzhaoming'
 
 from json import load
+from collections import OrderedDict
+import json
 
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 from watchdog.observers import Observer
@@ -12,6 +15,33 @@ from common.connections import EsConnectionFactory
 from search_platform.settings import SERVICE_BASE_CONFIG, BASE_DIR
 from common.msg_bus import message_bus, Event
 from common.loggers import LOGGER_LEVELS, app_log
+
+
+def get_config(key=None):
+    """
+    从ES读取Meta文件
+    :param key:
+    :return:
+    """
+    app_log.info('Get config is called')
+    es_connection = EsConnectionFactory.get_es_connection(host=SERVICE_BASE_CONFIG.get('elasticsearch'))
+    es_result = es_connection.search(index=SERVICE_BASE_CONFIG.get('meta_es_index'),
+                                     doc_type=SERVICE_BASE_CONFIG.get('meta_es_type'))
+    doc_list = es_result['hits'].get('hits')
+    if not doc_list:
+        return {}
+    config_data = {}
+    for doc in doc_list:
+        if doc['_id'] == 'version':
+            field_value = doc['_source']['version']
+        else:
+            field_value = json.loads(doc['_source']['json_str'], object_pairs_hook=OrderedDict) \
+                if 'json_str' in doc['_source'] else {}
+
+        config_data[doc['_id']] = field_value
+    if key:
+        return {key: config_data[key]} if key in config_data else {}
+    return config_data
 
 
 class ConfigFileEventHandler(FileSystemEventHandler):
@@ -116,10 +146,8 @@ class ConfigHolder(object):
         """
         从ES获取配置数据
         """
-        from common.adapter import es_adapter
-
         try:
-            default_data = es_adapter.get_config()
+            default_data = get_config()
             return True, {'default': default_data}
         except Exception as e:
             app_log.exception(e)

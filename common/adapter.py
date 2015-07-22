@@ -261,7 +261,6 @@ class EsIndexAdapter(object):
         except ElasticsearchException as e:
             app_log.error('ES operation fail input param is {0}', e, list(update_body))
 
-    @debug_log.debug('Get config')
     def get_config(self, key=None):
         """
         从ES读取Meta文件

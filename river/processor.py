@@ -104,7 +104,7 @@ class MessageProcessor(object):
         """
         pull_parser_fields = get_dict_value_by_path('source/response/fields', river_config)
         _pull_parser_values = {}
-        if not pull_parser_fields:
+        if not pull_parser_fields or not pull_response:
             return pull_response
         debug_log.print_log('parse_pull_response pull_parser_fields is {0}, {1}', pull_parser_fields, pull_response)
         for field_key in pull_parser_fields:
@@ -158,8 +158,8 @@ class MessageProcessor(object):
             return
         source_config = get_dict_value_by_path('source', river_config)
         pull_response = source.pull(source_config, pull_request_param)
-        if isinstance(pull_response, tuple) or isinstance(pull_response, list):
-            pull_response = pull_response[0]
+        # if isinstance(pull_response, tuple) or isinstance(pull_response, list):
+        #     pull_response = pull_response[0]
         pull_parser_values = MessageProcessor.__parse_pull_response(river_config, pull_response)
         if pull_parser_values is None:
             app_log.error('__do_single_data_flow cannot pull data from source, please check')
