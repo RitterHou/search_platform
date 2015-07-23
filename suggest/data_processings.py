@@ -45,7 +45,7 @@ class BasicElasticsearchDataProcessing(DataProcessing):
             app_log.error("output not in process_config {0}", processing_config)
             return None
         if not input_data or not input_data.get('root'):
-            app_log.error("input data is null")
+            app_log.warning("input data is null")
             return None
         data_list = input_data['root']
         es_bulk_body_list = []

@@ -1,0 +1,40 @@
+<div>
+    <p></p>
+
+    <div class="form-group ">
+        <div class="input-group col-sm-5 input-group">
+            <input type="text" class="form-control" id="exampleInputAmount"
+                   placeholder='请先输入用户A编号；如果是供货商品，直接输入"gonghuo"' ng-model='adminID'>
+                <span class="input-group-btn">
+            <button class="btn btn-primary" ng-click="query()">查询</button>
+                    </span>
+        </div>
+    </div>
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')" tooltip="添加用户拼写建议数据" >
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button type="button" class="btn btn-primary btn-xs" ng-click="init()" tooltip="初始化用户拼写建议数据" >
+            <span class="glyphicon glyphicon-off" ></span>
+        </button>
+
+
+        <div class="form-group form-group-sm ">
+
+            <input type="text" placeholder="过滤字段" ng-model="search_text" class="form-control"/></div>
+    </form>
+
+
+    <ad-table-lite table-name="termList"
+                   column-definition="termTableColumnDefinition"
+                   local-data-source="terms"
+                   page-sizes="[10, 20]"
+                   pagination-btn-group-classes="pagination pagination-sm"
+                   table-classes="table table-bordered"
+                   on-click-sort-direction="DEC"
+                   snug-sort-icons="true"
+                   search-text="search_text"
+                   row-expand-template="../static/manage/partials/suggest/suggest.detail.html"
+                   row-expand-callback="rowExpanded">
+    </ad-table-lite>
+</div>

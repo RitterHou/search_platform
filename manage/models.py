@@ -1,11 +1,26 @@
 # coding=utf-8
+import copy
+from itertools import imap, chain, groupby
 import xmlrpclib
 from collections import OrderedDict
 
+from re import search
+import redis
+
+from common.connections import EsConnectionFactory
+from common.msg_bus import message_bus
 from common.configs import config
 from common.exceptions import UpdateDataNotExistError
-from common.loggers import app_log
+from common.loggers import query_log as app_log
 from common.adapter import es_adapter
+from common.registers import register_center
+from common.utils import get_dict_value_by_path, bind_dict_variable, merge
+from search_platform.settings import SERVICE_BASE_CONFIG
+from service.models import SearchPlatformDoc, Product
+from suggest.data_processings import data_processing
+from suggest.destinations import suggest_destination
+from suggest.notifications import SuggestNotification
+from suggest.sources import suggest_source
 
 
 __author__ = 'liuzhaoming'
@@ -106,13 +121,6 @@ class EsTmpl(object):
         :return:
         """
         tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
-        if not tmpl or not tmpl.get('name'):
-            app_log.info("Save Estmpl input param is invalid {0}", tmpl)
-            return
-        if tmpl.get('name') in tmpl_cfg:
-            app_log.info("Save Estmpl tmpl name is exist {0}", tmpl.get('name'))
-            return
-
         tmpl_cfg[tmpl.get('name')] = tmpl
         del tmpl['name']
         es_adapter.save_config({'es_index_setting': tmpl_cfg})
@@ -124,13 +132,6 @@ class EsTmpl(object):
         :return:
         """
         tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
-        if not tmpl or not tmpl.get('name'):
-            app_log.info("Update Estmpl input param is invalid {0}", tmpl)
-            return
-        if tmpl.get('name') not in tmpl_cfg:
-            app_log.info("Update Estmpl tmpl name is not exist {0}", tmpl.get('name'))
-            return
-
         tmpl_cfg[tmpl.get('name')] = tmpl
         del tmpl['name']
         es_adapter.save_config({'es_index_setting': tmpl_cfg})
@@ -142,10 +143,6 @@ class EsTmpl(object):
         :return:
         """
         tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
-        if name not in tmpl_cfg:
-            app_log.info("Update Estmpl tmpl name is not exist {0}", name)
-            return
-
         del tmpl_cfg[name]
         es_adapter.save_config({'es_index_setting': tmpl_cfg})
 
@@ -301,25 +298,21 @@ class Supervisor(object):
         return process_info_list
 
     def do_action(self, host, action, process_name=None):
-        try:
-            app_log.info('do_action is called host={0} , action={1}', host, action)
-            host_info_list = self.__get_hosts(host)
-            if not host_info_list:
-                app_log.info('cannot find proxy {0}', host)
-                return None
-            if action == 'start':
-                return self.__do_process_start(host_info_list, process_name)
-            elif action == 'stop':
-                return self.__do_process_stop(host_info_list, process_name)
-            elif action == 'restart':
-                return self.__do_process_restart(host_info_list, process_name)
-            elif action == 'clear_log':
-                return self.__do_process_log_clear(host_info_list, process_name)
-            elif action == 'get_log':
-                return self.__get_process_log(host_info_list, process_name)
-        except Exception as e:
-            app_log.exception(e)
+        app_log.info('do_action is called host={0} , action={1}', host, action)
+        host_info_list = self.__get_hosts(host)
+        if not host_info_list:
+            app_log.info('cannot find proxy {0}', host)
             return None
+        if action == 'start':
+            return self.__do_process_start(host_info_list, process_name)
+        elif action == 'stop':
+            return self.__do_process_stop(host_info_list, process_name)
+        elif action == 'restart':
+            return self.__do_process_restart(host_info_list, process_name)
+        elif action == 'clear_log':
+            return self.__do_process_log_clear(host_info_list, process_name)
+        elif action == 'get_log':
+            return self.__get_process_log(host_info_list, process_name)
 
 
     def __do_process_start(self, host_list, process_name=None):
@@ -338,6 +331,7 @@ class Supervisor(object):
                     supervisor_proxy.startAllProcesses()
             except Exception as e:
                 app_log.exception(e)
+                raise e
 
     def __do_process_stop(self, host_list, process_name=None):
         """
@@ -355,6 +349,7 @@ class Supervisor(object):
                     supervisor_proxy.stopAllProcesses()
             except Exception as e:
                 app_log.exception(e)
+                raise e
 
     def __do_process_restart(self, host_list, process_name=None):
         """
@@ -374,6 +369,7 @@ class Supervisor(object):
                     supervisor_proxy.startAllProcesses()
             except Exception as e:
                 app_log.exception(e)
+                raise e
 
     def __do_process_log_clear(self, host_list, process_name=None):
         """
@@ -391,6 +387,7 @@ class Supervisor(object):
                     supervisor_proxy.clearAllProcessLogs()
             except Exception as e:
                 app_log.exception(e)
+                raise e
 
     def __get_process_log(self, host_list, process_name=None):
         """
@@ -408,6 +405,7 @@ class Supervisor(object):
                     return supervisor_proxy.readMainLog(0, 0)
             except Exception as e:
                 app_log.exception(e)
+                raise e
 
     def __get_hosts(self, host_addr=None):
         """
@@ -444,7 +442,605 @@ class Supervisor(object):
         :return:
         """
         host_list = config.get_value('consts/manager/hosts')
-        return host_list
+        default_host_cfg = config.get_value('consts/manager/default')
+        register_hosts = map(lambda host: dict(default_host_cfg, host=host), register_center.get_hosts())
+        all_hosts = host_list + register_hosts
+
+        return map(lambda (m, n): list(n)[0], groupby(all_hosts, lambda host_info: host_info['host']))
+
+
+class Message(object):
+    """
+    系统消息管理
+    """
+
+    def get(self):
+        """
+        获取发送的消息列表
+        :return:
+        """
+        host = SERVICE_BASE_CONFIG['elasticsearch']
+        msg_store = config.get_value('consts/manager/message/es_store')
+        msg_query_result = es_adapter.search(query_body=None, host=host, index=msg_store['index'],
+                                             doc_type=msg_store['type'])
+        return msg_query_result['root']
+
+    def send(self, msg):
+        """
+        发送并保存消息
+        :param msg:
+        :return:
+        """
+        host = SERVICE_BASE_CONFIG['elasticsearch']
+        msg_store = config.get_value('consts/manager/message/es_store')
+        es_adapter.create_doc(host=host, index=msg_store['index'], doc_type=msg_store['type'], doc=msg)
+
+        message_bus.publish(**msg)
+
+
+class AnsjSegmentation(object):
+    """
+    ANSJ分词管理
+    """
+
+    def __init__(self):
+        self.init = False
+
+    def set_segmentation(self, segmentation):
+        """
+        设置ANSJ分词词汇
+        :param segmentation:
+        :return:
+        """
+        if not self.init:
+            self.init_config()
+            self.init = True
+        msg = self.__to_msg(segmentation)
+        if msg:
+            self.redis_conn.publish(self.redis_cfg['channel'], msg)
+
+    def init_config(self):
+        self.redis_cfg = config.get_value('consts/global/ansj_segment_redis')
+        pool = redis.ConnectionPool.from_url(self.redis_cfg['host'])
+        self.redis_conn = redis.Redis(connection_pool=pool)
+
+
+    def __to_msg(self, segmentation):
+        """
+        将分词数据转化为Redis命令
+        :param segmentation:
+        :return:
+        """
+        str_buffer = []
+        if segmentation['type'] == 'user_define':
+            str_buffer.append('u')
+            if segmentation['operator'] == 'add':
+                str_buffer.append('c')
+            elif segmentation['operator'] == 'delete':
+                str_buffer.append('d')
+        elif segmentation['type'] == 'ambiguity':
+            str_buffer.append('a')
+            if segmentation['operator'] == 'add':
+                str_buffer.append('c')
+            elif segmentation['operator'] == 'delete':
+                str_buffer.append('d')
+        str_buffer.append(segmentation['text'])
+        return ':'.join(str_buffer)
+
+
+class Suggest(object):
+    """
+    拼写建议
+    """
+
+    def query_suggest_terms(self, adminID):
+        """
+        获取用户ID下所有的拼写提示词
+        :param adminID:
+        :return:
+        """
+        suggest_rivers = config.get_value('suggest/rivers')
+        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+
+        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        if not yun_product_suggest_cfg:
+            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            return
+        destination_config = get_dict_value_by_path('destination', yun_product_suggest_cfg)[0]
+        if 'reference' in destination_config:
+            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
+            es_config = merge(es_config, destination_config)
+            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
+        else:
+            es_config = dict(destination_config)
+        index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs={'version': config.get_value('version'),
+                                                                               'adminID': adminID})
+
+        size = 200
+        from_size = 0
+        data_list = []
+        while 1:
+            query_result = es_adapter.search(query_body={'from': from_size, 'size': size}, index=index,
+                                             host=es_config['host'], doc_type=es_type)
+            if query_result.get('root'):
+                data_list.extend(query_result['root'])
+            from_size += len(query_result['root'])
+            if from_size >= query_result['total']:
+                break
+        product_type = 'gonghuo_product' if adminID == 'gonghuo' else 'product'
+        return map(lambda es_suggest_doc: self.to_suggestion(es_suggest_doc, product_type), data_list)
+
+    def add_suggest_term(self, suggestion):
+        """
+        增加提示词
+        :param suggestion:
+        :return:
+        """
+        suggest_rivers = config.get_value('suggest/rivers')
+        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+
+        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        if not yun_product_suggest_cfg:
+            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            return
+
+        yun_product_suggest_cfg['source']['type'] = 'specify_words'
+        suggestion['host'], suggestion['index'], suggestion['type'] = self.__get_product_es_setting(suggestion)
+        data_processing_config = get_dict_value_by_path('processing', yun_product_suggest_cfg)
+        source_docs = suggest_source.pull(yun_product_suggest_cfg, suggestion)
+        processed_data = data_processing.process_data(data_processing_config, source_docs, yun_product_suggest_cfg)
+        suggest_destination.push(yun_product_suggest_cfg, processed_data)
+
+    def delete_suggest_term(self, suggestion):
+        """
+        删除提示词
+        :param suggestion:
+        :return:
+        """
+        suggest_rivers = config.get_value('suggest/rivers')
+        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+
+        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        if not yun_product_suggest_cfg:
+            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            return
+
+        yun_product_suggest_cfg['source']['type'] = 'specify_words'
+        for destination in yun_product_suggest_cfg['destination']:
+            # destination['destination_type'] = 'elasticsearch'
+            destination['operation'] = 'delete'
+        suggestion['host'], suggestion['index'], suggestion['type'] = self.__get_product_es_setting(suggestion)
+        data_processing_config = get_dict_value_by_path('processing', yun_product_suggest_cfg)
+        source_docs = suggest_source.pull(yun_product_suggest_cfg, suggestion)
+        processed_data = data_processing.process_data(data_processing_config, source_docs, yun_product_suggest_cfg)
+        suggest_destination.push(yun_product_suggest_cfg, processed_data)
+
+    def init_suggest_index(self, admin_id):
+        """
+        手工执行suggest的全表扫描分词
+        :param adminID:
+        :return:
+        """
+        suggest_rivers = config.get_value('suggest/rivers')
+        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+
+        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        if not yun_product_suggest_cfg:
+            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            return
+        notification_config = get_dict_value_by_path('notification', yun_product_suggest_cfg)
+        notification_config['filter']['conditions'].append({
+            "operator": "is",
+            "type": "regex",
+            "field": "index",
+            "expression": "\\-" + admin_id + "\\-"
+        })
+        # 手工执行的时候设置为先清除掉自动分词生成的提示词
+        imap(lambda destination_cfg: destination_cfg.update({'clear_policy': 'every_msg,auto_term'}),
+             yun_product_suggest_cfg['destination'])
+        SuggestNotification().notify(notification_config, yun_product_suggest_cfg)
+
+
+    def __get_product_es_setting(self, suggestion):
+        """
+        获取拼写建议对应的商品ElasticSearch 的index和type
+        :param suggestion:
+        :return:
+        """
+        if suggestion['adminID'] != 'gonghuo':
+            # 云销商品
+            es_setting_cfg = config.get_value('es_index_setting/product')
+        else:
+            # 供货商品
+            es_setting_cfg = config.get_value('es_index_setting/gonghuo_product')
+
+        if 'version' not in suggestion:
+            suggestion['version'] = config.get_value('version')
+        es_setting_cfg = bind_dict_variable(es_setting_cfg, suggestion)
+        return es_setting_cfg['host'], es_setting_cfg['index'], es_setting_cfg['type']
+
+    def to_suggestion(self, es_suggest_doc, product_type):
+        """
+        将ES查询的Suggest文档转换为标准格式的
+        :param es_suggest_doc:
+        :param product_type:
+        :return:
+        """
+        suggestion = {'word': es_suggest_doc['name'],
+                      'source_type': es_suggest_doc['suggest']['payload']['source_type'],
+                      'product_type': product_type}
+        return suggestion
+
+
+class EsIndex(object):
+    """
+    ES索引操作接口
+    """
+
+    def add_index(self, es_index):
+        """
+        增加索引
+        """
+        if not es_index:
+            return
+        if 'host' not in es_index:
+            es_index['host'] = self._get_default_es_host()
+
+        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
+        if not es_connection.indices.exists(es_index['index']):
+            app_log.info('Creates index {0}', es_index['index'])
+            es_connection.indices.create(es_index['index'], body={"number_of_shards": "2"})
+        is_type_exist = es_connection.indices.exists_type(es_index['index'], es_index['type'])
+        if not is_type_exist:
+            app_log.info('Creates type {0}', es_index['type'])
+            es_connection.indices.put_mapping(doc_type=es_index['type'], body=es_index['mapping'],
+                                              index=es_index['index'])
+
+    def delete_type(self, es_index):
+        """
+        删除索引下的type
+        """
+        if not es_index:
+            return
+        if 'host' not in es_index:
+            es_index['host'] = self._get_default_es_host()
+
+        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
+        if es_connection.indices.exists_type(es_index['index'], es_index['type']):
+            app_log.info('Delete type {0} {1}', es_index['index'], es_index['type'])
+            es_connection.indices.delete_mapping(es_index['index'], es_index['type'])
+
+    def delete_index(self, es_index):
+        if not es_index:
+            return
+        if 'host' not in es_index:
+            es_index['host'] = self._get_default_es_host()
+
+        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
+        if es_connection.indices.exists_type(es_index['index'], es_index['type']):
+            app_log.info('Delete index {0}', es_index['index'])
+            es_connection.indices.delete(es_index['index'])
+
+
+    def delete_all_index_docs(self, es_index):
+        """
+        删除索引中的所有文档
+        """
+        if not es_index:
+            return
+        if 'host' not in es_index:
+            es_index['host'] = self._get_default_es_host()
+
+        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
+        app_log.info('Delete all products in {0} {1}', es_index['index'], es_index['type'])
+        es_connection.delete_by_query(index=es_index['index'], doc_type=es_index['type'],
+                                      body={"query": {"match_all": {}}})
+
+    def query_es_index_info_list(self, shop_es_dict, match_type='equal'):
+        """
+        查询ES index 信息
+        :param shop_es_dict:
+        :return:
+        """
+        if 'host' not in shop_es_dict:
+            shop_es_dict['host'] = self._get_default_es_host()
+
+        es_connection = EsConnectionFactory.get_es_connection(host=shop_es_dict['host'])
+        # mapping_dict = es_connection.indices.get_mapping()
+        # index_type_dict_list = list(chain(
+        # *[self._parse_index_mapping(index_name, mapping_dict[index_name]) for index_name in mapping_dict]))
+        # matched_index_type_dict_list = filter(
+        # lambda index_type_dict: self._filter_es_index(index_type_dict['index'], index_type_dict['type'],
+        # shop_es_dict), index_type_dict_list)
+        # self._merge_actual_doc_num(matched_index_type_dict_list, es_connection)
+        matched_index_type_dict_list = self._merge_index_stats_info(shop_es_dict, es_connection, match_type)
+        return matched_index_type_dict_list
+
+    def _parse_index_mapping(self, index_name, mapping):
+        """
+        解析索引mapping文件，获取(index, type)列表
+        :param index_name:
+        :param mapping:
+        :return:
+        """
+        if not mapping or not index_name:
+            return ()
+
+        __mappings = mapping.get('mappings')
+        if not __mappings:
+            return ()
+        return [{'index': index_name, 'type': type_name} for type_name in mapping.get('mappings')]
+
+    def _filter_es_index(self, index_name, doc_type, es_cfg):
+        """
+        判断ElasticSearch的索引和type是否符合条件
+        :param index_name:
+        :param doc_type:
+        :param es_cfg:
+        :return:
+        """
+        if es_cfg.get('index'):
+            index_filter_result = True if search(es_cfg['index'], index_name) else False
+        else:
+            index_filter_result = True
+        if es_cfg.get('type'):
+            doc_type_filter_result = True if search(es_cfg['type'], doc_type) else False
+        else:
+            doc_type_filter_result = True
+        return index_filter_result and doc_type_filter_result
+
+    def _match_field(self, value, expr, match_type):
+        """
+        值匹配
+        :param value:
+        :param expr:
+        :param match_type:
+        :return:
+        """
+        if match_type == 'regex':
+            return True if search(expr, value) else False
+        else:
+            return value == expr
+
+    def _merge_index_stats_info(self, es_dict, es_connection, match_type='equal'):
+        """
+        增加elasticSearch index的统计信息
+        :param es_dict:
+        :param es_connection:
+        :param match_type: 匹配类型，有equal和regex两种，
+        :return:
+        """
+        index_stats_list = []
+        index_stats_result = es_connection.indices.stats()
+        for index in index_stats_result['indices']:
+            if es_dict.get('index') and not self._match_field(index, es_dict.get('index'), match_type):
+                continue
+            index_stats_list.append(dict({'index': index}, **index_stats_result['indices'][index]['primaries']))
+        return index_stats_list
+
+    def _merge_actual_doc_num(self, index_type_dict_list, es_connection):
+        """
+        增加实际文档数目，不包含子文档
+        :param index_type_dict_list:
+        :param es_connection:
+        :return:
+        """
+        count_dsl_list = map(lambda index_type_dict: (
+            {"search_type": "count", "index": index_type_dict["index"], "doc_type": index_type_dict["type"]},
+            {"query": {"match_all": {}}}), index_type_dict_list)
+        count_body = chain(*count_dsl_list)
+        es_count_result_list = es_connection.msearch(count_body)
+        doc_count_list = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
+        for (index_type_dict, doc_count) in zip(index_type_dict_list, doc_count_list):
+            index_type_dict['count'] = doc_count
+        return index_type_dict_list
+
+    def _get_default_es_host(self):
+        """
+        获取ES默认服务器，采用云销商品的地址作为ES默认地址
+        """
+        yun_shop_es_cfg = config.get_value('/es_index_setting/product')
+        return yun_shop_es_cfg['host']
+
+
+class Shop(EsIndex):
+    """
+    商店操作接口
+    """
+
+    def add_shop(self, admin_id):
+        """
+        增加商店
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        shop_es_config = es_adapter.get_product_es_cfg(admin_id)
+        self.add_index(shop_es_config)
+
+    def delete_shop(self, admin_id):
+        """
+        删除商店
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        shop_es_config = es_adapter.get_product_es_cfg(admin_id)
+        self.delete_type(shop_es_config)
+
+    def delete_all_shop_products(self, admin_id):
+        """
+        删除商店所有商品接口
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        shop_es_config = es_adapter.get_product_es_cfg(admin_id)
+        self.delete_all_index_docs(shop_es_config)
+
+    def query_shops(self, admin_id=None):
+        """
+        查询商店信息
+        :param admin_id:
+        :return:
+        """
+        return self.query_es_index_info_list(es_adapter.get_product_es_cfg(admin_id), 'equal' if admin_id else 'regex')
+
+
+class EsDoc(object):
+    """
+    ES文档管理
+    """
+
+    def query(self, es_cfg, query_params):
+        """
+        查找文档数据
+        :param request:
+        :param format:
+        :return:
+        """
+        if 'host' not in es_cfg:
+            es_cfg['host'] = self._get_default_es_host()
+        return SearchPlatformDoc.objects.get(es_cfg, es_cfg['index'], es_cfg['type'], query_params)
+
+    def add(self, es_cfg, data_list):
+        if 'host' not in es_cfg:
+            es_cfg['host'] = self._get_default_es_host()
+        return es_adapter.batch_create(es_cfg, data_list)
+
+    def update(self, es_cfg, data_list):
+        if 'host' not in es_cfg:
+            es_cfg['host'] = self._get_default_es_host()
+        return es_adapter.batch_update(es_cfg, data_list)
+
+    def delete(self, request):
+        def build_doc_delete_body(es_config, doc_id=None, doc=None):
+            """
+            构建单个文档批量删除数据结构
+            :param es_config:
+            :param doc_id:
+            :param doc:
+            :return:
+            """
+            index, es_type, doc_id = self.get_es_doc_keys(es_config, doc_id, kwargs=doc)
+            return {"delete": {"_index": index, "_type": es_type, "_id": doc_id}}
+
+        def build_batch_delete_body(es_config, doc_list):
+            """
+            构造商品列表批量删除的ES数据结构，,此处可以优化，不需要每次都获取index和type
+            :param es_config:
+            :param doc_list:
+            :return:
+            """
+            if not doc_list:
+                return []
+            return chain(map(lambda doc: build_doc_delete_body(es_config, doc=doc), doc_list))
+
+        es_config = self._get_es_config(request.QUERY_PARAMS)
+        doc_list = []
+        if 'data_list' in request.DATA:
+            doc_list = request['data_list']
+        elif 'data' in request.DATA:
+            doc_list = [request['data']]
+        bulk_delete_body = build_batch_delete_body(es_config, doc_list)
+        es_connection = EsConnectionFactory.get_es_connection(host=es_config['host'])
+        return es_connection.bulk(bulk_delete_body)
+
+    def delete_by_id(self, es_cfg, doc_id):
+        if 'host' not in es_cfg:
+            es_cfg['host'] = self._get_default_es_host()
+        bulk_delete_body = [{"delete": {"_index": es_cfg['index'], "_type": es_cfg['type'], "_id": doc_id}}]
+        es_connection = EsConnectionFactory.get_es_connection(host=es_cfg['host'])
+        es_result = es_connection.bulk(bulk_delete_body)
+        return es_adapter.process_es_bulk_result(es_result)
+
+    def delete_by_query(self, es_cfg, query_param):
+        if 'host' not in es_cfg:
+            es_cfg['host'] = self._get_default_es_host()
+        es_connection = EsConnectionFactory.get_es_connection(host=es_cfg['host'])
+        dsl = SearchPlatformDoc.objects.get_dsl(es_cfg['index'], es_cfg['type'], query_param, es_connection)
+        return es_adapter.delete_by_query(es_cfg, {}, dsl)
+
+    def _get_default_es_host(self):
+        """
+        获取ES默认服务器，采用云销商品的地址作为ES默认地址
+        """
+        yun_shop_es_cfg = config.get_value('/es_index_setting/product')
+        return yun_shop_es_cfg['host']
+
+    def _get_es_config(self, params):
+        """
+        获取ES配置参数
+        :param params:
+        :return:
+        """
+        if 'reference' in params:
+            es_config = config.get_value('es_index_setting/' + params['reference'])
+            es_config = merge(es_config, params)
+            assert es_config, 'the reference is not exist, reference={0}'.format(params)
+        else:
+            es_config = dict(params)
+        index, doc_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs=params)
+        es_config['index'] = index
+        es_config['type'] = doc_type
+        es_config['id'] = doc_id
+
+        if 'host' not in es_index:
+            es_config['host'] = self._get_default_es_host()
+        return es_config
+
+
+class ShopProduct(EsDoc):
+    """
+    商品管理
+    """
+
+    def query(self, query_params, admin_id):
+        if not admin_id:
+            return
+
+        es_config = es_adapter.get_product_es_cfg(admin_id)
+        return Product.objects.get(es_config, es_config['index'], es_config['type'], query_params)
+
+    def add(self, data, admin_id):
+        if not admin_id:
+            return
+
+        es_config = es_adapter.get_product_es_cfg(admin_id)
+        doc_list = data
+        if not isinstance(data, (list, tuple, set)):
+            doc_list = [data]
+
+        return es_adapter.batch_create(es_config, doc_list)
+
+    def delete(self, query_params, admin_id):
+        if not admin_id:
+            return
+
+        es_config = es_adapter.get_product_es_cfg(admin_id)
+        return self.delete_by_query(es_config, query_params)
+
+    def delete_by_id(self, query_params, admin_id, doc_id):
+        if not admin_id:
+            return
+
+        es_config = es_adapter.get_product_es_cfg(admin_id)
+        return super(ShopProduct, self).delete_by_id(es_config, doc_id)
+
+
+    def update(self, data, admin_id):
+        if not admin_id:
+            return
+
+        es_config = es_adapter.get_product_es_cfg(admin_id)
+        doc_list = data
+        if not isinstance(data, (list, tuple, set)):
+            doc_list = [data]
+
+        return es_adapter.batch_update(es_config, doc_list)
 
 
 SUPERVISOR_PROXY_CACHE = {}
@@ -454,6 +1050,13 @@ data_river = DataRiver()
 query_chain = QueryChain()
 sys_param = SystemParam()
 es_tmpl = EsTmpl()
+message = Message()
+ansjSegmentation = AnsjSegmentation()
+suggest = Suggest()
+es_index = EsIndex()
+shop = Shop()
+shop_product = ShopProduct()
+es_doc = EsDoc()
 
 if __name__ == '__main__':
     import json
@@ -466,7 +1069,7 @@ if __name__ == '__main__':
     # print supervisor.getPID()
     # print supervisor.getAllProcessInfo()
     # print supervisor.readLog(-300, 0)
-    f = open('../tmp/config.json')
+    f = open('../common/config.json')
     config_data = json.load(f, object_pairs_hook=OrderedDict)
     es_adapter.insert_config(config_data['default'])
     print es_adapter.get_config()

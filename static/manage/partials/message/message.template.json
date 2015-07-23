@@ -1,0 +1,24 @@
+{
+  "message_types": [
+    {
+      "value": "synchronized_config",
+      "display_value": "同步配置数据"
+    },
+    {
+      "value": "update_log_level",
+      "display_value": "更新日志等级"
+    },
+    {
+      "value": "process_login",
+      "display_value": "应用启动"
+    },
+    {
+      "value": "process_destroy",
+      "display_value": "应用注销"
+    },
+    {
+      "value": "config_update",
+      "display_value": "配置数据更新"
+    }
+  ]
+}

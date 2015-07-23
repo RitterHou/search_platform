@@ -2,42 +2,42 @@
     <p></p>
 
     <div class="col-sm-10 col-sm-offset-1">
-        <form class="form-horizontal">
+        <form class="form-horizontal" name="datariver_edit_form" novalidate
+              ng-submit="save_data_river(datariver_edit_form.$valid)">
             <div class="form-group">
                 <label class="col-sm-2 control-label">数据流名称</label>
 
                 <div class="col-sm-10">
-                    <input type="text" ng-model="mirror_river.name" class="form-control" placeholder="数据流名称">
+                    <input type="text" ng-model="mirror_river.name" class="form-control" placeholder="数据流名称"
+                           name="name" required ng-minlength="5">
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,datariver_edit_form.name)"
+                         ng-messages="datariver_edit_form.name.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
-        </form>
 
 
-        <accordion close-others="false">
-            <accordion-group is-open="true">
-                <accordion-heading>触发器</accordion-heading>
-                <form class="form-horizontal">
+            <accordion close-others="false">
+                <accordion-group is-open="true">
+                    <accordion-heading>触发器</accordion-heading>
                     <div ui-view="notification"></div>
-                </form>
-            </accordion-group>
-            <accordion-group is-open="true">
-                <accordion-heading>数据源</accordion-heading>
-                <form class="form-horizontal">
+                </accordion-group>
+                <accordion-group is-open="true">
+                    <accordion-heading>数据源</accordion-heading>
                     <div ui-view="source"></div>
-                </form>
-            </accordion-group>
-            <accordion-group is-open="true">
-                <accordion-heading>数据终点</accordion-heading>
-                <form class="form-horizontal">
+                </accordion-group>
+                <accordion-group is-open="true">
+                    <accordion-heading>数据终点</accordion-heading>
                     <div ui-view="destination"></div>
-                </form>
-            </accordion-group>
-        </accordion>
+                </accordion-group>
+            </accordion>
 
-        <form class="form-horizontal">
             <div class="form-group">
                 <div class="col-sm-1">
-                    <button type="button" class="btn btn-primary btn-sm btn-block " ng-click="save_data_river()">
+                    <button type="submit" class="btn btn-primary btn-sm btn-block ">
                         保存
                     </button>
                 </div>

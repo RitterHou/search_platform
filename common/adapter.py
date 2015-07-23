@@ -2,21 +2,20 @@
 from collections import OrderedDict
 import json
 import time
+from itertools import chain
 
 import re
-
-
-__author__ = 'liuzhaoming'
-
-from itertools import *
-
 from elasticsearch import ElasticsearchException
+from elasticsearch import helpers
 
-from common.utils import get_dict_value_by_path, bind_variable
+from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, get_default_es_host
 from common.loggers import app_log, debug_log
 from common.configs import config
 from common.connections import EsConnectionFactory
 from search_platform.settings import SERVICE_BASE_CONFIG
+
+
+__author__ = 'liuzhaoming'
 
 
 class EsIndexAdapter(object):
@@ -60,6 +59,33 @@ class EsIndexAdapter(object):
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         bulk_body = self.__build_batch_update_body(es_config, doc_list=doc_list)
         try:
+            es_bulk_result = es_connection.bulk(bulk_body)
+            return self.process_es_bulk_result(es_bulk_result)
+        except ElasticsearchException as e:
+            app_log.error('ES operation input param is {0}', e, list(bulk_body))
+
+    def batch_update_with_props_by_ids(self, es_config, doc_list, id_separater=','):
+        """
+        根据给定的ID批量更新某个或某几个属性
+        doc的格式为：{ids:"1,2,3,4", data:{prop1:value1, prop2:value2}, adminID:a12000}
+        :param es_config:
+        :param doc_list:
+        :return:
+        """
+        if not doc_list:
+            return
+        bulk_body = []
+        for doc in doc_list:
+            index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+            if 'ids' not in doc or 'data' not in doc:
+                continue
+            id_list = doc['ids'].split(id_separater)
+            map(lambda doc_id: bulk_body.extend(
+                ({"update": {"_index": index, "_type": doc_type, "_id": doc_id}}, {"doc": doc['data']})), id_list)
+
+        try:
+            es_connection = EsConnectionFactory.get_es_connection(
+                es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
             es_bulk_result = es_connection.bulk(bulk_body)
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
@@ -122,8 +148,28 @@ class EsIndexAdapter(object):
         try:
             es_connection.delete_by_query(index=index, doc_type=doc_type, body={'query': {'match_all': {}}})
         except ElasticsearchException as e:
-            app_log.error('es operation input param is {0}, {1}', e, index, doc_type)
+            app_log.error('es delete_all_doc input param is {0}, {1}', e, index, doc_type)
 
+    def delete_by_query(self, es_config, doc, body=None):
+        """
+        根据ES query dsl 删除符合条件的文档
+        :param es_config:
+        :param doc:
+        :param body:
+        :return:
+        """
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+        es_connection = EsConnectionFactory.get_es_connection(
+            es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
+        try:
+            body = body if body else {'query': {'match_all': {}}}
+            if 'size' in body:
+                del body['size']
+            if 'from' in body:
+                del body['from']
+            es_connection.delete_by_query(index=index, doc_type=doc_type, body=body)
+        except ElasticsearchException as e:
+            app_log.error('es delete_by_query input param is {0}, {1}', e, index, doc_type)
 
     def get_es_doc_keys(self, es_config, doc_id=None, kwargs=None):
         """
@@ -138,8 +184,11 @@ class EsIndexAdapter(object):
         id_template = get_dict_value_by_path('id', es_config)
         version = config.get_value('version')
         params = dict(kwargs if kwargs else {}, **{'version': version})
-        return bind_variable(index_template, params).lower(), bind_variable(type_template, params), \
-               doc_id if doc_id else bind_variable(id_template, params)
+        index = bind_variable(index_template, params)
+        doc_type = bind_variable(type_template, params)
+        doc_id = doc_id if doc_id else bind_variable(id_template, params)
+        return index.lower() if index else index, doc_type if doc_type else doc_type, doc_id
+
 
     def query_docs(self, query_body, host, index, doc_type=None, params={}):
         """
@@ -226,9 +275,10 @@ class EsIndexAdapter(object):
             if key == 'version':
                 update_body.append({'doc': {'version': default_config_data[key]}})
             else:
-                update_body.append({'doc': {'json_str': json.dumps(default_config_data[key])}})
+                update_body.append({'doc': {'json_str': json.dumps(default_config_data[key],
+                                                                   sort_keys=True if key == 'data_river' else False)}})
         try:
-            es_bulk_result = es_connection.bulk(update_body)
+            es_bulk_result = es_connection.bulk(update_body, params={'wait_for_completion': True})
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation fail input param is {0}', e, list(update_body))
@@ -254,7 +304,8 @@ class EsIndexAdapter(object):
             if key == 'version':
                 update_body.append({'version': default_config_data[key]})
             else:
-                update_body.append({'json_str': json.dumps(default_config_data[key])})
+                update_body.append({'json_str': json.dumps(default_config_data[key],
+                                                           sort_keys=True if key == 'data_river' else False)})
         try:
             es_bulk_result = es_connection.bulk(update_body)
             return self.process_es_bulk_result(es_bulk_result)
@@ -287,6 +338,107 @@ class EsIndexAdapter(object):
             return {key: config_data[key]} if key in config_data else {}
         return config_data
 
+    def search(self, query_body, host, index, doc_type=None, params={}):
+        """
+        查询ES索引库中的数据
+        :param query_body:
+        :param host:
+        :param index:
+        :param doc_type:
+        :param params:
+        :return:
+        """
+        es_result = self.query_docs(index=index, query_body=query_body, doc_type=doc_type, params=params, host=host)
+        if not es_result:
+            return {'root': [], 'total': 0}
+        return {'root': map(lambda item: item.get('_source'), es_result['hits'].get('hits')),
+                'total': es_result['hits'].get('total')}
+
+    def create_doc(self, host, index, doc_type, doc):
+        """
+        创建文档
+        :param host:
+        :param index:
+        :param doc_type:
+        :param doc:
+        :return:
+        """
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        return es_connection.create(index, doc_type, doc, params={'wait_for_completion': True})
+
+    def get_product_es_cfg(self, admin_id):
+        """
+        获取用户的ES相关配置
+        :param admin_id:
+        :return:
+        """
+        variable_values = {'adminID': admin_id if admin_id else '[\\d\\D]+?', 'version': config.get_value('version')}
+        if admin_id == 'gonghuo':
+            sup_shop_es_cfg = config.get_value('/es_index_setting/gonghuo_product')
+            return bind_dict_variable(sup_shop_es_cfg, variable_values)
+        else:
+            yun_shop_es_cfg = config.get_value('/es_index_setting/product')
+            return bind_dict_variable(yun_shop_es_cfg, variable_values)
+
+    def completion_suggest(self, query_body, host, index):
+        """
+        ES completion_suggest查询
+        :param query_body:
+        :param host:
+        :param index:
+        :return:
+        """
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        return es_connection.suggest(query_body, index)
+
+    def scroll(self, scroll_time=None, body=None, search_type=None, scroll_id=None, **es_cfg):
+        """
+        scroll查询
+        :param scroll_time:
+        :param search_type:
+        :param scroll_id:
+        :param es_cfg:
+        :return:
+        """
+        host = es_cfg.get('host') or get_default_es_host()
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        scroll_time = scroll_time or config.get_value('/consts/query/scroll_time')
+        first_run = True if not scroll_id else False
+        search_params = {'index': es_cfg['index'], 'doc_type': es_cfg.get('doc_type') or es_cfg.get('type')}
+        if search_type == 'scan':
+            search_params['search_type'] = 'scan'
+        if first_run:
+            resp = es_connection.search(body=body, scroll=scroll_time, **search_params)
+        else:
+            resp = es_connection.scroll(scroll_id, scroll=scroll_time)
+        return resp
+
+    def scan(self, scroll_time=None, body=None, preserve_order=False, **es_cfg):
+        """
+        scan查询，会查询出所有符合查询条件的数据，默认不进行排序
+        :param scroll_time:
+        :param body:
+        :param es_cfg:
+        :return:
+        """
+        doc_type = es_cfg.get('doc_type') or es_cfg.get('type')
+        host = es_cfg.get('host') or get_default_es_host()
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        return helpers.scan(es_connection, body, scroll_time, preserve_order, index=es_cfg['index'],
+                            doc_type=doc_type)
+
+    def delete_scroll(self, scroll_ids, **es_cfg):
+        """
+        手工删除scroll缓存
+        :param scroll_ids:
+        :param es_cfg:
+        :return:
+        """
+        host = es_cfg.get('host') or get_default_es_host()
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        if scroll_ids:
+            scroll_ids = scroll_ids.strip().split(',')
+        return es_connection.clear_scroll(scroll_ids)
 
     def __build_batch_create_body(self, es_config, doc_list):
         """

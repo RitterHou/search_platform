@@ -1,7 +1,7 @@
 <div>
 
     <div class="btn-group btn-group-xs">
-        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')" tooltip="创建搜索引擎数据模板" tooltip-append-to-body=true>
             <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>
@@ -9,7 +9,7 @@
 
     <ad-table-lite table-name="estmplList"
                    column-definition="tmplTableColumnDefinition"
-                   local-data-source="tmpls"
+                   local-data-source="model.tmpls"
                    page-sizes="[10, 20]"
                    pagination-btn-group-classes="pagination pagination-sm"
                    table-classes="table table-bordered"

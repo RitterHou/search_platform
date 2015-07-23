@@ -1,0 +1,62 @@
+<div>
+    <p></p>
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <form class="form-horizontal" name="message_edit_form" ng-submit="save_message(message_edit_form.$valid)"
+              novalidate>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">消息类型</label>
+
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="mirror_message.type"
+                            ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.message_types"
+                            ng-change="select_notification_type()">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">消息目的地</label>
+
+                <div class="col-sm-10">
+                    <input type="text" ng-model="mirror_message.destination" class="form-control" placeholder="消息目的地"
+                           name="destination" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,message_edit_form.destination)"
+                         ng-messages="message_edit_form.destination.$error"
+                         ng-messages-include="form-messages">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">消息内容</label>
+
+                <div class="col-sm-10">
+                    <textarea rows="6" ng-model="mirror_message.body" class="form-control" placeholder="消息内容"
+                              name="body" required>
+                        </textarea>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,message_edit_form.body)"
+                         ng-messages="message_edit_form.body.$error"
+                         ng-messages-include="form-messages">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-2 col-sm-offset-1">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        保存并发送
+                    </button>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-primary btn-block" ng-click="close_tab()">取消
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

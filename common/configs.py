@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
-
-__author__ = 'liuzhaoming'
-
 from json import load
 from collections import OrderedDict
 import json
@@ -12,9 +7,13 @@ from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreat
 from watchdog.observers import Observer
 
 from common.connections import EsConnectionFactory
+from common.registers import register_center
 from search_platform.settings import SERVICE_BASE_CONFIG, BASE_DIR
 from common.msg_bus import message_bus, Event
 from common.loggers import LOGGER_LEVELS, app_log
+
+
+__author__ = 'liuzhaoming'
 
 
 def get_config(key=None):
@@ -24,24 +23,28 @@ def get_config(key=None):
     :return:
     """
     app_log.info('Get config is called')
-    es_connection = EsConnectionFactory.get_es_connection(host=SERVICE_BASE_CONFIG.get('elasticsearch'))
-    es_result = es_connection.search(index=SERVICE_BASE_CONFIG.get('meta_es_index'),
-                                     doc_type=SERVICE_BASE_CONFIG.get('meta_es_type'))
-    doc_list = es_result['hits'].get('hits')
-    if not doc_list:
-        return {}
-    config_data = {}
-    for doc in doc_list:
-        if doc['_id'] == 'version':
-            field_value = doc['_source']['version']
-        else:
-            field_value = json.loads(doc['_source']['json_str'], object_pairs_hook=OrderedDict) \
-                if 'json_str' in doc['_source'] else {}
+    try:
+        es_connection = EsConnectionFactory.get_es_connection(host=SERVICE_BASE_CONFIG.get('elasticsearch'))
+        es_result = es_connection.search(index=SERVICE_BASE_CONFIG.get('meta_es_index'),
+                                         doc_type=SERVICE_BASE_CONFIG.get('meta_es_type'))
+        doc_list = es_result['hits'].get('hits')
+        if not doc_list:
+            return {}
+        config_data = {}
+        for doc in doc_list:
+            if doc['_id'] == 'version':
+                field_value = doc['_source']['version']
+            else:
+                field_value = json.loads(doc['_source']['json_str'], object_pairs_hook=OrderedDict) \
+                    if 'json_str' in doc['_source'] else {}
 
-        config_data[doc['_id']] = field_value
-    if key:
-        return {key: config_data[key]} if key in config_data else {}
-    return config_data
+            config_data[doc['_id']] = field_value
+        if key:
+            return {key: config_data[key]} if key in config_data else {}
+        return config_data
+    except Exception as e:
+        app_log.error('Get config from es has error, ', e)
+        return {}
 
 
 class ConfigFileEventHandler(FileSystemEventHandler):
@@ -132,7 +135,6 @@ class ConfigHolder(object):
         """
         message_bus.dispatch_event(type=Event.TYPE_CONFIG_UPDATE)
 
-
     def __fetch_config_data(self, source):
         if source == 'es':
             return self.__fetch_config_data_from_es()
@@ -148,7 +150,7 @@ class ConfigHolder(object):
         """
         try:
             default_data = get_config()
-            return True, {'default': default_data}
+            return (True, {'default': default_data}) if default_data else (False, None)
         except Exception as e:
             app_log.exception(e)
             return False, None
@@ -221,7 +223,6 @@ class Config(object):
 
     def __init__(self, config_file_path=BASE_DIR + SERVICE_BASE_CONFIG['meta_file']):
         self.__config_file_path = config_file_path
-        # self.refresh()
         self.__add_file_monitor()
 
     def get_config_file_path(self):
@@ -297,6 +298,8 @@ class Config(object):
 
 config = Config()
 config_holder = ConfigHolder()
+# config模块在系统启动时会加载，注册中心注册也放在该模块中进行
+register_center.register()
 
 if __name__ == '__main__':
     config1 = Config()

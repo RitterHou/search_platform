@@ -68,7 +68,10 @@ class ProductSuggests(object):
                 app_log.error('Suggest notification has error, suggest river is {0}', e, suggest_river)
             index += 1
         self.scheduler.add_listener(apscheduler_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
-        self.scheduler.start()
+        try:
+            self.scheduler.start()
+        except Exception as e:
+            app_log.error("Product Suggests start has error ", e)
         app_log.info('Product Suggests started')
 
     def stop(self):

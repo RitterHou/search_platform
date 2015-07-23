@@ -1,0 +1,21 @@
+{
+  "source_types": [
+    {
+      "value": "1",
+      "display_value": "自动分词"
+    },
+    {
+      "value": "2",
+      "display_value": "手工插入提示词"
+    }
+  ],"product_types": [
+    {
+      "value": "product",
+      "display_value": "云销商品"
+    },
+    {
+      "value": "gonghuo_product",
+      "display_value": "供货商品"
+    }
+  ]
+}

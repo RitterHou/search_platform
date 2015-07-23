@@ -47,7 +47,7 @@ class ElasticsearchDataSource(SuggestSource):
 
         host = get_dict_value_by_path('notification/host', suggest_config)
         source_config = get_dict_value_by_path('source', suggest_config)
-        additional_param = self.__parse_param(source_config, request_param)
+        additional_param = self._parse_param(source_config, request_param)
         query_fields = self.__get_es_query_fields(source_config)
         source_docs = self.__query_source_docs(source_config, request_param, host, query_fields)
         if source_docs['total'] == 0:
@@ -64,7 +64,7 @@ class ElasticsearchDataSource(SuggestSource):
         keyword_list = chain(*temp_list_list)
         keyword_list = list(set(keyword_list))
 
-        count_dsl_list = [({"search_type": "count"}, self.__get_count_query_dsl(keyword, host)) for
+        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host)) for
                           keyword in keyword_list]
         count_body = chain(*count_dsl_list)
         es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
@@ -107,7 +107,7 @@ class ElasticsearchDataSource(SuggestSource):
     def __query_source_docs(self, source_config, request_param, host, query_fields):
         try:
             query_body = self.__get_es_query_body(source_config, request_param)
-            query_param = {'fields': query_fields} if query_fields else {}
+            # query_param = {'fields': query_fields} if query_fields else {}
             es_result = es_adapter.query_docs(query_body, host, index=request_param['index'],
                                               doc_type=request_param['type'])
 
@@ -157,7 +157,7 @@ class ElasticsearchDataSource(SuggestSource):
 
         return {'root': product_list, 'total': total, 'curSize': len(product_list)}
 
-    def __parse_param(self, source_config, request_param):
+    def _parse_param(self, source_config, request_param):
         """
         从给定的source参数中解析出需要的变量，目前主要是从索引或type中解析出adminID
         :param source_config:
@@ -179,7 +179,7 @@ class ElasticsearchDataSource(SuggestSource):
                 result[field_name] = field_value
         return result
 
-    def __get_count_query_dsl(self, keyword, host):
+    def _get_count_query_dsl(self, keyword, host):
         """
         和搜索同步修改算法，现在改为对关键词进行标准分词，对分词后的结果进行_all字段查询
         :param keyword:
@@ -195,7 +195,39 @@ class ElasticsearchDataSource(SuggestSource):
         return {'query': {'bool': {'must': must_body}}}
 
 
-DATA_SOURCE_DICT = {'iterator_es_get': ElasticsearchDataSource()}
+class SpecifyWordsDataSource(ElasticsearchDataSource):
+    """
+    添加指定词汇的Suggest
+    """
+
+    def pull(self, suggest_config, request_param):
+        if 'index' not in request_param or 'type' not in request_param or 'word' not in request_param:
+            app_log.error('request_param is invalid, {0} {1}', suggest_config, request_param)
+            return 0, None
+
+        host = get_dict_value_by_path('notification/host', suggest_config)
+        additional_param = {'adminID': request_param['adminID']} if 'adminID' in request_param  else {}
+
+        if isinstance(request_param['word'], (set, tuple, list)):
+            keyword_list = request_param['word']
+        else:
+            keyword_list = [request_param['word']]
+        source_docs = {'total': len(keyword_list)}
+        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host)) for
+                          keyword in keyword_list]
+        count_body = chain(*count_dsl_list)
+        es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
+        source_type_weight = config.get_value('consts/suggest/source_type/' + request_param['source_type'])
+        keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
+        source_docs['root'] = [
+            dict({'word': keyword, 'hits': keyword_hits, 'source_type': request_param['source_type'],
+                  'source_type_weight': source_type_weight}, **additional_param) for (keyword, keyword_hits) in
+            zip(keyword_list, keyword_hits) if keyword_hits > 0]
+
+        return source_docs
+
+
+DATA_SOURCE_DICT = {'iterator_es_get': ElasticsearchDataSource(), 'specify_words': SpecifyWordsDataSource()}
 
 suggest_source = SuggestSource()
 

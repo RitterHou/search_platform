@@ -27,12 +27,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = '5l%66=pa_-pgs&9@w2fjaa(on638l6izt#-lx(2$(+roazdhbc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
-
-ALLOWED_HOSTS = []
-
+TEMPLATE_DEBUG = False
 
 # Application definition
 
@@ -116,6 +113,14 @@ LOGGING = {
         },
     },
     'handlers': {
+        'django_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(os.path.dirname(__file__), '../logs', 'django.log'),
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 40,
+            'formatter': 'verbose',
+        },
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -173,45 +178,66 @@ LOGGING = {
     'loggers': {
         'app': {
             'handlers': ['logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
         },
         'error': {
             'handlers': ['error_logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'ERROR',
         },
         'interface': {
             'handlers': ['interface_logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
         },
         'listener': {
             'handlers': ['listener_logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
         },
         'debug': {
             'handlers': ['debug_logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
         },
         'query': {
             'handlers': ['query_logfile'],
-            'propagate': False,
+            'propagate': True,
             'level': 'DEBUG',
-        }
+        },
+        'django': {
+            'handlers': ['django_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'django.request': {
+            'handlers': ['django_logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
     },
 }
 
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework_xml.parsers.XMLParser',
+        'rest_framework_yaml.parsers.YAMLParser',
+    ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        # 'rest_framework.renderers.BrowsableAPIRenderer',
+        'search_platform.renderers.SearchBrowsableAPIRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
+        'rest_framework_yaml.renderers.YAMLRenderer',
+        'rest_framework_csv.renderers.CSVRenderer',
         # 'rest_framework.renderers.TemplateHTMLRenderer',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'search_platform.responses.custom_exception_handler'
 }
 
 SERVICE_BASE_CONFIG = {
@@ -225,20 +251,11 @@ SERVICE_BASE_CONFIG = {
     'celery_broker_url': 'redis://172.17.8.253:6379/0',
     'celery_backend_url': 'redis://172.17.8.253:6379/0',
     'redis_lock_store': 'redis://172.17.8.253:6379/1',
+	'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER'
 }
 
-GLOBAL_ID_TO_FIELD = {
-    '1': '综合',
-    '2': 'salePrice',
-    '3': '销量',
-    '4': '新品',
-    '5': '评论'
-}
 
-# ES排序顺序
-ORDER_ID = {
-    '1': 'asc',
-    '0': 'desc'
-}
+# 测量结果ES别名
+MEASUERE_ALIAS = 'sp_measure-alias'
 
 # from river import rivers

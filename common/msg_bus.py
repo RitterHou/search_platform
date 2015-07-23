@@ -227,7 +227,7 @@ class MessageBus(object):
             app_log.error('Fail to stop message bus', e)
 
 
-    def publish(self, type, destination='all', source=None, body=None):
+    def publish(self, type, destination='all', source=None, body=None, **kwargs):
         """
         发送Redis消息
         :param type:
@@ -236,12 +236,12 @@ class MessageBus(object):
         :param body:
         :return:
         """
-        app_log.info('Publish redis message {0} {1} {2} {3}', type, destination, source, body)
+        app_log.info('Publish redis message {0} {1} {2} {3} {4}', type, destination, source, body, kwargs)
         if not type:
             app_log.info('Message is invalid ')
             return
         data = {'type': type, 'destination': destination, 'source': source, 'data': body}
-        self.redis_conn.publish(channel, data)
+        self.__redis_conn.publish(channel, data)
 
     def dispatch_event(self, event=None, **kwargs):
         """

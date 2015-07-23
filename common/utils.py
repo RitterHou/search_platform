@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import inspect
+import time
+from datetime import datetime
+
+from django.http import QueryDict
 
 from common.loggers import app_log
 
@@ -177,6 +181,25 @@ def deep_merge(dict_param, other_dict_param):
     return result_dict
 
 
+def query_dict_to_normal_dict(query_dict):
+    """
+    将django QueryDict转化为普通的dict
+    :param query_dict:
+    :return:
+    """
+    if not query_dict:
+        return {}
+    if not isinstance(query_dict, QueryDict):
+        return query_dict
+    normal_dict = {}
+    for (key, value_list) in query_dict.iteritems():
+        if isinstance(value_list, (list, tuple)) and len(value_list) > 0:
+            normal_dict[key] = value_list[0]
+        else:
+            normal_dict[key] = value_list
+    return normal_dict
+
+
 COMBINE_SIGN = '|||'
 
 
@@ -229,6 +252,36 @@ def get_function_params(fun_param):
     if not fun_param:
         return ()
     return inspect.getargspec(fun_param)[0]
+
+
+def get_default_es_host():
+    """
+    获取ES默认host
+    :return:
+    """
+    from search_platform.settings import SERVICE_BASE_CONFIG
+
+    return SERVICE_BASE_CONFIG['elasticsearch']
+
+
+def get_time_by_mill():
+    """
+    获取当前毫秒时间
+    :return:
+    """
+    return int(time.time() * 1000)
+
+
+def get_time_by_mill_str(format="%Y-%m-%dT%H:%M:%S."):
+    """
+    获取毫秒时间，根据指定的格式
+    :param format:
+    :return:
+    """
+    today = datetime.today()
+    str_time = today.strftime(format)
+    mills = today.microsecond / 1000
+    return str_time + str(mills)
 
 
 if __name__ == '__main__':

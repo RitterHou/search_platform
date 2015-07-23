@@ -1,0 +1,220 @@
+{
+  "ansj_seg_types": [
+    {
+      "value": "user_define",
+      "display_value": "自定义词汇"
+    },
+    {
+      "value": "ambiguity",
+      "display_value": "歧义词消除"
+    }
+  ],
+  "ansj_seg_operators": [
+    {
+      "value": "add",
+      "display_value": "添加"
+    },
+    {
+      "value": "delete",
+      "display_value": "删除"
+    }
+  ],
+  "ansj_speechs": [
+    {
+      "value": "n",
+      "display_value": "名词"
+    },
+    {
+      "value": "nr",
+      "display_value": "名词-人名"
+    },
+    {
+      "value": "nr1",
+      "display_value": "名词-人名-汉语姓氏"
+    },
+    {
+      "value": "nr2",
+      "display_value": "名词-人名-汉语名字"
+    },
+    {
+      "value": "nrj",
+      "display_value": "名词-人名-日语人名"
+    },
+    {
+      "value": "nrf",
+      "display_value": "名词-人名-音译人名"
+    },
+    {
+      "value": "ns",
+      "display_value": "名词-地名"
+    },
+    {
+      "value": "nsf",
+      "display_value": "名词-地名-音译地名"
+    },
+    {
+      "value": "nt",
+      "display_value": "名词-机构团体名"
+    },
+    {
+      "value": "nz",
+      "display_value": "名词-其它专名"
+    },
+    {
+      "value": "nl",
+      "display_value": "名词-名词性惯用语"
+    },
+    {
+      "value": "ng",
+      "display_value": "名词-名词性语素"
+    },
+    {
+      "value": "nw",
+      "display_value": "名词-新词"
+    },
+    {
+      "value": "t",
+      "display_value": "时间词"
+    },
+    {
+      "value": "tg",
+      "display_value": "时间词性语素"
+    },
+    {
+      "value": "s",
+      "display_value": "处所词"
+    },
+    {
+      "value": "f",
+      "display_value": "方位词"
+    },
+    {
+      "value": "v",
+      "display_value": "动词"
+    },
+    {
+      "value": "vd",
+      "display_value": "副动词"
+    },
+    {
+      "value": "vn",
+      "display_value": "名动词"
+    },
+    {
+      "value": "vshi",
+      "display_value": "是"
+    },
+    {
+      "value": "vyou",
+      "display_value": "有"
+    },
+    {
+      "value": "vf",
+      "display_value": "趋向动词"
+    },
+    {
+      "value": "vx",
+      "display_value": "形式动词"
+    },
+    {
+      "value": "vi",
+      "display_value": "不及物动词（内动词）"
+    },
+    {
+      "value": "vl",
+      "display_value": "动词性惯用语"
+    },
+    {
+      "value": "vg",
+      "display_value": "动词性语素"
+    },
+    {
+      "value": "a",
+      "display_value": "形容词"
+    },
+    {
+      "value": "ad",
+      "display_value": "副形词"
+    },
+    {
+      "value": "an",
+      "display_value": "名形词"
+    },
+    {
+      "value": "ag",
+      "display_value": "形容词性语素"
+    },
+    {
+      "value": "al",
+      "display_value": "形容词性惯用语"
+    },
+    {
+      "value": "b",
+      "display_value": "区别词"
+    },
+    {
+      "value": "bl",
+      "display_value": "区别词性惯用语"
+    },
+    {
+      "value": "z",
+      "display_value": "状态词"
+    },
+    {
+      "value": "r",
+      "display_value": "代词"
+    },
+    {
+      "value": "m",
+      "display_value": "数词"
+    },
+    {
+      "value": "q",
+      "display_value": "量词"
+    },
+    {
+      "value": "d",
+      "display_value": "副词"
+    },
+    {
+      "value": "p",
+      "display_value": "介词"
+    },
+    {
+      "value": "c",
+      "display_value": "连词"
+    },
+    {
+      "value": "u",
+      "display_value": "助词"
+    },
+    {
+      "value": "e",
+      "display_value": "叹词"
+    },
+    {
+      "value": "y",
+      "display_value": "语气词"
+    },
+    {
+      "value": "o",
+      "display_value": "拟声词"
+    },
+    {
+      "value": "h",
+      "display_value": "前缀"
+    },
+    {
+      "value": "k",
+      "display_value": "后缀"
+    },
+    {
+      "value": "x",
+      "display_value": "字符串"
+    },
+    {
+      "value": "w",
+      "display_value": "标点符号"
+    }
+  ]
+}

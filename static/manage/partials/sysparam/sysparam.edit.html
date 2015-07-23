@@ -2,12 +2,20 @@
     <p></p>
 
     <div class="col-sm-10 col-sm-offset-1">
-        <form class="form-horizontal">
+        <form class="form-horizontal" name="system_edit_form" ng-submit="save_sysparam(system_edit_form.$valid)">
             <div class="form-group">
                 <label class="col-sm-2 control-label">聚合最大数目</label>
 
                 <div class="col-sm-10">
-                    <input type="number" ng-model="sysparam.global.agg_size" class="form-control" placeholder="聚合查询最大元素数目">
+                    <input type="number" ng-model="sysparam.global.agg_size" class="form-control"
+                           placeholder="聚合查询最大元素数目"
+                           name="agg_size" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,system_edit_form.agg_size)"
+                         ng-messages="system_edit_form.agg_size.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -18,21 +26,39 @@
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.from.min" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_from_min" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_from_min)"
+                         ng-messages="system_edit_form.query_size_from_min.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">最大值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.from.max" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_from_max" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_from_max)"
+                         ng-messages="system_edit_form.query_size_from_max.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">默认值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.from.default" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_from_default" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_from_default)"
+                         ng-messages="system_edit_form.query_size_from_default.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -42,21 +68,39 @@
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.size.min" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_size_min" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_size_min)"
+                         ng-messages="system_edit_form.query_size_size_min.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">最大值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.size.max" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_size_max" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_size_max)"
+                         ng-messages="system_edit_form.query_size_size_max.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">默认值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.size.default" class="form-control"
-                           placeholder="">
+                           placeholder="" name="query_size_size_default" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.query_size_size_default)"
+                         ng-messages="system_edit_form.query_size_size_default.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -66,21 +110,39 @@
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.suggest_size.min" class="form-control"
-                           placeholder="">
+                           placeholder="" name="suggest_size_min" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.suggest_size_min)"
+                         ng-messages="system_edit_form.suggest_size_min.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">最大值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.suggest_size.max" class="form-control"
-                           placeholder="">
+                           placeholder="" name="suggest_size_max" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.suggest_size_max)"
+                         ng-messages="system_edit_form.suggest_size_max.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
 
                 <label class="col-sm-1 control-label">默认值</label>
 
                 <div class="col-sm-2">
                     <input type="number" ng-model="sysparam.global.query_size.suggest_size.default" class="form-control"
-                           placeholder="">
+                           placeholder="" name="suggest_size_default" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.suggest_size_default)"
+                         ng-messages="system_edit_form.suggest_size_default.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -89,7 +151,13 @@
 
                 <div class="col-sm-10">
                     <input type="number" ng-model="sysparam.notification.mq_reconnect_time" class="form-control"
-                           placeholder="重连MQ服务器的时间间隔">
+                           placeholder="重连MQ服务器的时间间隔" name="mq_reconnect_time" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.mq_reconnect_time)"
+                         ng-messages="system_edit_form.mq_reconnect_time.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -97,7 +165,13 @@
 
                 <div class="col-sm-10">
                     <input type="text" ng-model="sysparam.notification.mq_client_id" class="form-control"
-                           placeholder="">
+                           placeholder="" name="mq_client_id" required ng-minlength="3">
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.mq_client_id)"
+                         ng-messages="system_edit_form.mq_client_id.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -115,7 +189,13 @@
 
                 <div class="col-sm-10">
                     <input type="number" ng-model="sysparam.source.default_iteration_get_size" class="form-control"
-                           placeholder="数据流分页迭代获取数据每页数目">
+                           placeholder="数据流分页迭代获取数据每页数目" name="default_iteration_get_size" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.default_iteration_get_size)"
+                         ng-messages="system_edit_form.default_iteration_get_size.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -123,7 +203,13 @@
 
                 <div class="col-sm-10">
                     <input class="form-control" type="number" ng-model="sysparam.suggest.default_es_iterator_get_size"
-                           placeholder="后台数据分页迭代每页数目"></textarea>
+                           placeholder="后台数据分页迭代每页数目" name="default_es_iterator_get_size" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.default_es_iterator_get_size)"
+                         ng-messages="system_edit_form.default_es_iterator_get_size.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -132,7 +218,13 @@
 
                 <div class="col-sm-10">
                     <input type="number" ng-model="sysparam.suggest.source_type['1']" class="form-control"
-                           placeholder="Suggest自动分词类型权重">
+                           placeholder="Suggest自动分词类型权重" name="source_type_1" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.source_type_1)"
+                         ng-messages="system_edit_form.source_type_1.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -141,7 +233,13 @@
 
                 <div class="col-sm-10">
                     <input type="number" ng-model="sysparam.suggest.source_type['2']" class="form-control"
-                           placeholder="Suggest手工插入类型权重">
+                           placeholder="Suggest手工插入类型权重" name="source_type_2" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted, system_edit_form.source_type_2)"
+                         ng-messages="system_edit_form.source_type_1.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
 
@@ -173,7 +271,7 @@
 
             <div class="form-group">
                 <div class="col-sm-2">
-                    <button type="button" class="btn btn-danger btn-block " ng-click="save_sysparam()">
+                    <button type="submit" class="btn btn-danger btn-block " ng-show="system_edit_form.$dirty">
                         保存
                     </button>
                 </div>

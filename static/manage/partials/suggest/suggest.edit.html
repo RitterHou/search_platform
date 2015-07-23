@@ -1,0 +1,70 @@
+<div>
+    <p></p>
+
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <form class="form-horizontal" name="suggest_edit_form" ng-submit="save_term(suggest_edit_form.$valid)"
+              novalidate>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">关联商品类型</label>
+
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="mirror_term.product_type" name="product_type" required
+                            ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.product_types"
+                            required>
+                    </select>
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,suggest_edit_form.product_type)"
+                         ng-messages="suggest_edit_form.product_type.$error"
+                         ng-messages-include="form-messages">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">建议词来源</label>
+
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="mirror_term.source_type" name="source_type" required
+                            ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.source_types">
+                    </select>
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,suggest_edit_form.source_type)"
+                         ng-messages="suggest_edit_form.source_type.$error"
+                         ng-messages-include="form-messages">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">建议词</label>
+
+                <div class="col-sm-10">
+                    <input type="text" ng-model="mirror_term.word" name="word" class="form-control"
+                           placeholder="要提示的建议词" required ng-minlength="2">
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,suggest_edit_form.word)"
+                         ng-messages="suggest_edit_form.word.$error"
+                         ng-messages-include="form-messages">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-1 col-sm-offset-1">
+                    <button type="submit" class="btn btn-primary btn-sm btn-block ">
+                        保存
+                    </button>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-primary  btn-sm btn-block" ng-click="close_tab()">取消
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

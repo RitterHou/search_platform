@@ -6,7 +6,7 @@
         "host": "http://192.168.65.131:9200,http://192.168.65.132:9200",
         "index": "qmshop-{adminID}-{version}",
         "type": "Product",
-        "id": "",
+        "id": "{skuId}",
         "mapping": {
           "properties": {
             "category": {
@@ -39,7 +39,8 @@
             },
             "type": {
               "index": "not_analyzed",
-              "type": "string"
+              "type": "string",
+              "boost": 3
             },
             "salePoint": {
               "analyzer": "standard",
@@ -141,7 +142,17 @@
               "search_analyzer": "ansj_query",
               "boost": 2,
               "term_vector": "with_positions_offsets",
-              "type": "string"
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "standard",
+                  "type": "string"
+                },
+                "raw": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              }
             },
             "stock": {
               "properties": {
@@ -216,7 +227,7 @@
         "host": "http://192.168.65.131:9200,http://192.168.65.132:9200",
         "index": "qmshop-gonghuo-{version}",
         "type": "Product",
-        "id": "",
+        "id": "{skuId}",
         "mapping": {
           "properties": {
             "category": {
@@ -253,7 +264,8 @@
             },
             "type": {
               "index": "not_analyzed",
-              "type": "string"
+              "type": "string",
+              "boost": 3
             },
             "salePoint": {
               "analyzer": "standard",
@@ -351,7 +363,17 @@
               "search_analyzer": "ansj_query",
               "boost": 2,
               "term_vector": "with_positions_offsets",
-              "type": "string"
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "standard",
+                  "type": "string"
+                },
+                "raw": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              }
             },
             "stock": {
               "properties": {
@@ -439,6 +461,11 @@
               "store": true,
               "type": "string"
             },
+            "source_type": {
+              "index": "not_analyzed",
+              "store": true,
+              "type": "string"
+            },
             "suggest": {
               "max_input_length": 50,
               "preserve_separators": true,
@@ -448,6 +475,448 @@
               "preserve_position_increments": true,
               "type": "completion"
             }
+          }
+        }
+      },
+      "spu": {
+        "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
+        "index": "qmshop-{adminID}-{version}",
+        "type": "Spu",
+        "id": "{spuId}",
+        "mapping": {
+          "properties": {
+            "category": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "tags": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "costPrice": {
+              "index": "not_analyzed",
+              "type": "double"
+            },
+            "marketPrice": {
+              "index": "not_analyzed",
+              "type": "double"
+            },
+            "onSale": {
+              "type": "boolean"
+            },
+            "weight": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "spuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "type": {
+              "index": "not_analyzed",
+              "type": "string",
+              "boost": 3
+            },
+            "salePoint": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "adminId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "cats": {
+              "properties": {
+                "id": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "childs": {
+                  "properties": {
+                    "id": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "childs": {
+                      "properties": {
+                        "id": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "name": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "childs": {
+                          "properties": {
+                            "id": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "name": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "childs": {
+                              "properties": {
+                                "id": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "childs": {
+                                  "properties": {
+                                    "id": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "childs": {
+                                      "type": "nested"
+                                    }
+                                  },
+                                  "type": "nested"
+                                }
+                              },
+                              "type": "nested"
+                            }
+                          },
+                          "type": "nested"
+                        }
+                      },
+                      "type": "nested"
+                    }
+                  },
+                  "type": "nested"
+                }
+              },
+              "type": "nested"
+            },
+            "unit": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "title": {
+              "index_analyzer": "ansj_index",
+              "store": true,
+              "search_analyzer": "ansj_query",
+              "boost": 2,
+              "term_vector": "with_positions_offsets",
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "standard",
+                  "type": "string"
+                },
+                "raw": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              }
+            },
+            "stock": {
+              "properties": {
+                "count": {
+                  "index": "not_analyzed",
+                  "type": "long"
+                },
+                "status": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "regions": {
+                  "properties": {
+                    "count": {
+                      "index": "no",
+                      "type": "long"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "type": "nested"
+            },
+            "skuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "brand": {
+              "index": "not_analyzed",
+              "type": "string",
+              "boost": 5
+            },
+            "images": {
+              "index": "no",
+              "type": "string"
+            },
+            "salePrice": {
+              "precision_step": 4,
+              "type": "double"
+            },
+            "props": {
+              "properties": {
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "value": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              },
+              "type": "nested"
+            }
+          },
+          "_all": {
+            "store": true,
+            "analyzer": "standard",
+            "auto_boost": true
+          }
+        }
+      },
+      "gonghuo_spu": {
+        "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
+        "index": "qmshop-gonghuo-{version}",
+        "type": "Spu",
+        "id": "{spuId}",
+        "mapping": {
+          "properties": {
+            "category": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "tags": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "costPrice": {
+              "index": "not_analyzed",
+              "type": "double"
+            },
+            "marketPrice": {
+              "index": "not_analyzed",
+              "type": "double"
+            },
+            "onSale": {
+              "type": "boolean"
+            },
+            "weight": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "spuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "type": {
+              "index": "not_analyzed",
+              "type": "string",
+              "boost": 3
+            },
+            "salePoint": {
+              "analyzer": "standard",
+              "term_vector": "with_positions_offsets",
+              "type": "string"
+            },
+            "adminId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "cats": {
+              "properties": {
+                "id": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "childs": {
+                  "properties": {
+                    "id": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "childs": {
+                      "properties": {
+                        "id": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "name": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "childs": {
+                          "properties": {
+                            "id": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "name": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "childs": {
+                              "properties": {
+                                "id": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "childs": {
+                                  "properties": {
+                                    "id": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "index": "not_analyzed",
+                                      "type": "string"
+                                    },
+                                    "childs": {
+                                      "type": "nested"
+                                    }
+                                  },
+                                  "type": "nested"
+                                }
+                              },
+                              "type": "nested"
+                            }
+                          },
+                          "type": "nested"
+                        }
+                      },
+                      "type": "nested"
+                    }
+                  },
+                  "type": "nested"
+                }
+              },
+              "type": "nested"
+            },
+            "unit": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "title": {
+              "index_analyzer": "ansj_index",
+              "store": true,
+              "search_analyzer": "ansj_query",
+              "boost": 2,
+              "term_vector": "with_positions_offsets",
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "standard",
+                  "type": "string"
+                },
+                "raw": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              }
+            },
+            "stock": {
+              "properties": {
+                "count": {
+                  "index": "not_analyzed",
+                  "type": "long"
+                },
+                "status": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "regions": {
+                  "properties": {
+                    "count": {
+                      "index": "no",
+                      "type": "long"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "type": "nested"
+            },
+            "skuId": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "brand": {
+              "index": "not_analyzed",
+              "type": "string",
+              "boost": 5
+            },
+            "images": {
+              "index": "no",
+              "type": "string"
+            },
+            "salePrice": {
+              "precision_step": 4,
+              "type": "double"
+            },
+            "props": {
+              "properties": {
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "value": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              },
+              "type": "nested"
+            }
+          },
+          "_all": {
+            "store": true,
+            "analyzer": "standard",
+            "auto_boost": true
           }
         }
       }
@@ -488,6 +957,7 @@
             "type": "get",
             "protocol": "dubbo",
             "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
+	    "version": "1.0.0",
             "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
@@ -731,6 +1201,303 @@
               "operation": "create",
               "index": "qmshop-{adminId}-{version}",
               "id": "{skuId}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        },
+        {
+          "name": "spu_yun_not_edit",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.qmpc.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"update\")"
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"edit\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "request": {
+              "method": "listByIdString",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminID}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{spuId}"
+            }
+          ]
+        },
+        {
+          "name": "spu_yun_edit_add",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.qmpc.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"update\")"
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"addSkuIds\":\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "listByIdString",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminID}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{spuId}"
+            }
+          ]
+        },
+        {
+          "name": "spu_yun_edit_update",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.qmpc.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":2)|(\"sys\":2[\\d\\D]*\"type\":\"update\")"
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"updateSkuIds\":\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "listByIdString",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminID}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{spuId}"
+            }
+          ]
+        },
+        {
+          "name": "spu_yun_edit_delete",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.qmpc.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"deleteSkuIds\":\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"sys\":2"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": {
+                  "type": "script",
+                  "language": "python",
+                  "obj_path": "script_data_parsers.parse_spuids_from_pc_mq_msg",
+                  "input_param": {
+                    "fields": {
+                      "pc_ids": {
+                        "type": "regex",
+                        "expression": "\"ids\":\"(?P<pc_ids>[\\d\\D]+?)\""
+                      },
+                      "sep_char": {
+                        "type": "fixed",
+                        "expression": ","
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "delete",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        },
+        {
+          "name": "spu_yun_init",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "queue": "q.qmpc.EsInit",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"sys\":2"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminID}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "fromSys": "{fromSys}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{spuId}",
               "clear_policy": "every_msg,all"
             }
           ]
@@ -1429,6 +2196,250 @@
               "id": "{skuId}"
             }
           ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=update"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              },
+              "fields_update": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);",
+                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields_update"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "update",
+              "id": "{ids}"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=delete"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              },
+              "fields_update": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);",
+                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields_update"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "delete",
+              "id": "{ids}"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "type": "regex",
+                  "expression": "msg_type=init"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "http",
+            "host": "127.0.0.1:8000",
+            "request": {
+              "url": "/test/products/{adminID}/{version}",
+              "http_method": "POST",
+              "body": {
+                "adminID": "{adminID}",
+                "version": "{version}",
+                "ids": "{ids}",
+                "from": "{from}",
+                "size": "{size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "operation": "create",
+              "reference": "product",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "search_test",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "msg_type=add"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "ids": "ids=(?P<ids>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "http",
+            "host": "127.0.0.1:8000",
+            "request": {
+              "url": "/test/products/{adminID}/{version}/{ids}/",
+              "http_method": "POST",
+              "timeout": 10,
+              "body": {
+                "adminID": "{adminID}",
+                "version": "{version}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "create"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "operation": "create",
+              "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
+              "index": "qmshoptest2-{adminID}-{version}",
+              "type": "Product",
+              "id": "{id}",
+              "mapping": {
+                "properties": {
+                  "id": {
+                    "index": "not_analyzed",
+                    "store": true,
+                    "type": "string"
+                  },
+                  "name112222": {
+                    "type": "string",
+                    "store": true
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "topic.search_platform_test.update",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "type=update"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
+                "id": "id=(?P<id>[\\d\\D]+?);",
+                "name": "name=(?P<name>[\\d\\D]+?);",
+                "brand": "brand=(?P<brand>[\\d\\D]+?);"
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product",
+              "operation": "create",
+              "index": "qmshop-{adminID}-{version}",
+              "id": "{id}"
+            }
+          ]
         }
       ]
     },
@@ -1437,7 +2448,7 @@
         {
           "name": "sup_product_query",
           "res_type": "product",
-          "http_method": "GET",
+          "http_method": "GET,PUT,POST,DELETE",
           "url_format": "^products/gonghuo/[\\d\\D]+",
           "filter": {
             "type": "regex",
@@ -1447,7 +2458,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "products/gonghuo"
+                "expression": "/products/gonghuo"
               }
             ]
           },
@@ -1473,7 +2484,7 @@
         {
           "name": "yun_product_query",
           "res_type": "product",
-          "http_method": "GET",
+          "http_method": "GET,PUT,POST,DELETE",
           "url_format": "^products/[\\d\\D]+",
           "filter": {
             "type": "regex",
@@ -1483,7 +2494,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "products/[\\d\\D]+"
+                "expression": "/products/[\\d\\D]+"
               }
             ]
           },
@@ -1509,6 +2520,34 @@
           }
         },
         {
+          "name": "yun_spu_query",
+          "res_type": "product",
+          "http_method": "GET,PUT,POST,DELETE",
+          "url_format": "^spus/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/spus/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "spus/(?P<adminID>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "spu"
+          }
+        },
+        {
           "name": "sup_product_aggregation",
           "res_type": "aggregation",
           "http_method": "GET",
@@ -1521,7 +2560,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "aggregations/gonghuo"
+                "expression": "/aggregations/gonghuo"
               }
             ]
           },
@@ -1557,7 +2596,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "aggregations/[\\d\\D]+"
+                "expression": "/aggregations/[\\d\\D]+"
               }
             ]
           },
@@ -1583,6 +2622,34 @@
           }
         },
         {
+          "name": "yun_spu_aggregation",
+          "res_type": "aggregation",
+          "http_method": "GET",
+          "url_format": "^spu_aggregations/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/spu_aggregations/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "spu_aggregations/(?P<adminID>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "spu"
+          }
+        },
+        {
           "res_type": "suggest",
           "http_method": "GET",
           "url_format": "^suggests/[\\d\\D]+",
@@ -1594,7 +2661,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "suggests/[\\d\\D]+"
+                "expression": "/suggests/[^/]+$"
               }
             ]
           },
@@ -1631,7 +2698,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "search/gonghuo"
+                "expression": "/search/gonghuo"
               }
             ]
           },
@@ -1667,7 +2734,7 @@
                 "operator": "is",
                 "type": "regex",
                 "field": "url",
-                "expression": "search/[\\d\\D]+"
+                "expression": "/search/[\\d\\D]+"
               }
             ]
           },
@@ -1690,14 +2757,157 @@
               }
             }
           }
+        },
+        {
+          "name": "yun_spu_search",
+          "res_type": "search",
+          "http_method": "GET",
+          "url_format": "^spu_search/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/spu_search/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "spu_search/(?P<adminID>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "spu"
+          },
+          "response": {
+            "json": {
+              "format": "json",
+              "data_parser": {
+                "language": "python",
+                "script": "script.python.data_parser"
+              }
+            }
+          }
+        },
+        {
+          "name": "stats_search",
+          "res_type": "measure",
+          "http_method": "GET",
+          "url_format": "^stats/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/stats/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "index": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+              "task_name": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+            }
+          }
+        },
+        {
+          "name": "exstats_search",
+          "res_type": "ex_measure",
+          "http_method": "GET",
+          "url_format": "^exstats/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/exstats/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "index": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+              "task_name": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+            }
+          }
+        },
+        {
+          "res_type": "ex_suggest",
+          "http_method": "GET",
+          "url_format": "^suggests/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/suggests/[\\d\\D]+?/scenes/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "/suggests/(?P<adminID>[\\d\\D]+?)/scenes",
+              "scene": "/scenes/(?P<scene>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "suggest"
+          }
+        },
+        {
+          "res_type": "recommendation",
+          "http_method": "GET",
+          "url_format": "^recommendations/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/recommendations/[\\d\\D]+?/scenes/[\\d\\D]+"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "/recommendations/(?P<adminID>[\\d\\D]+?)/scenes",
+              "scene": "/scenes/(?P<scene>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "product"
+          }
         }
       ]
     },
     "suggest": {
       "rivers": [
         {
+          "name": "yun_product_suggest_task",
           "notification": {
-            "name": "yun_product_suggest_task",
             "type": "elasticsearch_regularly_scan",
             "crontab": {
               "second": "0",
@@ -1771,6 +2981,7 @@
               "common_fields": {
                 "type": "map",
                 "fields": {
+                  "source_type": "source_type",
                   "id": "id"
                 }
               }
@@ -1855,6 +3066,7 @@
               "common_fields": {
                 "type": "map",
                 "fields": {
+                  "source_type": "source_type",
                   "id": "id"
                 }
               }
@@ -1888,10 +3100,61 @@
           },
           "suggest_size": {
             "min": 0,
-            "max": 30,
+            "max": 50,
+            "default": 10
+          },
+          "like_str_size": {
+            "min": 0,
+            "max": 20,
             "default": 10
           }
+        },
+        "ansj_segment_redis": {
+          "host": "localhost:6379",
+          "channel": "ansj_term"
+        },
+        "lock_expire_time": 1800,
+        "algorithm": {
+          "price_section_num": 6,
+          "section_range_rate": 20,
+          "price_section_opt_range": [
+            10,
+            20,
+            30,
+            50,
+            100
+          ],
+          "optimize": true,
+          "like_string_suggest_size": 10,
+          "like_string_fuzzy_size": 10,
+          "content_based_recom": {
+            "vectors": {
+              "brand": {"weight": 1},
+              "salePrice": {
+                "weight": 1,
+                "type": "range"
+              },
+              "spuId": {"weight": 1},
+              "props": {
+                "weight": 1,
+                "type": "nest"
+              }
+            },
+            "recommend": {
+              "size": 5,
+              "min_cosine_similarity": 0.6,
+              "candidate_multiple": 3,
+              "type_query_size": 5000
+            }
+          }
         }
+      },
+      "query": {
+        "orders": {
+          "1": "asc",
+          "0": "desc"
+        },
+        "scroll_time": "1m"
       },
       "notification": {
         "mq_reconnect_time": 30,
@@ -1911,6 +3174,11 @@
         }
       },
       "manager": {
+        "default": {
+          "supervisor_port": "9001",
+          "supervisor_user": "user",
+          "supervisor_password": "123"
+        },
         "hosts": [
           {
             "host": "172.17.8.199",
@@ -1924,7 +3192,13 @@
             "supervisor_user": "user",
             "supervisor_password": "123"
           }
-        ]
+        ],
+        "message": {
+          "es_store": {
+            "index": "search_platform_cfg",
+            "type": "message"
+          }
+        }
       },
       "logger": {
         "debug": {
@@ -1939,7 +3213,265 @@
         "query": {
           "level": "INFO"
         }
+      },
+      "measure": {
+        "es": {
+          "task": {
+            "index": "sp_measure-{year}-{version}",
+            "type": "{task_name}",
+            "id": "{time_stamp}"
+          },
+          "sample": {
+            "index": "sp_measure_sample-{year}-{version}",
+            "type": "{task_name}",
+            "id": "{time_stamp}"
+          }
+        },
+        "save_sample_data": true
       }
+    },
+    "measure": {
+      "measure_unit": [
+        {
+          "name": "es_index_stats",
+          "measure_obj": {
+            "type": "es_index"
+          },
+          "measurements": [
+            {
+              "name": "doc_count",
+              "type": "elasticsearch",
+              "operation": "search",
+              "search_type": "count",
+              "dsl": "",
+              "calculate_policy": "max",
+              "data_type": "int"
+            },
+            {
+              "name": "doc_count_increment",
+              "type": "elasticsearch",
+              "operation": "search",
+              "search_type": "count",
+              "dsl": "",
+              "calculate_policy": "sub",
+              "data_type": "int"
+            },
+            {
+              "name": "storage_size",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/store/size_in_bytes",
+              "calculate_policy": "max"
+            },
+            {
+              "name": "index_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/indexing/index_total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "index_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/indexing/index_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "delete_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/indexing/delete_total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "delete_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/indexing/delete_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "get_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/get/total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "get_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/get/time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "search_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/search/query_total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "search_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/search/query_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "suggest_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/suggest/total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "suggest_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/suggest/time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "warmer_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/warmer/total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "warmer_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/warmer/total_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "refresh_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/refresh/total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "refresh_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/refresh/total_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "flush_current",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/flush/total",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            },
+            {
+              "name": "flush_time",
+              "type": "elasticsearch",
+              "operation": "stats",
+              "value_field": "/primaries/flush/total_time_in_millis",
+              "calculate_policy": "sub",
+              "collect_policy": "sum"
+            }
+          ]
+        },
+        {
+          "name": "spu_stats",
+          "measure_obj": {
+            "type": "es_index"
+          },
+          "measurements": [
+            {
+              "name": "spu_count",
+              "type": "elasticsearch",
+              "operation": "search",
+              "search_type": "aggs",
+              "dsl": {"aggs": {"spu_count": {"cardinality": {"field": "spuId"}}}},
+              "value_field": "/aggregations/spu_count/value",
+              "calculate_policy": "max",
+              "data_type": "int"
+            },
+            {
+              "name": "spu_count_increment",
+              "type": "elasticsearch",
+              "operation": "search",
+              "search_type": "aggs",
+              "dsl": {"aggs": {"spu_count": {"cardinality": {"field": "spuId"}}}},
+              "value_field": "/aggregations/spu_count/value",
+              "calculate_policy": "sub",
+              "data_type": "int"
+            }
+          ]
+        }
+      ],
+      "measure_task": [
+        {
+          "name": "index_stats",
+          "measure_unit_name": "es_index_stats",
+          "measure_obj": {
+            "host": "",
+            "filter": {
+              "union_operator": "and",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "field": "index",
+                  "expression": "qmshop-[\\d\\D]+"
+                }
+              ]
+            }
+          },
+          "period": {
+            "type": "interval",
+            "sample_period": {"minutes": 60},
+            "measure_period": {"minutes": 60}
+          },
+          "save_sample_data": true
+        },
+        {
+          "name": "spu_stats",
+          "measure_unit_name": "spu_stats",
+          "measure_obj": {
+            "host": "",
+            "filter": {
+              "union_operator": "and",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "field": "index",
+                  "expression": "qmshop-[\\d\\D]+"
+                }
+              ]
+            }
+          },
+          "period": {
+            "type": "interval",
+            "sample_period": {"minutes": 60},
+            "measure_period": {"minutes": 60}
+          },
+          "save_sample_data": true
+        }
+      ]
     }
   }
 }

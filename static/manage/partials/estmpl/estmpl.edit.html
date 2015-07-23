@@ -2,33 +2,62 @@
     <p></p>
 
     <div class="col-sm-10 col-sm-offset-1">
-        <form class="form-horizontal">
+        <form class="form-horizontal" name="estmpl_edit_form" ng-submit="save_es_tmpl(estmpl_edit_form.$valid)"
+              novalidate>
             <div class="form-group">
                 <label class="col-sm-2 control-label">模板名称</label>
 
                 <div class="col-sm-10">
-                    <input type="text" ng-model="mirror_tmpl.name" class="form-control" placeholder="ElasticSearch模板名称">
+                    <input type="text" ng-model="mirror_tmpl.name" class="form-control" placeholder="搜索引擎数据模板名称，不少于5个字符"
+                           name="name" required ng-minlength="5">
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,estmpl_edit_form.name)"
+                         ng-messages="estmpl_edit_form.name.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">主机地址</label>
 
                 <div class="col-sm-10">
-                    <input type="text" ng-model="mirror_tmpl.host" class="form-control" placeholder="主机地址">
+                    <input type="text" ng-model="mirror_tmpl.host" class="form-control" placeholder="主机地址"
+                           name="host">
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,estmpl_edit_form.host)"
+                         ng-messages="estmpl_edit_form.host.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">索引</label>
 
                 <div class="col-sm-10">
-                    <input type="text" ng-model="mirror_tmpl.index" class="form-control" placeholder="索引">
+                    <input type="text" ng-model="mirror_tmpl.index" class="form-control" placeholder="索引"
+                           name="index" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,estmpl_edit_form.index)"
+                         ng-messages="estmpl_edit_form.index.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">文档类型</label>
 
                 <div class="col-sm-10">
-                    <input type="text" ng-model="mirror_tmpl.type" class="form-control" placeholder="文档类型">
+                    <input type="text" ng-model="mirror_tmpl.type" class="form-control" placeholder="文档类型"
+                           name="type" required>
+
+                    <div class="error-messages"
+                         ng-if="interacted(submitted,estmpl_edit_form.type)"
+                         ng-messages="estmpl_edit_form.type.$error"
+                         ng-messages-include="form-messages">
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -49,7 +78,7 @@
 
             <div class="form-group">
                 <div class="col-sm-1 col-sm-offset-1">
-                    <button type="button" class="btn btn-primary btn-sm btn-block " ng-click="save_es_tmpl()">
+                    <button type="submit" class="btn btn-primary btn-sm btn-block ">
                         保存
                     </button>
                 </div>

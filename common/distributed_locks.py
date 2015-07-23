@@ -11,8 +11,8 @@ from search_platform.settings import SERVICE_BASE_CONFIG
 
 __author__ = 'liuzhaoming'
 
-# 锁过期时间为20小时
-expire_time = 20 * 3600
+# 锁过期时间配置文件路径
+expire_time_path = '/consts/global/lock_expire_time'
 
 
 class LockStoreFactory(object):
@@ -35,7 +35,7 @@ class LockStore(object):
     锁仓库
     """
 
-    def get_lock_info(self, task_name, timeout=expire_time):
+    def get_lock_info(self, task_name, timeout=0):
         pass
 
     def release_lock_info(self, task_name):
@@ -52,7 +52,7 @@ class RedisLockStore(LockStore):
         self.__host = host
         self.__init_store()
 
-    def get_lock_info(self, task_name, task_timeout=expire_time):
+    def get_lock_info(self, task_name, task_timeout=0):
         """
         获取分布式锁
         :param task_name:
@@ -62,10 +62,11 @@ class RedisLockStore(LockStore):
         if not self.__redis_conn.setnx(task_key, self.__client_id):
             # 为了保证原子操作，首先对task中得锁进行认领，如果已经被占用，则认领不成功
             return False
+        task_timeout = task_timeout or config.get_value(expire_time_path)
         self.__redis_conn.expire(task_key, task_timeout)
         return True
 
-    def get_lock_info_by_watch(self, task_name, task_timeout=expire_time):
+    def get_lock_info_by_watch(self, task_name, task_timeout=0):
         """
         通过watch实现分布式锁
         :param task_name:
@@ -77,6 +78,7 @@ class RedisLockStore(LockStore):
             pipe_line.watch(task_key)
             value = self.__redis_conn.get(task_key)
             if not value:
+                task_timeout = task_timeout or config.get_value(expire_time_path)
                 pipe_line.multi()
                 pipe_line.setex(task_key, self.__client_id, task_timeout)
                 pipe_line.execute()
@@ -138,6 +140,7 @@ class DistributedLock(object):
         def decorator(function):
 
             def new_func(*args, **kwargs):
+
                 lock_info = self.__lock_store.get_lock_info(task_name)
                 if not lock_info:
                     app_log.info("{0} cannot get lock {1}", function, task_name)

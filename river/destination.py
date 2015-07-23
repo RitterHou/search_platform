@@ -53,7 +53,7 @@ class ElasticSearchDestination(DataDestination):
             'the es config is not valid, es_config={0}'.format(es_config)
 
         operation = destination_config.get('operation', 'create')
-        if not isinstance(data, list) and not isinstance(data, tuple):
+        if not isinstance(data, (list, tuple)):
             data = [data]
         if operation == 'create':
             es_adapter.batch_create(es_config, data)
@@ -61,6 +61,8 @@ class ElasticSearchDestination(DataDestination):
             es_adapter.batch_update(es_config, data)
         elif operation == 'delete':
             es_adapter.batch_delete(es_config, data)
+        elif operation == 'ids_same_prop_update':
+            es_adapter.batch_update_with_props_by_ids(es_config, data)
 
     def clear(self, destination_config, data, param=None):
         """

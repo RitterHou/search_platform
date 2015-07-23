@@ -2,7 +2,7 @@
   {
     "categories": [
       {
-        "name": "ElasticSearch模板",
+        "name": "搜索引擎数据模板",
         "id": 103,
         "type": "category"
       },
@@ -14,6 +14,21 @@
       {
         "name": "RESTful接口",
         "id": 102,
+        "type": "category"
+      },
+      {
+        "name": "拼写建议",
+        "id": 104,
+        "type": "category"
+      },
+      {
+        "name": "商店管理",
+        "id": 105,
+        "type": "category"
+      },
+      {
+        "name": "商品管理",
+        "id": 106,
         "type": "category"
       }
     ],
@@ -37,6 +52,11 @@
       {
         "name": "消息管理",
         "id": 203,
+        "type": "category"
+      },
+      {
+        "name": "ANSJ分词管理",
+        "id": 204,
         "type": "category"
       }
     ],

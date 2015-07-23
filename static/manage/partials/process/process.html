@@ -18,8 +18,8 @@
                 </li>
                 <li><a class="btn btn-danger btn-sm" ng-click="doAction(host.host, 'stop')">停止所有应用</a>
                 </li>
-                <li><a class="btn btn-primary btn-sm" target="_blank"
-                       href="/manage/process/viewlog?host={{ host.host }}">查看日志</a>
+                <li><a class="btn btn-primary btn-sm" target="_blank" href="/management/process/log?host={{ host.host }}"
+                      >查看日志</a>
                 </li>
                 <li><a class="btn btn-primary btn-sm"
                        ng-click="doAction(host.host, 'clear_log')">清空日志</a></li>
@@ -49,7 +49,7 @@
                                    ng-click="doAction(host.host, 'stop', process.group)">停止</a>
                             </li>
                             <li><a class="" target="_blank"
-                                   href="/manage/process/viewlog?host={{ host.host }}&process={{ process.group }}">查看日志</a>
+                                   href="/management/process/log?host={{ host.host }}&process={{ process.group }}">查看日志</a>
                             </li>
                             <li><a class="" href="javascript:void(0)"
                                    ng-click="doAction( host.host, 'clear_log', process.group)">清空日志</a>

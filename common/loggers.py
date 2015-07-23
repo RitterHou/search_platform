@@ -202,7 +202,7 @@ class DebugLog(object):
         except Exception as e:
             self.logger.exception(e)
         finally:
-            self.logger.getEffectiveLevel()
+            # self.logger.getEffectiveLevel()
             if int_log_level == 10:
                 self.logger.debug(msg)
             elif int_log_level == 20:

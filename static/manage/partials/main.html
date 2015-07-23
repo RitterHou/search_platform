@@ -1,6 +1,25 @@
+<script type="text/ng-template" id="form-messages">
+    <div ng-message="required">字段内容不能为空</div>
+    <div ng-message="minlength">字段内容长度过短</div>
+    <div ng-message="maxlength">字段内容长度过长</div>
+    <div ng-message="pattern">字段内容格式不合法</div>
+</script>
+
+<script type="text/ng-template" id="confirmModalContent.html">
+    <div class="modal-header">
+        <h4 class="modal-title"><span class="glyphicon glyphicon-warning-sign"></span>&nbsp;确认</h4>
+    </div>
+    <div class="modal-body">
+        <p>{{ infomation }}</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning" ng-click="ok()">确认</button>
+        <button class="btn btn-primary" ng-click="cancel()">取消</button>
+    </div>
+</script>
+
 <div class="col-lg-2" ui-tree="options" data-drag-enabled="false" data-empty-placeholder-enabled="false">
-    <ol ui-tree-nodes ng-model="groups" data-type="group"
-        ng-init="select_ids=['101']">
+    <ol ui-tree-nodes ng-model="groups" data-type="group">
         <li ng-repeat="group in groups" ui-tree-node>
             <div class="group-title angular-ui-tree-handle">
                 <div>&nbsp;{{ group.name }}</div>
@@ -8,10 +27,9 @@
             <ol ui-tree-nodes ng-model="group.categories" data-type="category">
                 <li ng-repeat="category in group.categories" ui-tree-node>
                     <div class="category-title angular-ui-tree-handle text-danger active"
-                         ng-style="def_styles[category.id]">
-                        <a ui-sref="node.{{ category.id }}.info" href="javascript:void(0)" class="text-capitalize "
-                           ng-style="def_text_styles[category.id]"
-                           ng-click="select_ids[0]=category.id;setStyle(category.id)">
+                         ng-style="get_style(category.id).def_styles">
+                        <a ui-sref="node.{{ category.id }}.info" href="javascript:void(0)" class="text-capitalize"
+                           ng-style="get_style(category.id).def_text_styles">
                             &nbsp;{{ category.name }}
                         </a>
                     </div>

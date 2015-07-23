@@ -15,6 +15,7 @@ class EsConnection(Elasticsearch):
 
     def __init__(self, hosts=None, transport_class=Transport, **kwargs):
         Elasticsearch.__init__(self, hosts, transport_class, **kwargs)
+        self.host_list = hosts
 
 
 class EsConnectionPool(object):
@@ -38,7 +39,7 @@ class EsConnectionPool(object):
         :param es_config:
         :return:
         """
-        _host = host or (es_config['host'] if es_config and 'host' in es_config else None)
+        _host = host or [es_config['host'] if es_config and 'host' in es_config else None][0]
         conn = self.__create_connection(_host)
 
         try:

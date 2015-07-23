@@ -184,18 +184,59 @@ manageServices.factory('DataRiverFormat', [function () {
          * @param data_river
          */
         format_data_river_to_display: function (data_river) {
+            if (!data_river) {
+                data_river = {}
+            }
+
+            if (!data_river.notification) {
+                data_river.notification = {}
+            }
             var notification = data_river.notification
-            if (notification) {
-                if (notification.filter) {
-                    if (notification.filter.conditions) {
-                        for (var index in notification.filter.conditions) {
-                            if (!notification.filter.conditions[index].operator) {
-                                notification.filter.conditions[index].operator = 'is'
-                            }
-                        }
+            if (!notification.type) {
+                notification.type = 'MQ'
+            }
+            if (!notification.msg_type) {
+                notification.msg_type = 'TextMessage'
+            }
+            if (!notification.filter) {
+                notification.filter = {}
+            }
+            if (!notification.filter.msg_type) {
+                notification.filter.msg_type = 'TextMessage'
+            }
+            if (!notification.filter.union_operator) {
+                notification.filter.union_operator = 'and'
+            }
+            if (notification.filter.conditions) {
+                for (var index in notification.filter.conditions) {
+                    if (!notification.filter.conditions[index].operator) {
+                        notification.filter.conditions[index].operator = 'is'
                     }
                 }
+            } else {
+                notification.filter.conditions = []
             }
+
+            if (!data_river.source) {
+                data_river.source = {}
+            }
+            var source = data_river.source
+            if (!source.protocol) {
+                source.protocol = 'http'
+            }
+            if (!source.type) {
+                source.type = 'get'
+            }
+            if (!source.request) {
+                source.request = {}
+            }
+            if (!source.request.http_method) {
+                source.request.http_method = 'POST'
+            }
+            if (!source.request.timeout) {
+                source.request.timeout = 60
+            }
+
             var destinations = data_river.destination
             if (destinations) {
                 for (var index in destinations) {
@@ -314,7 +355,7 @@ manageServices.factory('EsTmplTemplate', ['$resource',
 manageServices.factory('QueryHandler', ['$resource',
     function ($resource) {
         return $resource('querychains/:name', {name: '@name'}, {
-            query: {method: 'GET', isArray: true, params: {name: ""}},
+            'query': {method: 'GET', isArray: true, params: {name: ""}},
             'get': {method: 'GET', isArray: true},
             'save': {method: 'POST'},
             'update': {method: 'PUT'},
@@ -346,6 +387,10 @@ manageServices.factory('QueryHandlerFormat', ['QueryHandler', function (QueryHan
 
             if (!query_handler.filter.conditions) {
                 query_handler.filter.conditions = []
+            }
+
+            if (!query_handler.filter.union_operator) {
+                query_handler.filter.union_operator = 'and'
             }
 
             if (query_handler.response) {
@@ -537,7 +582,7 @@ manageServices.factory('SysParamTemplate', ['$resource',
 
 manageServices.factory('SysParam', ['$resource',
     function ($resource) {
-        return $resource('sysparams', {}, {
+        return $resource('sysparam', {}, {
             query: {method: 'GET', isArray: false},
             'update': {method: 'POST'}
         });
@@ -556,7 +601,7 @@ manageServices.factory('Process', ['$resource',
 
 manageServices.factory('ProcessAction', ['$resource',
     function ($resource) {
-        return $resource('processes/action/:action/host/:host/name/:name', {
+        return $resource('processes/operations/:action/host/:host/name/:name', {
                 name: '@name',
                 action: '@action',
                 host: '@host'
@@ -565,4 +610,48 @@ manageServices.factory('ProcessAction', ['$resource',
                 'get': {method: 'GET'}
             }
         );
+    }]);
+
+manageServices.factory('Message', ['$resource',
+    function ($resource) {
+        return $resource('messages', {}, {
+            'query': {method: 'GET', isArray: true},
+            'save': {method: 'POST'}
+        });
+    }]);
+manageServices.factory('MessageTemplate', ['$resource',
+    function ($resource) {
+        return $resource('../static/manage/partials/message/message.template.json', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+    }]);
+
+manageServices.factory('AnsjTemplate', ['$resource',
+    function ($resource) {
+        return $resource('../static/manage/partials/ansj/ansj.template.json', {}, {
+            query: {method: 'GET', isArray: false}
+        });
+    }]);
+
+manageServices.factory('Ansj', ['$resource',
+    function ($resource) {
+        return $resource('ansjtokens', {}, {
+            'add': {method: 'POST'},
+            'delete': {method: 'POST'}
+        });
+    }]);
+
+//manageServices.factory('Suggest', ['$resource',
+//    function ($resource) {
+//        return $resource('suggestterms/:adminID', {}, {
+//            'query': {method: 'GET', isArray: true},
+//            'save': {method: 'POST'},
+//            'delete': {method: 'DELETE'}
+//        });
+//    }]);
+manageServices.factory('SuggestTemplate', ['$resource',
+    function ($resource) {
+        return $resource('../static/manage/partials/suggest/suggest.template.json', {}, {
+            query: {method: 'GET', isArray: false}
+        });
     }]);

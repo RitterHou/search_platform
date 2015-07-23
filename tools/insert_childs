@@ -1,0 +1,50 @@
+# coding=utf-8
+import json
+import itertools
+
+from elasticsearch import Elasticsearch
+
+from common.configs import config
+
+
+__author__ = 'liuzhaoming'
+
+
+def get_spu_list(sku_list):
+    spu_dict = itertools.groupby(sku_list, lambda item: item['spuId'])
+    spu_list = []
+    for (spu_id, sku_temp_list) in spu_dict:
+        spu = {'spuId': spu_id}
+        sku = list(sku_temp_list)[0]
+        spu['title'] = sku.get('title')
+        spu_list.append(spu)
+    return spu_list
+
+
+def insert_data():
+    es = Elasticsearch('http://127.0.0.1:9200')
+    f = open('./qmshop-gonghuo-1.0.0.json')
+    data_list = json.load(f)
+    child_mapping = config.get_value('es_index_setting/product/mapping')
+    child_mapping['_parent'] = {'type': 'Spu'}
+    es.indices.put_mapping(index='qmshop-sptest-1.0.0', doc_type='Spu', body={"properties": {}})
+    es.indices.put_mapping(index='qmshop-sptest-1.0.0', doc_type='Product', body=child_mapping)
+
+    spu_list = get_spu_list(data_list)
+    doc_list = []
+    for spu in spu_list:
+        doc_list.append({'index': {"_id": spu['spuId']}})
+        doc_list.append(spu)
+    es_result = es.bulk(index='qmshop-sptest-1.0.0', doc_type='Spu', body=doc_list)
+    print es_result
+
+    doc_list = []
+    for data in data_list:
+        doc_list.append({'index': {"_id": data['skuId'], '_parent': data['spuId']}})
+        doc_list.append(data)
+    es_result = es.bulk(index='qmshop-sptest-1.0.0', doc_type='Product', body=doc_list)
+    print es_result
+
+
+if __name__ == '__main__':
+    insert_data()

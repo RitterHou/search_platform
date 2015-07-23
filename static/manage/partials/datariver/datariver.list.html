@@ -1,36 +1,14 @@
-<div >
-
-    <div class="btn-group btn-group-xs">
-        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')">
+<div>
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary btn-xs" ng-click="create('lg')" tooltip="创建数据流">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
-    </div>
-    <input type="text" placeholder="过滤字段" ng-model="search_text"/>
-
-    <!--
-    <table class="table table-striped table-responsive  ">
-        <thead>
-        <tr>
-            <th>数据流名称</th>
-            <th>触发器</th>
-            <th>数据源</th>
-            <th>数据终点</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <tr ng-repeat="river in rivers">
-            <td>{{ river.name }}</td>
-            <td>{{ river.notification |json| limitTo:100 |add_dots:4 }}</td>
-            <td>{{ river.source |json| limitTo:100|add_dots:4 }}</td>
-            <td>{{ river.destination |json| limitTo:100 |add_dots:4 }}</td>
-        </tr>
-        </tbody>
-    </table>-->
+        <input type="text" placeholder="过滤字段" ng-model="search_text"/>
+    </form>
 
     <ad-table-lite table-name="riverList"
                    column-definition="riverTableColumnDefinition"
-                   local-data-source="rivers"
+                   local-data-source="model.rivers"
                    page-sizes="[10, 20]"
                    pagination-btn-group-classes="pagination pagination-sm"
                    table-classes="table table-bordered"

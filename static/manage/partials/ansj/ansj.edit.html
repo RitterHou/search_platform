@@ -1,0 +1,73 @@
+<div>
+    <p></p>
+
+    <div class="col-sm-10 col-sm-offset-1">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">ANSJ词汇类型</label>
+
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="seg.type"
+                            ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.ansj_seg_types"
+                            >
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">操作类型</label>
+
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="seg.operator"
+                            ng-options="type_temp.value as type_temp.display_value for type_temp in template_data.ansj_seg_operators"
+                            >
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="form-group" ng-if="seg.type == 'user_define'">
+                <label class="col-sm-2 control-label">自定义词汇</label>
+
+                <div class="col-sm-10">
+                    <input type="text" ng-model="seg.user_define_text" class="form-control"
+                           placeholder="自定义词汇">
+                </div>
+            </div>
+
+
+            <div ng-if="seg.type == 'ambiguity'">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">歧义词</label>
+
+                    <div class="col-sm-10">
+                        <input type="text" ng-model="seg.ambiguity_text" class="form-control"
+                               placeholder="歧义词">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">歧义词分词</label>
+
+                    <div class="col-sm-10">
+                        <button type="button" class="btn btn-primary btn-xs" ng-click="add_ambiguity_term()">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-xs" ng-click="delete_ambiguity_term()">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <div ui-grid="ambiguity_term_grid" ui-grid-selection ui-grid-edit></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2 col-sm-offset-1">
+                    <button type="button" class="btn btn-primary btn-block " ng-click="save_ansj()">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

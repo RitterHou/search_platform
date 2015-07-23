@@ -55,7 +55,7 @@ class RequestFilter(object):
         :param condition:
         :return:
         """
-        request_param = get_request_data(request)
+        request_param = request.QUERY_PARAMS
         contains_cfg_items = condition.get('contains')
         match_result = True
         if not contains_cfg_items:

@@ -1,0 +1,13 @@
+<tabset>
+    <tab heading="消息列表" active>
+        <div ui-view="message_list"></div>
+    </tab>
+
+    <tab ng-click="" ng-repeat="tab in tabs" active="tab.active">
+        <tab-heading>
+            {{ tab.title }}
+        </tab-heading>
+
+        <div ui-view="message_op"></div>
+    </tab>
+</tabset>

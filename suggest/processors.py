@@ -41,10 +41,12 @@ class SuggestProcessor(object):
             try:
                 source_docs = suggest_source.pull(suggest_config, notification_data)
                 processed_data = data_processing.process_data(data_processing_config, source_docs, suggest_config)
-                suggest_destination.push(suggest_config, processed_data)
-                cur_size = source_docs.get('curSize', 0)
                 if pos_from == 0:
                     total = source_docs.get('total', 0)
+                    suggest_destination.clear(suggest_config, processed_data)
+                suggest_destination.push(suggest_config, processed_data)
+                cur_size = source_docs.get('curSize', 0)
+
                 pos_from += cur_size
                 notification_data['pos_from'] = pos_from
                 has_next = pos_from < total - 1
