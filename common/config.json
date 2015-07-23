@@ -3154,7 +3154,8 @@
           "1": "asc",
           "0": "desc"
         },
-        "scroll_time": "1m"
+        "scroll_time": "1m",
+        "agg_cats_default_depth": 2
       },
       "notification": {
         "mq_reconnect_time": 30,
@@ -3195,7 +3196,7 @@
         ],
         "message": {
           "es_store": {
-            "index": "search_platform_cfg",
+            "index": "sp_search_platform_msg",
             "type": "message"
           }
         }

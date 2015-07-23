@@ -444,7 +444,7 @@ class Supervisor(object):
         host_list = config.get_value('consts/manager/hosts')
         default_host_cfg = config.get_value('consts/manager/default')
         register_hosts = map(lambda host: dict(default_host_cfg, host=host), register_center.get_hosts())
-        all_hosts = host_list + register_hosts
+        all_hosts = list(set(host_list + register_hosts))
 
         return map(lambda (m, n): list(n)[0], groupby(all_hosts, lambda host_info: host_info['host']))
 

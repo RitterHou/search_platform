@@ -155,7 +155,7 @@ class DubboDataSource(DataSource):
         try:
             response = self.call_dubbo_method(host, service_interface, method, body, version, timeout)
             # 如果返回code，抛出异常
-            if not response:
+            if response is None:
                 app_log.error(
                     'can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3}', None,
                     source_config, version, _request_param, response)

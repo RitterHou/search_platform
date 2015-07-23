@@ -100,7 +100,7 @@ class MeasureMain(object):
             except Exception as e:
                 app_log.error('Measure app has error, suggest river is {0}', e, task_config)
             index += 1
-        self.scheduler.add_listener(apscheduler_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+            self.scheduler.add_listener(apscheduler_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         try:
             self.scheduler.start()
         except Exception as e:

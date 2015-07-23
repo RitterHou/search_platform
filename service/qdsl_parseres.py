@@ -166,17 +166,17 @@ class QdslParser(object):
         order = self.order_num_to_es_str(order)
         if sort_seq_id == 'script':
             # 支持根据动态脚本排序
-            script = unbind_variable('script\\((?P<script>[\\d\\D]+?)\\)', 'script', sort_seq_id)
+            script = unbind_variable('script\\((?P<script>[\\d\\D]+?)\\)', 'script', sort_seq_id)[1]
             script = extend_parser.format_script_str(script)
-            script_type = unbind_variable('type\\((?P<type>[\\d\\D]+?)\\)', 'type', sort_seq_id) or 'string'
+            script_type = unbind_variable('type\\((?P<type>[\\d\\D]+?)\\)', 'type', sort_seq_id)[1] or 'string'
             return {'_script': {'script': script, 'type': script_type, 'order': order}}
         elif sort_seq_id == 'geodistance':
             # 支持根据距离排序
-            location = unbind_variable('location\\((?P<location>[\\d\\D]+?)\\)', 'location', sort_seq_id)
-            unit = unbind_variable('unit\\((?P<unit>[\\d\\D]+?)\\)', 'unit', sort_seq_id) or 'km'
+            location = unbind_variable('location\\((?P<location>[\\d\\D]+?)\\)', 'location', sort_seq_id)[1]
+            unit = unbind_variable('unit\\((?P<unit>[\\d\\D]+?)\\)', 'unit', sort_seq_id)[1] or 'km'
             distance_type = unbind_variable('distancetype\\((?P<distancetype>[\\d\\D]+?)\\)', 'distancetype',
-                                            sort_seq_id) or 'sloppy_arc'
-            mode = unbind_variable('mode\\((?P<mode>[\\d\\D]+?)\\)', 'mode', sort_seq_id)
+                                            sort_seq_id)[1] or 'sloppy_arc'
+            mode = unbind_variable('mode\\((?P<mode>[\\d\\D]+?)\\)', 'mode', sort_seq_id)[1]
             return {'_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type,
                                       'mode': mode}} if mode else {
                 '_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type}}
@@ -495,7 +495,8 @@ class ExtendQdslParser(object):
                                       'date_range': self.__get_agg_date_range_fragment,
                                       'histogram': self.__get_agg_histogram_fragment,
                                       'date_histogram': self.__get_agg_date_histogram_fragment,
-                                      'geo_distance': self.__get_agg_geo_distance_fragment
+                                      'geo_distance': self.__get_agg_geo_distance_fragment,
+                                      'cats': self.__get_agg_cats_fragment
         }
 
     @debug_log.debug('get_qdsl')
@@ -1708,6 +1709,27 @@ class ExtendQdslParser(object):
                     agg_date_range_dsl['geo_distance'][search_item_key_value[0]] = search_item_key_value[1]
 
         return {aggs_key: agg_date_range_dsl}
+
+    def __get_agg_cats_fragment(self, field_name, field_str):
+        """
+        聚合商品类目路径，一次聚合出所有层级的类目
+        ex_agg_cats=cats(depth:3)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        if not field_name:
+            return None
+        aggs_key = 'ex_agg_' + field_name + '.cats'
+        search_item_str_list = field_str.split(';')
+        depth = config.get_value('/consts/query/agg_cats_default_depth')
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':', 1)
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'depth':
+                    depth = int(search_item_key_value[1])
+                    break
+        return {aggs_key: qdsl_parser.get_catpath_agg_qdl(depth)['cats']}
 
     def __parse_single_input_str(self, single_query_str):
         """

@@ -294,7 +294,10 @@ class EsAggManager(object):
             elif agg_key == 'props':
                 result['props'] = self.__parse_prop_agg_result(agg_result, 'props', is_last_cat)
             elif agg_key.startswith('ex_agg_'):
-                result[agg_key] = agg_result[agg_key]
+                if agg_key.endswith('.cats'):
+                    result[agg_key] = self.__parse_cats_agg_result(agg_result, agg_key, is_last_cat)
+                else:
+                    result[agg_key] = agg_result[agg_key]
 
         return result
 
