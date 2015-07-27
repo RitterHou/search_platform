@@ -1,5 +1,6 @@
 # coding=utf-8
 from itertools import chain
+import json
 
 from common.configs import config
 from common.utils import get_dict_value_by_path, unbind_variable
@@ -64,7 +65,7 @@ class ElasticsearchDataSource(SuggestSource):
         keyword_list = chain(*temp_list_list)
         keyword_list = list(set(keyword_list))
 
-        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host)) for
+        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config)) for
                           keyword in keyword_list]
         count_body = chain(*count_dsl_list)
         es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
@@ -179,7 +180,7 @@ class ElasticsearchDataSource(SuggestSource):
                 result[field_name] = field_value
         return result
 
-    def _get_count_query_dsl(self, keyword, host):
+    def _get_count_query_dsl(self, keyword, host, suggest_config=None):
         """
         和搜索同步修改算法，现在改为对关键词进行标准分词，对分词后的结果进行_all字段查询
         :param keyword:
@@ -192,6 +193,13 @@ class ElasticsearchDataSource(SuggestSource):
             must_body = map(lambda analyze_token: {'match': {'_all': analyze_token}}, analyze_token_list)
         else:
             must_body = [{'match': {'_all': keyword}}]
+        if suggest_config:
+            extended_dsl = get_dict_value_by_path('/source/extended_dsl', suggest_config)
+            if isinstance(extended_dsl, (str, unicode)):
+                extended_dsl = json.loads(extended_dsl)
+                must_body.append(extended_dsl)
+            elif isinstance(extended_dsl, dict):
+                must_body.append(extended_dsl)
         return {'query': {'bool': {'must': must_body}}}
 
 
@@ -213,7 +221,7 @@ class SpecifyWordsDataSource(ElasticsearchDataSource):
         else:
             keyword_list = [request_param['word']]
         source_docs = {'total': len(keyword_list)}
-        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host)) for
+        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config)) for
                           keyword in keyword_list]
         count_body = chain(*count_dsl_list)
         es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])

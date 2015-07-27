@@ -109,7 +109,7 @@ if __name__ == '__main__':
                                       u'fields': {u'category': u'type', u'brand': u'brand', u'title': u'title'},
                                       u'keyword_filter_regex': u'^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z0-9]+$',
                                       u'type': u'map'}, u'size': 50}}
-    notfication_data_list = [{'index': u'search_platform-gonghuo-1.0.0', 'type': u'Product'}]
+    notfication_data_list = [{'index': u'qmshop-gonghuo-1.0.0', 'type': u'Product'}]
 
     process_suggest_notification('kk', suggest_config, notfication_data_list)
 

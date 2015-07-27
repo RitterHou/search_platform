@@ -1,6 +1,5 @@
 # coding=utf-8
 from collections import OrderedDict
-from copy import deepcopy
 from itertools import chain
 import time
 
@@ -87,13 +86,14 @@ class SpuSearchBySku(object):
                 spu_sku_dict.put(item['fields'].get('spuId')[0], item['fields'].get('skuId')[0])
         total_size = spu_sku_dict.get_spu_size()
         page_spu_sku_dict = spu_sku_dict.get_paged_dict(sku_dsl.get('from') or 0, sku_dsl.get('size'))
-        sku_id_list = tuple(page_spu_sku_dict.get_sku_ids())
-        spu_id_list = tuple(page_spu_sku_dict.get_spu_ids())
+        sku_id_list = list(page_spu_sku_dict.get_sku_ids())
+        spu_id_list = list(page_spu_sku_dict.get_spu_ids())
 
-        multi_search_body = [{'index': es_cfg['index']},
-                             {'query': {'ids': {'type': 'Spu', 'values': spu_id_list}}, 'size': sku_dsl.get('size')},
-                             {'index': es_cfg['index']},
-                             self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg)]
+        multi_search_body = [
+            {'index': es_cfg['index'], 'type': es_adapter.get_spu_es_setting('').get('type')},
+            {'query': {'ids': {'values': spu_id_list}}, 'size': sku_dsl.get('size')},
+            {'index': es_cfg['index'], 'type': es_cfg['type']},
+            self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg)]
         if 'aggs' in sku_dsl:
             # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
             sku_dsl['size'] = 0
@@ -123,12 +123,13 @@ class SpuSearchBySku(object):
         :param es_cfg:
         :return:
         """
-        sku_dsl = deepcopy(sku_dsl)
+        # sku_dsl = deepcopy(sku_dsl)
+        sku_dsl = {'query': {'bool': {'must': []}}}
         if 'aggs' in sku_dsl:
             del sku_dsl['aggs']
         sku_dsl['from'] = 0
         sku_dsl['size'] = len(sku_id_list)
-        sku_dsl['query']['bool']['must'].append({'ids': {'type': es_cfg['type'], 'values': sku_id_list}})
+        sku_dsl['query']['bool']['must'].append({'ids': {'values': sku_id_list}})
         return sku_dsl
 
     def parse_sku_search_result(self, spu_list, args, multi_search_results):

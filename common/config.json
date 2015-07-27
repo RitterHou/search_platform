@@ -479,7 +479,7 @@
         }
       },
       "spu": {
-        "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
+        "host": "http://192.168.65.131:9200,http://192.168.65.132:9200",
         "index": "qmshop-{adminID}-{version}",
         "type": "Spu",
         "id": "{spuId}",
@@ -700,7 +700,7 @@
         }
       },
       "gonghuo_spu": {
-        "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
+        "host": "http://192.168.65.131:9200,http://192.168.65.132:9200",
         "index": "qmshop-gonghuo-{version}",
         "type": "Spu",
         "id": "{spuId}",
@@ -1209,7 +1209,7 @@
           "name": "spu_yun_not_edit",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.qmpc.ItemChange",
             "filter": {
               "union_operator": "and",
@@ -1238,7 +1238,7 @@
           "source": {
             "type": "get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "version": "1.0.0",
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "request": {
@@ -1264,7 +1264,7 @@
           "name": "spu_yun_edit_add",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.qmpc.ItemChange",
             "filter": {
               "union_operator": "and",
@@ -1298,7 +1298,7 @@
           "source": {
             "type": "get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
@@ -1324,7 +1324,7 @@
           "name": "spu_yun_edit_update",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.qmpc.ItemChange",
             "filter": {
               "union_operator": "and",
@@ -1358,7 +1358,7 @@
           "source": {
             "type": "get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
@@ -1384,7 +1384,7 @@
           "name": "spu_yun_edit_delete",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.qmpc.ItemChange",
             "filter": {
               "union_operator": "and",
@@ -1447,7 +1447,7 @@
           "name": "spu_yun_init",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "queue": "q.qmpc.EsInit",
             "filter": {
               "union_operator": "and",
@@ -1471,7 +1471,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
@@ -2196,250 +2196,6 @@
               "id": "{skuId}"
             }
           ]
-        },
-        {
-          "notification": {
-            "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
-            "topic": "search_test",
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "type": "regex",
-                  "expression": "msg_type=update"
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);"
-              },
-              "fields_update": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);",
-                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
-              }
-            }
-          },
-          "source": {
-            "type": "passthrough",
-            "fields_reference": "fields_update"
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "product",
-              "operation": "update",
-              "id": "{ids}"
-            }
-          ]
-        },
-        {
-          "notification": {
-            "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
-            "topic": "search_test",
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "type": "regex",
-                  "expression": "msg_type=delete"
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);"
-              },
-              "fields_update": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);",
-                "add_field": "add_field=(?P<add_field>[\\d\\D]+?);"
-              }
-            }
-          },
-          "source": {
-            "type": "passthrough",
-            "fields_reference": "fields_update"
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "product",
-              "operation": "delete",
-              "id": "{ids}"
-            }
-          ]
-        },
-        {
-          "notification": {
-            "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
-            "topic": "search_test",
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "type": "regex",
-                  "expression": "msg_type=init"
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);"
-              }
-            }
-          },
-          "source": {
-            "type": "iterator_get",
-            "protocol": "http",
-            "host": "127.0.0.1:8000",
-            "request": {
-              "url": "/test/products/{adminID}/{version}",
-              "http_method": "POST",
-              "body": {
-                "adminID": "{adminID}",
-                "version": "{version}",
-                "ids": "{ids}",
-                "from": "{from}",
-                "size": "{size}"
-              }
-            },
-            "response": {
-              "fields": {
-                "total": "totalCount",
-                "data": "dataList"
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "operation": "create",
-              "reference": "product",
-              "clear_policy": "every_msg,all"
-            }
-          ]
-        },
-        {
-          "notification": {
-            "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
-            "topic": "search_test",
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "operator": "is",
-                  "type": "regex",
-                  "expression": "msg_type=add"
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "ids": "ids=(?P<ids>[\\d\\D]+?);"
-              }
-            }
-          },
-          "source": {
-            "type": "get",
-            "protocol": "http",
-            "host": "127.0.0.1:8000",
-            "request": {
-              "url": "/test/products/{adminID}/{version}/{ids}/",
-              "http_method": "POST",
-              "timeout": 10,
-              "body": {
-                "adminID": "{adminID}",
-                "version": "{version}",
-                "ids": "{ids}"
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "product",
-              "operation": "create"
-            },
-            {
-              "destination_type": "elasticsearch",
-              "operation": "create",
-              "host": "http://172.19.65.66:9200,http://172.19.65.79:9200",
-              "index": "qmshoptest2-{adminID}-{version}",
-              "type": "Product",
-              "id": "{id}",
-              "mapping": {
-                "properties": {
-                  "id": {
-                    "index": "not_analyzed",
-                    "store": true,
-                    "type": "string"
-                  },
-                  "name112222": {
-                    "type": "string",
-                    "store": true
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "notification": {
-            "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
-            "topic": "topic.search_platform_test.update",
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "operator": "is",
-                  "type": "regex",
-                  "expression": "type=update"
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminID": "adminID=(?P<adminID>[\\d\\D]+?);",
-                "id": "id=(?P<id>[\\d\\D]+?);",
-                "name": "name=(?P<name>[\\d\\D]+?);",
-                "brand": "brand=(?P<brand>[\\d\\D]+?);"
-              }
-            }
-          },
-          "source": {
-            "type": "passthrough",
-            "fields_reference": "fields"
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "product",
-              "operation": "create",
-              "index": "qmshop-{adminID}-{version}",
-              "id": "{id}"
-            }
-          ]
         }
       ]
     },
@@ -2955,7 +2711,8 @@
                   "expression": "^qmshop-(?P<adminID>[\\d\\D]+?)-"
                 }
               }
-            }
+            },
+            "extended_dsl": "{\"term\": {\"onSale\": true}}"
           },
           "processing": {
             "type": "basic_processing",
@@ -2992,92 +2749,6 @@
               "destination_type": "elasticsearch_processed",
               "reference": "suggest",
               "operation": "create"
-            }
-          ]
-        },
-        {
-          "name": "sup_product_suggest_task",
-          "notification": {
-            "type": "elasticsearch_regularly_scan",
-            "crontab": {
-              "second": "0",
-              "minute": "30",
-              "hour": "0"
-            },
-            "host": "http://192.168.65.131:9200,http://192.168.65.132:9200",
-            "filter": {
-              "type": "es_regex",
-              "union_operator": "and",
-              "conditions": [
-                {
-                  "operator": "is",
-                  "type": "regex",
-                  "field": "index",
-                  "expression": "^qmshop-gonghuo[\\d\\D]*"
-                },
-                {
-                  "operator": "is",
-                  "type": "regex",
-                  "field": "type",
-                  "expression": "^Product$"
-                }
-              ]
-            }
-          },
-          "source": {
-            "type": "iterator_es_get",
-            "size": 50,
-            "data_parser": {
-              "type": "map",
-              "keyword_filter_regex": "^[一-龥A-Za-z][一-龥A-Za-z0-9]+$",
-              "fields": {
-                "title": "title",
-                "brand": "brand",
-                "category": "type"
-              }
-            },
-            "param_parser": {
-              "type": "regex",
-              "fields": {
-              }
-            }
-          },
-          "processing": {
-            "type": "basic_processing",
-            "output": {
-              "weight": {
-                "type": "script",
-                "language": "mvel",
-                "script": "ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)",
-                "param": {
-                  "type": "math_expression",
-                  "fields": {
-                    "current_weight": "int((hits*0.25 + source_type_weight)/2)"
-                  }
-                }
-              },
-              "payloads": {
-                "type": "map",
-                "fields": {
-                  "source_type": "source_type",
-                  "hits": "hits"
-                }
-              },
-              "common_fields": {
-                "type": "map",
-                "fields": {
-                  "source_type": "source_type",
-                  "id": "id"
-                }
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch_processed",
-              "reference": "suggest",
-              "operation": "create",
-              "index": "suggest-gonghuo-{version}"
             }
           ]
         }

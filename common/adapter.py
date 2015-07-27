@@ -440,6 +440,30 @@ class EsIndexAdapter(object):
             scroll_ids = scroll_ids.strip().split(',')
         return es_connection.clear_scroll(scroll_ids)
 
+    def get_spu_es_setting(self, admin_id):
+        """
+        获取spu ES 设置
+        :param admin_id:
+        :return:
+        """
+        spu_es_setting = config.get_value('/es_index_setting/spu')
+        params = {'adminID': admin_id, 'version': config.get_value('version')}
+        return {'index': bind_variable(spu_es_setting.get('index'), params),
+                'type': bind_variable(spu_es_setting.get('type'), params),
+                'id': bind_variable(spu_es_setting.get('id'), params)}
+
+    def get_sku_es_setting(self, admin_id):
+        """
+        获取sku ES 设置
+        :param admin_id:
+        :return:
+        """
+        spu_es_setting = config.get_value('/es_index_setting/product')
+        params = {'adminID': admin_id, 'version': config.get_value('version')}
+        return {'index': bind_variable(spu_es_setting.get('index'), params),
+                'type': bind_variable(spu_es_setting.get('type'), params),
+                'id': bind_variable(spu_es_setting.get('id'), params)}
+
     def __build_batch_create_body(self, es_config, doc_list):
         """
         构造商品列表批量更新的ES数据结构，,此处可以优化，不需要每次都获取index和type
