@@ -3604,7 +3604,7 @@
               "minute": "53",
               "hour": "0"
             },
-            "host": "http://172.19.66.5:9200",
+            "host": "http://192.168.65.131:9200,http://192.168.65.132:9200,http://192.168.65.130:9200",
             "filter": {
               "type": "es_regex",
               "union_operator": "and",
