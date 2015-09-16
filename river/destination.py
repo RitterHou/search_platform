@@ -91,7 +91,7 @@ class ElasticSearchDestination(DataDestination):
                 data = {}
             if param:
                 data = dict(data, param)
-            es_adapter.delete_all_doc(es_config, data)
+            es_adapter.delete_all_doc_by_type(es_config, data)
 
     def __merge_es_config(self, destination_config, reference_es_config):
         """

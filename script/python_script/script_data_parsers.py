@@ -78,7 +78,7 @@ def parse_cateIds_from_standard_cate_update_msg(msg_text):
 
 
 if __name__ == '__main__':
-    print parse_skuids_from_pc_mq_msg('21182:g4903;21224:g4989;')
-    print parse_skuids_from_pc_mq_msg('21182:g4903;')
-    print parse_skuids_from_pc_mq_msg('21182:g4903:g4943;21188:g4951;21224:g4989;')
-    print parse_skuids_from_pc_mq_msg('21182')
+    print parse_spuids_from_pc_mq_msg('21182:g4903;21224:g4989;')
+    print parse_spuids_from_pc_mq_msg('21182:g4903;')
+    print parse_spuids_from_pc_mq_msg('21182:g4903:g4943;21188:g4951;21224:g4989;')
+    print parse_spuids_from_pc_mq_msg('21182')

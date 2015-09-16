@@ -12,6 +12,3 @@ if MANAGE:
 
 urlpatterns += patterns('',
                         url('[\\d\\D]+', views.RestfulFacadeView.as_view()))
-
-
-

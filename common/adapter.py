@@ -150,6 +150,23 @@ class EsIndexAdapter(object):
         except ElasticsearchException as e:
             app_log.error('es delete_all_doc input param is {0}, {1}', e, index, doc_type)
 
+    def delete_all_doc_by_type(self, es_config, doc):
+        """
+        通过删除type来删除所有文档，效率较高
+        :param es_config:
+        :param doc:
+        :return:
+        """
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+        es_connection = EsConnectionFactory.get_es_connection(
+            es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
+        try:
+            es_connection.indices.delete_mapping(index=index, doc_type=doc_type)
+            es_connection.indices.put_mapping(index=index, doc_type=doc_type, body=es_config['mapping'],
+                                              ignore_conflicts=True)
+        except ElasticsearchException as e:
+            app_log.error('es delete_all_doc_by_type input param is {0}, {1}', e, index, doc_type)
+
     def delete_by_query(self, es_config, doc, body=None):
         """
         根据ES query dsl 删除符合条件的文档
@@ -228,7 +245,7 @@ class EsIndexAdapter(object):
         return [ele['token'] for ele in analyze_result['tokens'] if
                 re.search(keyword_filter_regex, str(ele['token'])) and len(ele['token']) > 1]
 
-    def query_text_analyze_result_without_filter(self, es_connection, analyzer, text, host=None):
+    def query_text_analyze_result_without_filter(self, es_connection, analyzer, text, index=None, host=None):
         """
         对文本进行分词,不支持过滤
         :param es_connection:
@@ -238,11 +255,10 @@ class EsIndexAdapter(object):
         """
         if not es_connection:
             es_connection = EsConnectionFactory.get_es_connection(host=host)
-        analyze_result = es_connection.indices.analyze(params={'analyzer': analyzer, 'text': text})
+        analyze_result = es_connection.indices.analyze(index=index, params={'analyzer': analyzer, 'text': text})
         return list(set([ele['token'] for ele in analyze_result['tokens'] if len(ele['token']) > 0]))
 
-
-    def multi_search(self, body, host, index, doc_type):
+    def multi_search(self, body, host, index=None, doc_type=None):
         """
         批量搜索
         :param body:
@@ -251,8 +267,14 @@ class EsIndexAdapter(object):
         :param doc_type:
         :return:
         """
+        from elasticsearch.client.utils import SKIP_IN_PATH, _make_path
+
         es_connection = EsConnectionFactory.get_es_connection(host=host)
-        return es_connection.msearch(body, index, doc_type)
+        if body in SKIP_IN_PATH:
+            raise ValueError("Empty value passed for a required argument 'body'.")
+        _, data = es_connection.transport.perform_request('POST', _make_path(index, doc_type, '_msearch'),
+                                                          params=None, body=es_connection._bulk_body(body))
+        return data
 
     @debug_log.debug('Save config')
     def save_config(self, config_data):

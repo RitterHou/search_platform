@@ -43,9 +43,11 @@ class EsProductManager(object):
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         if not es_connection:
             raise EsConnectionError()
+        start_time = time.time()
         qdsl = qdsl_parser.get_product_query_qdsl(index_name, doc_type, args, es_connection)
-        debug_log.print_log('Get product qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                            qdsl)
+        qdsl_end_time = time.time()
+        app_log.info('Get product dsl finish, spend time {4}, index={0} , type={1} , args={2}, dsl={3}', index_name,
+                     doc_type, args, qdsl, qdsl_end_time - start_time)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
             result, es_agg_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args)
@@ -56,7 +58,12 @@ class EsProductManager(object):
                 es_result = self.__scan_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
             else:
                 es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+            es_end_time = time.time()
+            app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
+                         es_end_time - qdsl_end_time)
             result = self.parse_es_result(es_result, args)
+            app_log.info('Parse elasticsearch search result index={0} , type={1} , spend time {2}', index_name,
+                         doc_type, time.time() - es_end_time)
         debug_log.print_log('EsProductManager get return size is {0}',
                             result['total'] if 'total' in result else 'omitted')
         return result
@@ -78,6 +85,7 @@ class EsProductManager(object):
             raise EsConnectionError()
         doc_id = bind_variable(es_config['id'], product)
         es_connection.index(index=index_name, doc_type=doc_type, body=product, id=doc_id)
+        return product
 
     def update(self, es_config, index_name, doc_type, product, parse_fields=None):
         """
@@ -98,6 +106,7 @@ class EsProductManager(object):
             raise EsConnectionError()
         doc_id = bind_variable(es_config['id'], product)
         es_connection.update(index=index_name, doc_type=doc_type, body={'doc': product}, id=doc_id)
+        return product
 
     def delete(self, es_config, index_name, doc_type, product, parse_fields=None):
         """
@@ -265,7 +274,7 @@ class EsAggManager(object):
         """
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_agg_qdl(index_name, doc_type, args, es_connection)
-        debug_log.print_log('get agg qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
+        app_log.info('Get agg dsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
         result = self.parse_es_result(es_result)
         range_result = self.get_agg_range_result(es_config, index_name, doc_type, args, es_result, qdsl)
@@ -440,26 +449,34 @@ class EsSuggestManager(object):
         """
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args)
-        debug_log.print_log('get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                            qdsl)
+        app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
+                     qdsl)
         es_result = es_connection.suggest(index=index_name, body=qdsl)
 
-        result = self.parse_es_result(es_result)
+        result = self.parse_es_result(es_result, args)
         debug_log.print_log('EsSuggestManager get return is {0}', result)
         return result
 
-    def parse_es_result(self, es_result):
+    def parse_es_result(self, es_result, args):
         """
         解析ES返回结果
         :param es_result:
+        :param args:
         :return:
         """
         if 'completion_suggest' not in es_result or not es_result['completion_suggest'] or 'options' not in \
                 es_result['completion_suggest'][0]:
             return []
+        tag_name = args.get('tag') or 'default'
+        default_value = config.get_value('/consts/global/query_size')
+        suggest_size = get_dict_value(args, 'size', default_value['suggest_size']['default'],
+                                      default_value['suggest_size']['min'], default_value['suggest_size']['max'])
+
         options = es_result['completion_suggest'][0]['options']
-        return map(lambda suggest_res: {'key': suggest_res['text'], 'doc_count': suggest_res['payload']['hits']},
-                   options)
+        suggest_term_list = filter(lambda suggest_term: suggest_term['doc_count'], map(
+            lambda suggest_res: {'key': suggest_res['text'], 'doc_count': suggest_res['payload']['hits'][tag_name]},
+            options))
+        return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:suggest_size]
 
 
 class EsSearchManager(object):
@@ -475,16 +492,23 @@ class EsSearchManager(object):
         :param args:
         :return:
         """
+        start_time = time.time()
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_search_qdl(index_name, doc_type, args, es_connection)
-        debug_log.print_log('get search qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                            qdsl)
+        qdsl_end_time = time.time()
+        app_log.info('Get search dsl finish, spend time {4},  index={0} , type={1} , args={2}, dsl={3}', index_name,
+                     doc_type, args, qdsl, qdsl_end_time - start_time)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
             result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args)
         else:
             es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+            es_end_time = time.time()
+            app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
+                         es_end_time - qdsl_end_time)
             result = self.parse_es_result(es_result, args)
+            app_log.info('Parse elasticsearch search result index={0} , type={1} , spend time {2}', index_name,
+                         doc_type, time.time() - es_end_time)
         range_result = Aggregation.objects.get_agg_range_result(es_config, index_name, doc_type, args, es_result,
                                                                 qdsl)
         if range_result:
@@ -525,11 +549,11 @@ class SearchPlatformDocManager(EsProductManager):
         """
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         if not es_connection:
-            return {}
+            raise EsConnectionError()
 
         qdsl = qdsl_parser.get_product_query_qdsl(index_name, doc_type, args, es_connection)
-        debug_log.print_log('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                            qdsl)
+        app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
+                     qdsl)
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
         result = self.parse_es_result(es_result, args)
         debug_log.print_log('SearchPlatformDocManager get return size is {0}',

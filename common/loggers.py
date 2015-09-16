@@ -2,8 +2,9 @@
 from itertools import chain
 import logging
 import sys
-
 import os
+
+import simplejson
 
 
 __author__ = 'liuzhaoming'
@@ -68,16 +69,16 @@ class AppLog(object):
         except Exception as e:
             self.logger.exception(e)
         finally:
-            self.logger.error(message)
+            # self.logger.error(message)
             _error_logger.error(message)
             if error:
-                self.logger.exception(error)
+                # self.logger.exception(error)
                 _error_logger.exception(error)
 
     def exception(self, error):
         try:
             if error:
-                self.logger.exception(error)
+                # self.logger.exception(error)
                 _error_logger.exception(error)
         except Exception as e:
             self.logger.exception(e)
@@ -112,9 +113,12 @@ class InterfaceLog(object):
                 self.init_config()
             if not self.logger.isEnabledFor(self.int_log_level) or not message:
                 return
-            if args:
+            if isinstance(message, dict):
+                message['message'] = ' '.join((get_caller_info(), message.get('message') or ''))
+                message = simplejson.dumps(message)
+            elif args:
                 message = message.format(*args)
-            message = ' '.join((get_caller_info(), message))
+                message = ' '.join((get_caller_info(), message))
         except Exception as e:
             self.logger.exception(e)
         finally:
@@ -186,6 +190,7 @@ class DebugLog(object):
             if args:
                 message = message.format(*args)
             message = ' '.join((get_caller_info(3), message))
+
             self.logger.info(message)
         except Exception as e:
             self.logger.exception(e)

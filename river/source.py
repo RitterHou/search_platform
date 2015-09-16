@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import time
+
 __author__ = 'liuzhaoming'
 
 import httplib
 import urllib
 import json
 
-from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, COMBINE_SIGN
+from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, COMBINE_SIGN, local_host_name, \
+    format_time
 from common.configs import config
 from common.loggers import debug_log, app_log, interface_log
 from common.connections import DubboRegistryFactory
@@ -30,7 +33,7 @@ class DataSource(object):
             app_log.warning("Cannot find data source with source_config = {0}", source_config)
         data = _data_source.pull(source_config, request_param)
         # if not isinstance(data, list) and not isinstance(data, tuple) and data:
-        #     data = [data]
+        # data = [data]
         return data
 
     @staticmethod
@@ -97,17 +100,30 @@ class HttpDataSource(DataSource):
             'method': method_name,
             'format': 'json'
         }
-        interface_log.print_log(
+        app_log.info(
             'Call http method start by param : host = {0}, url={1}, method_name={2}, app_params={3}, timeout={4}, '
             'sys_params={5}, headers={6}',
             host, url, method_name, app_params, timeout, sys_params, headers)
         app_params.update(sys_params)
-        h1 = httplib.HTTPConnection(host, timeout=timeout)
-        h1.request("POST", url, urllib.urlencode(app_params), headers)
-        response = h1.getresponse()
-        result = response.read()
-        interface_log.print_log('Call http method finish with result : {0}', result)
-        return result
+        start_time = time.time()
+        result = None
+        try:
+            # h1 = httplib.HTTPConnection(host, timeout=timeout)
+            h1 = httplib.HTTPConnection(host)
+            h1.request("POST", url, urllib.urlencode(app_params), headers)
+            response = h1.getresponse()
+            result = response.read()
+            app_log.info('Call http method finish successfully host = {0}, url={1}', host, url)
+            return result
+        finally:
+            cost_time = time.time() - start_time
+            json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
+                               'receiver_host': host,
+                               'invoke_time': format_time(start_time), 'message': 'Call http method is invoked',
+                               'param_types': ['host', 'url', 'app_params'],
+                               'param_values': [host, url, app_params],
+                               'result_value': result}
+            interface_log.print_log(json_log_record)
 
 
 class PassthroughSource(DataSource):
@@ -177,18 +193,33 @@ class DubboDataSource(DataSource):
         :param app_params:
         :return:
         """
-        interface_log.print_log(
+
+        app_log.info(
             'Call JsonRPC method start by param : host = {0}, service_interface={1}, method={2}, body={3}, '
             'version={4}, timeout={5}',
             host, service_interface, method, body, version, timeout)
+        start_time = time.time()
         dubbo_client = DubboRegistryFactory.get_dubbo_client(host, service_interface, body, version)
+        result = None
         # reflect_method = getattr(dubbo_client, method)
-        if body:
-            result = dubbo_client(method, body)
-        else:
-            result = dubbo_client(method)
-        interface_log.print_log('Call JsonRPC method finish with result : {0}', result)
-        return result
+        try:
+            if body:
+                result = dubbo_client(method, body)
+            else:
+                result = dubbo_client(method)
+            app_log.info(
+                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}', host,
+                service_interface, method)
+            return result
+        finally:
+            cost_time = time.time() - start_time
+            json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
+                               'receiver_host': host,
+                               'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method is invoked',
+                               'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
+                               'param_values': [host, service_interface, method, version, body],
+                               'result_value': result}
+            interface_log.print_log(json_log_record)
 
 
 def get_source_key(source_config):

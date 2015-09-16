@@ -4,10 +4,10 @@ from rest_framework.response import Response
 
 from common.data_parsers import item_parser
 from service.req_filter import request_filter
-from service import (get_request_data, desc_request, get_url)
+from service import (get_request_data, desc_request, get_url, get_client_ip)
 from service.models import *
-from common.loggers import query_log as app_log
-from common.utils import merge, query_dict_to_normal_dict
+from common.loggers import query_log as app_log, interface_log
+from common.utils import merge, query_dict_to_normal_dict, local_host_name, format_time
 from common.configs import config
 
 
@@ -34,24 +34,40 @@ class RequestHandler(object):
         :return:
         """
         try:
-            app_log.info("Receive http request : {0}", desc_request(request))
+            start_time = time.time()
+            request_desc = desc_request(request)
+            app_log.info("Receive http request : {0}", request_desc)
             destination_config = self.handler_config.get('destination')
             if not destination_config:
                 # app_log.error('The destination_config is invalid, {0}'.format(self.handler_config))
                 destination_config = {}
 
             if request.method not in self.__get_support_http_methods():
-                return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-            if request.method == 'GET':
-                return self.__fetch_from_es(request, destination_config, format)
+                response = Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            elif request.method == 'GET':
+                response = self.__fetch_from_es(request, destination_config, format)
             elif request.method == 'POST':
-                return self.post(request, destination_config)
+                response = self.post(request, destination_config)
             elif request.method == 'DELETE':
-                return self.delete(request, destination_config)
+                response = self.delete(request, destination_config)
             elif request.method == 'PUT':
-                return self.put(request, destination_config)
+                response = self.put(request, destination_config)
+            else:
+                response = Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            cost_time = time.time() - start_time
+            app_log.info('Finish handle http request {0}, and spend {1}'.format(request_desc, cost_time))
+            json_log_record = {'cost_time': cost_time, 'sender_host': get_client_ip(request),
+                               'receiver_name': 'search_platform',
+                               'receiver_host': local_host_name,
+                               'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
+                               'param_types': ['http_request'],
+                               'param_values': [request_desc],
+                               'result_value': response}
+            interface_log.print_log(json_log_record)
+            return response
         except Exception as e:
-            app_log.error('The destination_config is invalid, {0}, {1}'.format(self.handler_config, request))
+            app_log.error('Handle http request error, {0}, {1}'.format(
+                self.handler_config.get('name') or self.handler_config.get('res_type'), request_desc))
             app_log.exception(e)
             raise e
 
@@ -89,7 +105,6 @@ class RequestHandler(object):
         :param format:
         :return:
         """
-        start_time = time.time()
         field_values = self.__get_fields_value(request)
         es_config = self.__get_es_config(destination_config, field_values)
 
@@ -98,7 +113,6 @@ class RequestHandler(object):
         if model:
             result = model.objects.get(es_config, index_name=es_config['index'], doc_type=es_config['type'],
                                        args=get_request_data(request), parse_fields=field_values)
-            print '__fetch_from_es spends {0}'.format(time.time() - start_time)
             return result
 
     def post(self, request, destination_config):

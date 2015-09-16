@@ -183,7 +183,6 @@ class MessageBus(object):
     def __del__(self):
         self.stop()
 
-
     def start(self):
         """
         启动消息总线服务初始化Redis连接，注册消息监听器

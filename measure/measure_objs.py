@@ -57,7 +57,7 @@ class EsIndexMeasureObj(MeasureObj):
             self.host = value
         if key == 'index':
             self.index = value
-        raise InvalidParamError('Unsupport property name {0}'.format(item))
+        raise InvalidParamError('Unsupport property name {0}'.format(key))
 
     def get_key(self):
         return self.index

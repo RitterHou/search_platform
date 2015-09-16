@@ -2,6 +2,9 @@
 import inspect
 import time
 from datetime import datetime
+import socket
+from re import search
+import os
 
 from django.http import QueryDict
 
@@ -9,10 +12,6 @@ from common.loggers import app_log
 
 
 __author__ = 'liuzhaoming'
-import socket
-
-from re import search
-import os
 
 
 def singleton(cls, *args, **kw):
@@ -235,6 +234,9 @@ def get_host_name():
     return socket.gethostname()
 
 
+local_host_name = get_host_name()
+
+
 def get_client_id():
     """
     获取进程标识
@@ -278,10 +280,38 @@ def get_time_by_mill_str(format="%Y-%m-%dT%H:%M:%S."):
     :param format:
     :return:
     """
-    today = datetime.today()
+    today = datetime.utcnow()
     str_time = today.strftime(format)
     mills = today.microsecond / 1000
-    return str_time + str(mills)
+    return ''.join((str_time, str(mills), 'Z'))
+
+
+def format_time(time_stamp, format='%Y-%m-%dT%H:%M:%S.%f'):
+    """
+    格式化时间
+    :param time_stamp:
+    :param format:
+    :return:
+    """
+    date = datetime.fromtimestamp(time_stamp)
+    return date.strftime(format)
+
+
+def format_dict(_input_dict):
+    """
+    使用simple json格式化dict
+    :param _input_dict:
+    :return:
+    """
+    import simplejson as json
+
+    if not _input_dict:
+        return '{}'
+
+    try:
+        return json.dumps(_input_dict)
+    except:
+        return str(_input_dict)
 
 
 if __name__ == '__main__':

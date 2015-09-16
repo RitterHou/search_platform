@@ -93,7 +93,13 @@ class MeasureMain(object):
                 if trigger:
                     app_log.info('Add measure task job : {0}', period_cfg)
                     task_name = task_config['name'] if 'name' in task_config else str(time.time())
-                    process_fun = distributed_lock.lock(task_name)(self.processor.sample)
+                    if period_type == 'crontab':
+                        process_fun = distributed_lock.lock(task_name)(self.processor.sample)
+                    else:
+                        minutes = period_cfg['total'] if 'total' in period_cfg else 24 * 60
+                        task_lock_timeout = int(minutes * 0.9) if minutes < 30 else (minutes - 5)
+                        process_fun = distributed_lock.lock(task_name, task_lock_timeout * 60, False)(
+                            self.processor.sample)
                     measurements = measurement_helper.get_measurements_by_fingerprint(task_config)
                     self.scheduler.add_job(process_fun, args=[task_config, measurements], trigger=trigger,
                                            id=('measure_task_' + task_name))

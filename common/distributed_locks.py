@@ -131,8 +131,7 @@ class DistributedLock(object):
     def __init__(self):
         self.__lock_store = LockStoreFactory.get_store()
 
-
-    def lock(self, task_name):
+    def lock(self, task_name, time_out=0, is_release=True):
         """
         分布式锁
         """
@@ -140,8 +139,7 @@ class DistributedLock(object):
         def decorator(function):
 
             def new_func(*args, **kwargs):
-
-                lock_info = self.__lock_store.get_lock_info(task_name)
+                lock_info = self.__lock_store.get_lock_info(task_name, timeout=time_out)
                 if not lock_info:
                     app_log.info("{0} cannot get lock {1}", function, task_name)
                     return
@@ -149,10 +147,11 @@ class DistributedLock(object):
                 try:
                     result = function(*args, **kwargs)
                     app_log.info("{0} with lock {1}", function, task_name)
-                    self.__lock_store.release_lock_info(task_name)
                 except Exception as e:
-                    self.__lock_store.release_lock_info(task_name)
                     raise e
+                finally:
+                    if is_release:
+                        self.__lock_store.release_lock_info(task_name)
 
                 return result
 

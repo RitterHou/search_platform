@@ -1,11 +1,14 @@
 # coding=utf-8
+from collections import OrderedDict
 from itertools import chain
 import json
 
 from common.configs import config
+from common.connections import EsConnectionFactory
 from common.utils import get_dict_value_by_path, unbind_variable
 from common.adapter import es_adapter
 from common.loggers import app_log, debug_log
+from service.qdsl_parseres import qdsl_parser
 
 
 __author__ = 'liuzhaoming'
@@ -65,18 +68,52 @@ class ElasticsearchDataSource(SuggestSource):
         keyword_list = chain(*temp_list_list)
         keyword_list = list(set(keyword_list))
 
-        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config)) for
-                          keyword in keyword_list]
-        count_body = chain(*count_dsl_list)
-        es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
+        # count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config).values())
+        # for keyword in keyword_list]
+        # count_body = chain(*count_dsl_list)
+        # es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
         source_type_weight = config.get_value('consts/suggest/source_type/1')
-        keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
+        # keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
+        keyword_hits = self._get_keyword_hits_list(keyword_list, request_param, host, suggest_config)
         source_docs['root'] = [
             dict({'word': keyword, 'hits': keyword_hits, 'source_type': '1', 'source_type_weight': source_type_weight},
                  **additional_param) for (keyword, keyword_hits) in zip(keyword_list, keyword_hits) if keyword_hits > 0]
 
         return source_docs
 
+    def _get_keyword_hits_list(self, keyword_list, request_param, host, suggest_config):
+        """
+        整理各个关键词的
+        :param keyword_list:
+        :param request_param:
+        :param host:
+        :param suggest_config:
+        :return:
+        """
+        count_dsl_list = chain(
+            *[self._get_count_query_dsl(keyword, host, suggest_config).values() for keyword in keyword_list])
+        count_dsl_list = map(lambda x: ({"search_type": "count"}, x), count_dsl_list)
+        count_body = chain(*count_dsl_list)
+        es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
+        keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
+        suggest_tags_cfg = get_dict_value_by_path('/source/tags', suggest_config)
+
+        tag_name_list = list(suggest_tags_cfg.iterkeys())
+        tags_length = len(tag_name_list) if suggest_tags_cfg else 1
+
+        tags_hits_list = []
+        count = 0
+        for hit_num in keyword_hits:
+            if count == 0:
+                tag_hits_data = {}
+            tag_hits_data[tag_name_list[count]] = hit_num
+            if count == tags_length - 1:
+                count = 0
+                tags_hits_list.append(tag_hits_data)
+            else:
+                count += 1
+
+        return tags_hits_list
 
     def __get_keywords_from_doc(self, host, keyword_filter_regex, query_fields, source_doc, field_mapping_dict,
                                 request_param):
@@ -117,7 +154,6 @@ class ElasticsearchDataSource(SuggestSource):
             es_result = {}
         return self.__parse_es_result(es_result)
 
-
     def __get_es_query_body(self, source_config, request_param):
         """
         获取ES查询QDSL
@@ -127,7 +163,7 @@ class ElasticsearchDataSource(SuggestSource):
         """
         size = source_config['size'] if 'size' in source_config else config.get_value(
             'consts/suggest/default_es_iterator_get_size')
-        pos_from = request_param['from'] if 'from' in source_config else 0
+        pos_from = request_param['from'] if 'from' in request_param else 0
         return {'query': {'match_all': {}}, 'size': size, 'from': pos_from}
 
     def __get_es_query_fields(self, source_config):
@@ -183,24 +219,49 @@ class ElasticsearchDataSource(SuggestSource):
     def _get_count_query_dsl(self, keyword, host, suggest_config=None):
         """
         和搜索同步修改算法，现在改为对关键词进行标准分词，对分词后的结果进行_all字段查询
+        2015.09.15修改，改为调用query DSL解析方法，并增加多个tag
         :param keyword:
         :param host:
         :return:
         """
-        analyze_token_list = es_adapter.query_text_analyze_result_without_filter(
-            es_connection=None, analyzer='standard', host=host, text=keyword)
-        if analyze_token_list:
-            must_body = map(lambda analyze_token: {'match': {'_all': analyze_token}}, analyze_token_list)
-        else:
-            must_body = [{'match': {'_all': keyword}}]
+
+        def get_extended_dsl(_extended_dsl):
+            """
+            将配置文件中的DSL转换为must查询中得DSL
+            """
+            if isinstance(_extended_dsl, (str, unicode)):
+                _extended_dsl = json.loads(_extended_dsl)
+                return [_extended_dsl]
+            elif isinstance(_extended_dsl, dict):
+                return [_extended_dsl]
+            elif isinstance(_extended_dsl, (list, tuple, set)):
+                return _extended_dsl
+            return []
+
+        es_connection = EsConnectionFactory.get_es_connection(host=host)
+        must_body = qdsl_parser.parse_query_string_condition(keyword, es_connection, {})
+        # analyze_token_list = es_adapter.query_text_analyze_result_without_filter(
+        # es_connection=None, analyzer='standard', host=host, text=keyword)
+        # if analyze_token_list:
+        # must_body = map(lambda analyze_token: {'match': {'_all': analyze_token}}, analyze_token_list)
+        # else:
+        # must_body = [{'match': {'_all': keyword}}]
+        count_query_dsl_dict = OrderedDict()
         if suggest_config:
-            extended_dsl = get_dict_value_by_path('/source/extended_dsl', suggest_config)
-            if isinstance(extended_dsl, (str, unicode)):
-                extended_dsl = json.loads(extended_dsl)
-                must_body.append(extended_dsl)
-            elif isinstance(extended_dsl, dict):
-                must_body.append(extended_dsl)
-        return {'query': {'bool': {'must': must_body}}}
+            # extended_dsl = get_dict_value_by_path('/source/extended_dsl', suggest_config)
+            # count_query_dsl_dict['default'] = {
+            # 'query': {'bool': {'must': must_body + get_extended_dsl(extended_dsl)}}}
+
+            # 增加tags
+            suggest_tags_cfg = get_dict_value_by_path('/source/tags', suggest_config)
+            if suggest_tags_cfg:
+                for (tag_name, tag_dsl) in suggest_tags_cfg.iteritems():
+                    if tag_name:
+                        count_query_dsl_dict[tag_name] = {
+                            'query': {'bool': {'must': must_body + get_extended_dsl(tag_dsl)}}}
+        else:
+            count_query_dsl_dict['default'] = {'query': {'bool': {'must': must_body}}}
+        return count_query_dsl_dict
 
 
 class SpecifyWordsDataSource(ElasticsearchDataSource):
@@ -214,15 +275,15 @@ class SpecifyWordsDataSource(ElasticsearchDataSource):
             return 0, None
 
         host = get_dict_value_by_path('notification/host', suggest_config)
-        additional_param = {'adminID': request_param['adminID']} if 'adminID' in request_param  else {}
+        additional_param = {'adminID': request_param['adminID']} if 'adminID' in request_param else {}
 
         if isinstance(request_param['word'], (set, tuple, list)):
             keyword_list = request_param['word']
         else:
             keyword_list = [request_param['word']]
         source_docs = {'total': len(keyword_list)}
-        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config)) for
-                          keyword in keyword_list]
+        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config).values())
+                          for keyword in keyword_list]
         count_body = chain(*count_dsl_list)
         es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
         source_type_weight = config.get_value('consts/suggest/source_type/' + request_param['source_type'])

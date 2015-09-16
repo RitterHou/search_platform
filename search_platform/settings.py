@@ -110,7 +110,16 @@ LOGGING = {
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
-        },
+        }
+    },
+    'filters': {
+        'sms_alarm_filter': {
+            '()': 'redislog.filters.QmAlarmFilter',
+            'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
+            'phone_numbers': '15051885330,18651618480',
+            'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
+                                    'elasticsearch.exceptions.ConnectionTimeout', 'DubboError']
+        }
     },
     'handlers': {
         'django_logfile': {
@@ -174,46 +183,104 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
+        'app_logstash_log': {
+            'level': 'INFO',
+            'class': 'redislog.handlers.LogstashRedisHandler',
+            'host': '192.168.65.224',
+            'key': 'LOGSTASH_APP_LOG',
+            'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
+            'is_interface_handler': False
+        },
+        'interface_logstash_log': {
+            'level': 'INFO',
+            'class': 'redislog.handlers.LogstashRedisHandler',
+            'host': '192.168.65.224',
+            'key': 'LOGSTASH_INTF_LOG',
+            'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
+        },
     },
     'loggers': {
+        # 'app': {
+        #     'handlers': ['logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'error': {
+        #     'handlers': ['error_logfile'],
+        #     'propagate': True,
+        #     'level': 'ERROR',
+        # },
+        # 'interface': {
+        #     'handlers': ['interface_logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'listener': {
+        #     'handlers': ['listener_logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'debug': {
+        #     'handlers': ['debug_logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'query': {
+        #     'handlers': ['query_logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'django': {
+        #     'handlers': ['django_logfile'],
+        #     'propagate': True,
+        #     'level': 'DEBUG',
+        # },
+        # 'django.request': {
+        #     'handlers': ['django_logfile'],
+        #     'level': 'DEBUG',
+        #     'propagate': False,
+        # },
+
+        ####################################################
         'app': {
-            'handlers': ['logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'error': {
-            'handlers': ['error_logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'ERROR',
+            'level': 'INFO',
+            'filters': ['sms_alarm_filter']
         },
         'interface': {
-            'handlers': ['interface_logfile'],
+            'handlers': ['interface_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'listener': {
-            'handlers': ['listener_logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'debug': {
-            'handlers': ['debug_logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'query': {
-            'handlers': ['query_logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'django': {
-            'handlers': ['django_logfile'],
+            'handlers': ['app_logstash_log'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['django_logfile'],
-            'level': 'DEBUG',
+            'handlers': ['app_logstash_log'],
+            'level': 'INFO',
             'propagate': False,
         },
     },
@@ -243,7 +310,7 @@ REST_FRAMEWORK = {
 SERVICE_BASE_CONFIG = {
     'meta_file': '/common/config.json',
     'redis': 'redis://172.17.8.253:6379/2',
-    'elasticsearch': 'http://192.168.65.131:9200,http://192.168.65.132:9200',
+    'elasticsearch': 'http://192.168.65.131:9200,http://192.168.65.132:9200,http://192.168.65.130:9200',
     'meta_es_index': 'sp_search_platform_cfg',
     'meta_es_type': 'config',
     'meta_es_id': 'config_data',
@@ -257,5 +324,7 @@ SERVICE_BASE_CONFIG = {
 
 # 测量结果ES别名
 MEASUERE_ALIAS = 'sp_measure-alias'
+
+VERSION = '1.1.0'
 
 # from river import rivers

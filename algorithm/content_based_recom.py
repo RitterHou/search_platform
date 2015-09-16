@@ -31,7 +31,8 @@ class ProductAttrVector(object):
             if key_cfg.get('type') == 'range':
                 max_value = self.range_values[key]['max']
                 min_value = self.range_values[key]['min']
-                vector[key] = float(self.product.get(key) - min_value) / (max_value - min_value)
+                vector[key] = float(self.product.get(key) if self.product.get(key) else 0 - min_value) / (
+                    max_value - min_value)
                 weight[key] = 1 if self.vector_cfg[key].get('weight') is None else self.vector_cfg[
                     key].get('weight')
             elif key_cfg.get('type') == 'nest':
@@ -43,6 +44,21 @@ class ProductAttrVector(object):
                     vector[complete_key] = 1
                     weight[complete_key] = 1 if self.vector_cfg[key].get('weight') is None else self.vector_cfg[
                         key].get('weight')
+            elif key_cfg.get('type') == 'cats':
+                if not isinstance(self.product.get(key), list):
+                    continue
+                cat_list = self.product.get(key)
+                for cat_item in cat_list:
+                    cat_buffer = []
+                    while cat_item and isinstance(cat_item, dict) and 'childs' in cat_item:
+                        if cat_item.get('name'):
+                            cat_buffer.append(cat_item.get('name'))
+                        cat_item = cat_item['childs'][0] if cat_item['childs'] else None
+                    if cat_buffer:
+                        complete_key = '-'.join(cat_buffer)
+                        vector[complete_key] = 1
+                        weight[complete_key] = 1 if self.vector_cfg[key].get('weight') is None else self.vector_cfg[
+                            key].get('weight')
             elif self.product.get(key):
                 vector[key] = 1
                 weight[key] = 1 if self.vector_cfg[key].get('weight') is None else self.vector_cfg[
@@ -54,6 +70,7 @@ class ProductAttrVector(object):
         获取商品的相对向量
         """
         other_vector = {}
+        cat_vectors = None
         for key in self.vector:
             nest_point_index = key.find('.')
             if nest_point_index > -1:
@@ -64,10 +81,16 @@ class ProductAttrVector(object):
                 nest_obj_list = filter(lambda item: item.get('name') == nest_key, self.product.get(orgin_key))
                 value = nest_obj_list[0].get('value') if nest_obj_list else None
                 other_vector[key] = 1 if other_value == value else 0
+            elif self.vector_cfg.get(key) is None:
+                # cats的聚合key
+                if cat_vectors is None:
+                    cat_vectors = self._get_cats_vector(other_product)
+                other_vector[key] = 1 if key in cat_vectors else 0
             elif self.vector_cfg.get(key).get('type') == 'range':
                 max_value = self.range_values[key]['max']
                 min_value = self.range_values[key]['min']
-                other_vector[key] = float(other_product.get(key) - min_value) / (max_value - min_value)
+                other_vector[key] = float(other_product.get(key) if other_product.get(key) else 0 - min_value) / (
+                    max_value - min_value)
             else:
                 other_vector[key] = 1 if other_product.get(key) == self.product.get(key) else 0
         return other_vector
@@ -93,6 +116,25 @@ class ProductAttrVector(object):
         if nest_point_index > -1:
             key = key[:nest_point_index]
         return self.vector_cfg.get(key).get('weight')
+
+    def _get_cats_vector(self, product, key='cats'):
+        """
+        获取cats属性的向量值
+        """
+        vectors = []
+        if not isinstance(product.get(key), list):
+            return vectors
+        cat_list = product.get(key)
+        for cat_item in cat_list:
+            cat_buffer = []
+            while cat_item and isinstance(cat_item, dict) and 'childs' in cat_item:
+                if cat_item.get('name'):
+                    cat_buffer.append(cat_item.get('name'))
+                cat_item = cat_item['childs'][0] if cat_item['childs'] else None
+            if cat_buffer:
+                complete_key = '-'.join(cat_buffer)
+                vectors.append(complete_key)
+        return vectors
 
 
 class ContentBasedRecommendation(object):

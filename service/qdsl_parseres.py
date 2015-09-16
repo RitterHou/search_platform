@@ -90,11 +90,12 @@ class QdslParser(object):
         cats = get_dict_value(query_params, 'cats')
         # min_score = config.get_value('/consts/global/query_min_score') or 1.0
 
-        must_bool_query_qdsl_list = list(chain(self.parse_query_string_condition(query_string, es_connection),
-                                               self.parse_cat_condition(category),
-                                               self.parse_basic_conditions(basic_condition),
-                                               self.parse_prop_conditions(prop_condition),
-                                               self.parse_catpath_query_condition(cats)))
+        must_bool_query_qdsl_list = list(
+            chain(self.parse_query_string_condition(query_string, es_connection, query_params),
+                  self.parse_cat_condition(category),
+                  self.parse_basic_conditions(basic_condition),
+                  self.parse_prop_conditions(prop_condition),
+                  self.parse_catpath_query_condition(cats)))
 
         product_query_qdsl = reduce(lambda dict_1, dict_2: dict(dict_1, **dict_2),
                                     filter(lambda item: item,
@@ -103,18 +104,111 @@ class QdslParser(object):
         extend_query_qdsl = extend_parser.get_qdsl(query_params)
         return deep_merge(product_query_qdsl, extend_query_qdsl)
 
-    def parse_query_string_condition(self, query_string, es_connection, field='_all'):
+    def parse_query_string_condition(self, query_string, es_connection, query_params, field=None):
         """
         获取搜索框字符查询QDSL
         :param query_string:
         :return:
         """
+        match_type = query_params.get('q_match_type')
+        if not match_type == 'match_all' and not match_type == 'match_selected_fields':
+            match_type = config.get_value('/consts/query/query_string/default')
+        q_match_dsl = self._get_match_all_query_string_dsl(es_connection, field, query_string) \
+            if match_type == 'match_all' else self._get_selected_fields_query_string_dsl(es_connection, query_string)
+        score_dsl = self._get_score_query_string_dsl(es_connection, query_string)
+        return q_match_dsl + score_dsl
+
+    def _get_match_all_query_string_dsl(self, es_connection, field, query_string):
+        """
+        通过对_all 字段进行match查询的方式实现关键词搜索
+        :param es_connection:
+        :param field:
+        :param query_string:
+        :return:
+        """
+        analyzer = config.get_value('/consts/query/query_string/match_all/analyzer') or 'standard'
+        default_index_name = config.get_value('/consts/query/default_index')
+        field = config.get_value('/consts/query/query_string/match_all/fields') or field
         if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, 'standard',
-                                                                                     query_string)
+            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
+                                                                                     query_string,
+                                                                                     index=default_index_name)
             if analyze_token_list:
                 return map(lambda analyze_token: {'match': {field: analyze_token}}, analyze_token_list)
         return [{'match': {field: query_string}} if query_string else {'match_all': {}}]
+
+    def _get_selected_fields_query_string_dsl(self, es_connection, query_string):
+        """
+        通过对_all 字段进行match查询的方式实现关键词搜索
+        :param es_connection:
+        :param field:
+        :param query_string:
+        :return:
+        """
+
+        def _get_fields_match_dsl(_field_cfg, _word):
+            normal_fields = _field_cfg.get('normal')
+            normal_fields_match_dsl, nest_items_dsl_list = [], []
+            if normal_fields:
+                # normal_fields_match_dsl = [{'multi_match': {'query': _word, 'fields': normal_fields}}]
+                for normal_field in normal_fields:
+                    normal_fields_match_dsl.append({'match': {normal_field: _word}})
+
+            nest_field_dict = _field_cfg.get('nest') or {}
+            for nest_field_key in nest_field_dict:
+                nest_field_item = nest_field_dict[nest_field_key]
+                level = nest_field_item.get('level') or 0
+                item_dsl = {'match': {nest_field_key: _word}}
+                nest_item_dsl = self._get_nest_dsl(nest_field_item.get('path'), level, nest_field_item['field'],
+                                                   item_dsl)
+                nest_items_dsl_list.append(nest_item_dsl)
+            if normal_fields_match_dsl or nest_items_dsl_list:
+                fields_match_dsl = {
+                    'bool': {'minimum_should_match': 1, 'should': normal_fields_match_dsl + nest_items_dsl_list}}
+            else:
+                fields_match_dsl = {}
+            return fields_match_dsl
+
+
+        analyzer = config.get_value('/consts/query/query_string/match_selected_fields/analyzer') or 'standard'
+        default_index_name = config.get_value('/consts/query/default_index')
+        fields_cfg = config.get_value('/consts/query/query_string/match_selected_fields/fields') or {}
+        if query_string:
+            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
+                                                                                     query_string,
+                                                                                     index=default_index_name)
+            if analyze_token_list:
+                return [{'bool': {'must': map(lambda analyze_token: _get_fields_match_dsl(fields_cfg, analyze_token),
+                                              analyze_token_list)}}]
+        return [{'match': {'_all': query_string}} if query_string else {'match_all': {}}]
+
+    def _get_score_query_string_dsl(self, es_connection, query_string):
+        """
+        获取普通query_string查询作为得分项，主要是增加连续词的得分
+        :param es_connection:
+        :param query_string:
+        :return:
+        """
+        if not query_string:
+            return []
+        boost = config.get_value('/consts/query/query_string/score/boost') or 1.0
+        return [{'bool': {'minimum_should_match': 0, 'boost': boost, 'should': [{'match': {'_all': query_string}}]}}]
+
+    def _get_nest_dsl(self, path, level, root_field, item_dsl):
+        """
+        获取嵌套查询的DSL
+        :param path:
+        :param level:
+        :param root_field:
+        :param item_dsl:
+        :return:
+        """
+        if level == 0:
+            return {'nested': {'path': root_field, 'query': item_dsl}}
+        else:
+            complete_path_list = [root_field] + list(repeat(path, level))
+            return {'nested': {'path': '.'.join(complete_path_list),
+                               'query': self._get_nest_dsl(path, level - 1, root_field, item_dsl)}}
 
     def parse_cat_condition(self, category):
         """
@@ -144,6 +238,8 @@ class QdslParser(object):
             return None
         if 'script:' in sort or 'geodistance' in sort:
             sort_item_list = sort.split(';')
+        elif ';' in sort:
+            sort_item_list = sort.split(';')
         elif '_' in sort:
             sort_item_list = sort.split('_')
         else:
@@ -164,13 +260,13 @@ class QdslParser(object):
         sort_field_id, sort_seq_id = sort_item.strip().split(':', 1)
         order = unbind_variable('order\\((?P<order>[\\d\\D]+?)\\)', 'order', sort_seq_id)[1] or sort_seq_id
         order = self.order_num_to_es_str(order)
-        if sort_seq_id == 'script':
+        if sort_field_id == 'script':
             # 支持根据动态脚本排序
             script = unbind_variable('script\\((?P<script>[\\d\\D]+?)\\)', 'script', sort_seq_id)[1]
             script = extend_parser.format_script_str(script)
             script_type = unbind_variable('type\\((?P<type>[\\d\\D]+?)\\)', 'type', sort_seq_id)[1] or 'string'
             return {'_script': {'script': script, 'type': script_type, 'order': order}}
-        elif sort_seq_id == 'geodistance':
+        elif sort_field_id == 'geodistance':
             # 支持根据距离排序
             location = unbind_variable('location\\((?P<location>[\\d\\D]+?)\\)', 'location', sort_seq_id)[1]
             unit = unbind_variable('unit\\((?P<unit>[\\d\\D]+?)\\)', 'unit', sort_seq_id)[1] or 'km'
@@ -422,7 +518,8 @@ class QdslParser(object):
                                       DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
         cur_suggest_qdl = self.suggest_qdl.copy()
         cur_suggest_qdl['completion_suggest']['text'] = word
-        cur_suggest_qdl['completion_suggest']['completion']['size'] = suggest_size
+        suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
+        cur_suggest_qdl['completion_suggest']['completion']['size'] = suggest_size * suggest_size_multiple
         return cur_suggest_qdl
 
 

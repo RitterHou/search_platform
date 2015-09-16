@@ -35,7 +35,7 @@ class SuggestProcessor(object):
         data_processing_config = get_dict_value_by_path('processing', suggest_config)
         has_next = True
         pos_from = 0
-        notification_data['pos_from'] = pos_from
+        notification_data['from'] = pos_from
         retry_times = 0
         while has_next:
             try:
@@ -48,7 +48,7 @@ class SuggestProcessor(object):
                 cur_size = source_docs.get('curSize', 0)
 
                 pos_from += cur_size
-                notification_data['pos_from'] = pos_from
+                notification_data['from'] = pos_from
                 has_next = pos_from < total - 1
                 if retry_times > 0:
                     retry_times = 0
