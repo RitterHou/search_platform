@@ -318,7 +318,7 @@ SERVICE_BASE_CONFIG = {
     'celery_broker_url': 'redis://172.17.8.253:6379/0',
     'celery_backend_url': 'redis://172.17.8.253:6379/0',
     'redis_lock_store': 'redis://172.17.8.253:6379/1',
-	'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER'
+    'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER'
 }
 
 

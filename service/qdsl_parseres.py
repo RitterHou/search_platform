@@ -519,7 +519,7 @@ class QdslParser(object):
         cur_suggest_qdl = self.suggest_qdl.copy()
         cur_suggest_qdl['completion_suggest']['text'] = word
         suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
-        cur_suggest_qdl['completion_suggest']['completion']['size'] = suggest_size * suggest_size_multiple
+        cur_suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size) * suggest_size_multiple
         return cur_suggest_qdl
 
 
