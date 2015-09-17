@@ -476,7 +476,7 @@ class EsSuggestManager(object):
         suggest_term_list = filter(lambda suggest_term: suggest_term['doc_count'], map(
             lambda suggest_res: {'key': suggest_res['text'], 'doc_count': suggest_res['payload']['hits'][tag_name]},
             options))
-        return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:suggest_size]
+        return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:int(suggest_size)]
 
 
 class EsSearchManager(object):
