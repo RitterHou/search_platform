@@ -14,7 +14,7 @@ from suggest.processors import suggest_processor
 __author__ = 'liuzhaoming'
 
 
-@app.task(bind=True)
+# @app.task(bind=True)
 def process_suggest_notification(self, suggest_config, notification_data_list):
     for notification_data in notification_data_list:
         try:
@@ -40,7 +40,8 @@ class SuggestNotification(object):
                 return
             notification_data_list = _suggest_notification.notify(notification_config, suggest_config)
             app_log.info('Notify data list is {0}', notification_data_list)
-            process_suggest_notification.delay(suggest_config, notification_data_list)
+            process_suggest_notification('', suggest_config, notification_data_list)
+            # process_suggest_notification.delay(suggest_config, notification_data_list)
             # 因为任务是通过celery异步执行，所以延迟10秒，防止结束过快释放锁过快，其它进程上的相同任务得以进行
             time.sleep(10)
         except Exception as e:
