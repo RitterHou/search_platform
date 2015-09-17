@@ -471,12 +471,13 @@ class EsSuggestManager(object):
         default_value = config.get_value('/consts/global/query_size')
         suggest_size = get_dict_value(args, 'size', default_value['suggest_size']['default'],
                                       default_value['suggest_size']['min'], default_value['suggest_size']['max'])
+        suggest_size = int(suggest_size)
 
         options = es_result['completion_suggest'][0]['options']
         suggest_term_list = filter(lambda suggest_term: suggest_term['doc_count'], map(
             lambda suggest_res: {'key': suggest_res['text'], 'doc_count': suggest_res['payload']['hits'][tag_name]},
             options))
-        return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:int(suggest_size)]
+        return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:suggest_size]
 
 
 class EsSearchManager(object):
