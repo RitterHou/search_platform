@@ -114,7 +114,7 @@ LOGGING = {
     },
     'filters': {
         'sms_alarm_filter': {
-            '()': 'redislog.filters.QmAlarmFilter',
+            '()': 'redislog.threading.filters.QmAlarmFilter',
             'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
             'phone_numbers': '15051885330,18651618480',
             'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
@@ -185,7 +185,7 @@ LOGGING = {
         },
         'app_logstash_log': {
             'level': 'INFO',
-            'class': 'redislog.handlers.LogstashRedisHandler',
+            'class': 'redislog.threading.handlers.LogstashRedisHandler',
             'host': '192.168.65.224',
             'key': 'LOGSTASH_APP_LOG',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
@@ -193,7 +193,7 @@ LOGGING = {
         },
         'interface_logstash_log': {
             'level': 'INFO',
-            'class': 'redislog.handlers.LogstashRedisHandler',
+            'class': 'redislog.threading.handlers.LogstashRedisHandler',
             'host': '192.168.65.224',
             'key': 'LOGSTASH_INTF_LOG',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
