@@ -193,7 +193,6 @@ class DubboDataSource(DataSource):
         :param app_params:
         :return:
         """
-
         app_log.info(
             'Call JsonRPC method start by param : host = {0}, service_interface={1}, method={2}, body={3}, '
             'version={4}, timeout={5}',

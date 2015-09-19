@@ -57,7 +57,6 @@ class MQMessageListener(pyactivemq.MessageListener):
             app_log.info('Receive MQ message {0}', serial_message)
             if serial_message:
                 message_queue.put({'river_key': self.river_key, 'message': serial_message})
-                process_message.delay(serial_message, self.river_key)
         except Exception as e:
             app_log.exception(e)
 
@@ -101,7 +100,6 @@ class StompMessageListener(object):
             app_log.info('Receive MQ message {0}', serial_message)
             if serial_message:
                 message_queue.put({'river_key': self.river_key, 'message': serial_message})
-                # process_message.delay(serial_message, self.river_key)
         except Exception as e:
             app_log.exception(e)
 

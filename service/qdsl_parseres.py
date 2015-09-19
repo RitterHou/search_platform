@@ -991,9 +991,9 @@ class ExtendQdslParser(object):
 
         def __range_value_to_qdsl(floor_value, ceiling_vlaue):
             range_qsdl_item = {}
-            if floor_value:
+            if floor_value is not None:
                 range_qsdl_item['gte'] = floor_value
-            if ceiling_vlaue:
+            if ceiling_vlaue is not None:
                 range_qsdl_item['lt'] = ceiling_vlaue
             return range_qsdl_item
 
@@ -1854,7 +1854,7 @@ class ExtendQdslParser(object):
             return self.__get_obj_by_desc(temps[0]), self.__get_obj_by_desc(temps[1])
 
         term_value_strs = range_query_str.split(',')
-        return filter(lambda (floor_value, ceiling_vlaue): floor_value or ceiling_vlaue,
+        return filter(lambda (floor_value, ceiling_vlaue): floor_value is not None or ceiling_vlaue is not None,
                       map(__parse_single_range_str, term_value_strs))
 
     def __get_obj_by_desc(self, desc_str):
