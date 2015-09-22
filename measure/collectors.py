@@ -3,7 +3,7 @@
 from common.connections import EsConnectionFactory
 from common.loggers import app_log
 from common.exceptions import GenericError, InvalidParamError
-from common.utils import deep_merge, get_time_by_mill, get_time_by_mill_str
+from common.utils import deep_merge, get_time_by_mill_str
 from measure.measurements import measurement_helper
 
 
@@ -37,8 +37,9 @@ class EsStatsCollector(Collector):
         index_name_list = map(lambda item: item['index'], es_index_list)
         index_stats_result = {}
 
-        es_index_stats_result = es_conn.indices.stats(index_name_list)
-        for (index_name, index_stats_info) in es_index_stats_result['indices'].iteritems():
+        es_index_stats_result = es_conn.indices.stats()
+        for index_name in index_name_list:
+            index_stats_info = es_index_stats_result['indices'].get(index_name)
             index_stats = {}
             index_stats_result[index_name] = index_stats
             for measurement in measurements:
