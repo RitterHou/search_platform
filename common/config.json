@@ -2885,7 +2885,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "\"type\": \"update\"|\"type\": \"updateStatus\""
+                  "expression": "\"type\":\"update\"|\"type\":\"updateStatus\""
                 }
               ]
             },
@@ -2947,7 +2947,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "\"type\": \"delete\""
+                  "expression": "\"type\":\"delete\""
                 }
               ]
             },
@@ -3596,7 +3596,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "\"type\": \"update\"|\"type\": \"updateStatus\""
+                  "expression": "\"type\":\"update\"|\"type\":\"updateStatus\""
                 }
               ]
             },
@@ -3658,7 +3658,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "\"type\": \"delete\""
+                  "expression": "\"type\":\"delete\""
                 }
               ]
             },

@@ -35,7 +35,7 @@ class PythonScript(object):
         if isinstance(input_params, dict):
             return reflected_object(**input_params)
         else:
-            return reflected_object(*input_params)
+            return reflected_object(input_params)
 
     def get_module(self, module_path):
         """
