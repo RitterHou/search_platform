@@ -3543,6 +3543,11 @@
                   "operator": "is",
                   "type": "regex",
                   "expression": "\"sys\":1"
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
                 }
               ]
             },
@@ -3704,6 +3709,201 @@
               "reference": "gonghuo_spu",
               "operation": "update",
               "id": "{spuId}"
+            }
+          ]
+        },
+
+        {
+          "name": "spu_ssm_init",
+          "notification": {
+            "type": "MQ",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
+            "queue": "q.qmpc.ssm.EsInit",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "pointUserId\":\"(?P<adminID>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 10,
+              "body": {
+                "pointUserId": "{adminID}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{productId}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        },
+        {
+          "name": "spu_ssm_add",
+          "notification": {
+            "type": "MQ",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
+            "topic": "t.ssm.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"add\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "pointUserId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "request": {
+              "method": "listSsmProductByIds",
+              "timeout": 10,
+              "body": {
+                "pointUserId": "{adminID}",
+                "productIds": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{productId}"
+            }
+          ]
+        },
+        {
+          "name": "spu_ssm_update",
+          "notification": {
+            "type": "MQ",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
+            "topic": "t.ssm.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "pointUserId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "request": {
+              "method": "listSsmProductByIds",
+              "timeout": 10,
+              "body": {
+                "pointUserId": "{adminID}",
+                "productIds": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "create",
+              "index": "qmshop-{adminId}-{version}",
+              "id": "{productId}"
+            }
+          ]
+        },
+        {
+          "name": "spu_ssm_delete",
+          "notification": {
+            "type": "MQ",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
+            "topic": "t.ssm.ItemChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "pointUserId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu",
+              "operation": "delete",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
             }
           ]
         }
