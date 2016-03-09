@@ -670,6 +670,7 @@ class ExtendQdslParser(object):
                 continue
             avg = agg_es_result[agg_stats_result_key]['avg']
             std_deviation = agg_es_result[agg_stats_result_key]['std_deviation']
+            std_deviation = 0 if std_deviation == 'NaN' else std_deviation
             if avg is None or std_deviation is None:
                 continue
             section_num = int(unbind_variable(self.section_regex_size, 'size', value)[1] or '0')
