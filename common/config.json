@@ -1181,7 +1181,7 @@
             "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1241,7 +1241,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1301,7 +1301,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1399,7 +1399,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "pageNum": "{page_from}",
@@ -1463,7 +1463,7 @@
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1523,7 +1523,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1583,7 +1583,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1696,7 +1696,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "pageNum": "{page_from}",
@@ -1760,7 +1760,7 @@
             "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1820,7 +1820,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1880,7 +1880,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -1978,7 +1978,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "pageNum": "{page_from}",
@@ -2042,7 +2042,7 @@
             "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -2102,7 +2102,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -2162,7 +2162,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "idString": "{ids}"
@@ -2275,7 +2275,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "chainMasterId": "{adminID}",
                 "pageNum": "{page_from}",
@@ -3740,7 +3740,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "pointUserId": "{adminID}",
                 "pageNum": "{page_from}",
@@ -3798,7 +3798,7 @@
             "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
             "request": {
               "method": "listSsmProductByIds",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "pointUserId": "{adminID}",
                 "productIds": "{ids}"
@@ -3848,7 +3848,7 @@
             "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
             "request": {
               "method": "listSsmProductByIds",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "pointUserId": "{adminID}",
                 "productIds": "{ids}"
@@ -4637,7 +4637,7 @@
         "default_match_result": "true"
       },
       "source": {
-        "default_iteration_get_size": 50
+        "default_iteration_get_size": 100
       },
       "suggest": {
         "default_es_iterator_get_size": 100,

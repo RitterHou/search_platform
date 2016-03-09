@@ -70,7 +70,7 @@ class EsConnectionPool(object):
         :return:
         """
         if host not in self.connection_cache:
-            connection = EsConnection(host.split(','))
+            connection = EsConnection(host.split(','), sniff_on_start=True)
             self.connection_cache[host] = connection
         else:
             connection = self.connection_cache[host]
