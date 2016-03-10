@@ -51,12 +51,13 @@ class EsConnectionPool(object):
                 app_log.info('Cache doesnot have type key {0}', type_key)
                 if not conn.indices.exists(es_config['index']):
                     app_log.info('Creates index {0}', es_config['index'])
-                    conn.indices.create(es_config['index'], body={"number_of_shards": "2"})
+                    conn.indices.create(es_config['index'], body={"number_of_shards": "2"},
+                                        params={'timeout': 60, 'request_timeout': 60})
                 is_type_exist = conn.indices.exists_type(es_config['index'], es_config['type'])
                 if not is_type_exist:
                     app_log.info('Creates type {0}', es_config['type'])
                     conn.indices.put_mapping(doc_type=es_config['type'], body=es_config['mapping'],
-                                             index=es_config['index'])
+                                             index=es_config['index'], params={'timeout': 60, 'request_timeout': 60})
                 self.es_type_init_info_cache[type_key] = ''
         except ElasticsearchException as e:
             app_log.exception(e)
