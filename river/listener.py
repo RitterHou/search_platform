@@ -54,7 +54,7 @@ class MQMessageListener(pyactivemq.MessageListener):
         """
         try:
             serial_message = self.__convert_message(message)
-            app_log.info('Receive MQ message {0}', serial_message)
+            app_log.info('Receive MQ message {0}, key={1}', serial_message, self.river_key)
             if serial_message:
                 message_queue.put({'river_key': self.river_key, 'message': serial_message})
         except Exception as e:
