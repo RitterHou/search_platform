@@ -17,6 +17,10 @@ from search_platform.settings import SERVICE_BASE_CONFIG
 
 __author__ = 'liuzhaoming'
 
+BATCH_REQUEST_TIMEOUT = 30
+BATCH_TIMEOUT = 120000
+INDEX_REQUEST_TIMEOUT = 120
+INDEX_TIMEOUT = 120000
 
 class EsIndexAdapter(object):
     """
@@ -38,7 +42,8 @@ class EsIndexAdapter(object):
         bulk_body = self.__build_batch_create_body(es_config, doc_list=doc_list)
         try:
             es_start_time = time.time()
-            es_bulk_result = es_connection.bulk(bulk_body)
+            es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                   'timeout': BATCH_TIMEOUT})
             app_log.info('es spend time {0}'.format(time.time() - es_start_time))
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
@@ -59,7 +64,8 @@ class EsIndexAdapter(object):
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         bulk_body = self.__build_batch_update_body(es_config, doc_list=doc_list)
         try:
-            es_bulk_result = es_connection.bulk(bulk_body)
+            es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                   'timeout': BATCH_TIMEOUT})
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
@@ -86,7 +92,8 @@ class EsIndexAdapter(object):
         try:
             es_connection = EsConnectionFactory.get_es_connection(
                 es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
-            es_bulk_result = es_connection.bulk(bulk_body)
+            es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                   'timeout': BATCH_TIMEOUT})
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
@@ -116,7 +123,8 @@ class EsIndexAdapter(object):
         doc_id_list = ids_str.strip().strip(';').split(separator)
         bulk_body = self.__build_batch_delete_body_by_ids(index, doc_type, doc_id_list)
         try:
-            es_bulk_result = es_connection.bulk(bulk_body)
+            es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                   'timeout': BATCH_TIMEOUT})
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
@@ -130,7 +138,8 @@ class EsIndexAdapter(object):
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         bulk_body = self.__build_batch_delete_body_by_ids(es_config, index, doc_type, doc_id_list)
         try:
-            es_bulk_result = es_connection.bulk(bulk_body)
+            es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                   'timeout': BATCH_TIMEOUT})
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('es operation input param is {0}', e, list(bulk_body))
@@ -146,7 +155,8 @@ class EsIndexAdapter(object):
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         try:
-            es_connection.delete_by_query(index=index, doc_type=doc_type, body={'query': {'match_all': {}}})
+            es_connection.delete_by_query(index=index, doc_type=doc_type, body={'query': {'match_all': {}}},
+                                          params={'request_timeout': INDEX_REQUEST_TIMEOUT, 'timeout': INDEX_TIMEOUT})
         except ElasticsearchException as e:
             app_log.error('es delete_all_doc input param is {0}, {1}', e, index, doc_type)
 
@@ -161,9 +171,12 @@ class EsIndexAdapter(object):
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         try:
-            es_connection.indices.delete_mapping(index=index, doc_type=doc_type)
+            es_connection.indices.delete_mapping(index=index, doc_type=doc_type,
+                                                 params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                         'timeout': INDEX_TIMEOUT})
             es_connection.indices.put_mapping(index=index, doc_type=doc_type, body=es_config['mapping'],
-                                              ignore_conflicts=True)
+                                              ignore_conflicts=True, params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                                             'timeout': INDEX_TIMEOUT})
         except ElasticsearchException as e:
             app_log.error('es delete_all_doc_by_type input param is {0}, {1}', e, index, doc_type)
 
@@ -184,7 +197,9 @@ class EsIndexAdapter(object):
                 del body['size']
             if 'from' in body:
                 del body['from']
-            es_connection.delete_by_query(index=index, doc_type=doc_type, body=body)
+            es_connection.delete_by_query(index=index, doc_type=doc_type, body=body,
+                                          params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                  'timeout': BATCH_TIMEOUT})
         except ElasticsearchException as e:
             app_log.error('es delete_by_query input param is {0}, {1}', e, index, doc_type)
 
@@ -273,7 +288,9 @@ class EsIndexAdapter(object):
         if body in SKIP_IN_PATH:
             raise ValueError("Empty value passed for a required argument 'body'.")
         _, data = es_connection.transport.perform_request('POST', _make_path(index, doc_type, '_msearch'),
-                                                          body=es_connection._bulk_body(body))
+                                                          body=es_connection._bulk_body(body),
+                                                          params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                  'timeout': BATCH_TIMEOUT})
         return data
 
     @debug_log.debug('Save config')
