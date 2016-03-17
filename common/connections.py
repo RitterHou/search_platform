@@ -8,6 +8,10 @@ from common.utils import COMBINE_SIGN
 from common.loggers import app_log
 
 
+BATCH_REQUEST_TIMEOUT = 30
+BATCH_TIMEOUT = 120000
+INDEX_REQUEST_TIMEOUT = 120
+INDEX_TIMEOUT = 120000
 class EsConnection(Elasticsearch):
     """
     封装的ES操作接口，添加了多个索引
@@ -51,12 +55,15 @@ class EsConnectionPool(object):
                 app_log.info('Cache doesnot have type key {0}', type_key)
                 if not conn.indices.exists(es_config['index']):
                     app_log.info('Creates index {0}', es_config['index'])
-                    conn.indices.create(es_config['index'], body={"number_of_shards": "2"})
+                    conn.indices.create(es_config['index'], body={"number_of_shards": "2"},
+                                        params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                'timeout': INDEX_TIMEOUT})
                 is_type_exist = conn.indices.exists_type(es_config['index'], es_config['type'])
                 if not is_type_exist:
                     app_log.info('Creates type {0}', es_config['type'])
                     conn.indices.put_mapping(doc_type=es_config['type'], body=es_config['mapping'],
-                                             index=es_config['index'])
+                                             index=es_config['index'], params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                                               'timeout': INDEX_TIMEOUT})
                 self.es_type_init_info_cache[type_key] = ''
         except ElasticsearchException as e:
             app_log.exception(e)
