@@ -447,6 +447,7 @@ class EsSuggestManager(object):
         :param args:
         :return:
         """
+        return []
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args)
         app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
