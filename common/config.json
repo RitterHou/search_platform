@@ -1139,6 +1139,35 @@
             "auto_boost": true
           }
         }
+      },
+      "general": {
+        "host": "http://172.21.4.201:9200",
+        "mapping": {
+          "_all": {
+            "store": true,
+            "analyzer": "qm_standard",
+            "auto_boost": true
+          },
+          "dynamic_templates": [
+            {
+              "string_fields": {
+                "mapping": {
+                  "index": "not_analyzed",
+                  "type": "string",
+                  "fields": {
+                    "analyzed": {
+                      "index": "analyzed",
+                      "analyzer": "qm_standard",
+                      "type": "string"
+                    }
+                  }
+                },
+                "match_mapping_type": "string",
+                "match": "*"
+              }
+            }
+          ]
+        }
       }
     },
     "data_river": {
@@ -3906,6 +3935,211 @@
               }
             }
           ]
+        },
+        {
+          "name": "cloudshop_marketing_init",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.cloudshop.platform.initMarketing",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryMarketingList4ESearch",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminID}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "domainType": "{domain_type}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general",
+              "operation": "create",
+              "index": "cloudshop-marketing-{version}",
+              "id": "{marketingId}",
+              "type": "{adminId}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        },
+        {
+          "name": "cloudshop_marketing_add",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.cloudshop.platform.marketingChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"add\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\"",
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "request": {
+              "method": "queryMarketingList4ESearchByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminID}",
+                "domainType": "{domain_type}",
+                "marketingId": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general",
+              "operation": "create",
+              "index": "cloudshop-marketing-{version}",
+              "id": "{marketingId}",
+              "type": "{adminId}"
+            }
+          ]
+        },
+        {
+          "name": "cloudshop_marketing_update",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.cloudshop.platform.marketingChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\"",
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "172.19.65.33:2181",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "request": {
+              "method": "queryMarketingList4ESearchByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminID}",
+                "domainType": "{domain_type}",
+                "marketingId": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general",
+              "operation": "create",
+              "index": "cloudshop-marketing-{version}",
+              "id": "{marketingId}",
+              "type": "{adminId}"
+            }
+          ]
+        },
+        {
+          "name": "cloudshop_marketing_delete",
+          "notification": {
+            "type": "MQ",
+            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "topic": "t.cloudshop.platform.marketingChange",
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminID": "adminId\":\"(?P<adminID>[\\d\\D]+?)\"",
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general",
+              "operation": "delete",
+              "index": "cloudshop-marketing-{version}",
+              "type": "{adminID}",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
         }
       ]
     },
@@ -4368,6 +4602,47 @@
           "destination": {
             "destination_type": "elasticsearch",
             "reference": "product"
+          }
+        },
+        {
+          "name": "cloudshop_marketing_query",
+          "res_type": "default",
+          "http_method": "GET,PUT,POST,DELETE",
+          "url_format": "^cloudshop/marketings/[\\d\\D]+",
+          "filter": {
+            "type": "regex",
+            "union_operator": "and",
+            "conditions": [
+              {
+                "operator": "is",
+                "type": "regex",
+                "field": "url",
+                "expression": "/cloudshop/marketings/"
+              }
+            ]
+          },
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminID": "marketings/(?P<adminID>[^/]+)",
+              "id":"marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+            }
+          },
+          "destination": {
+            "destination_type": "elasticsearch",
+            "reference": "general",
+            "index": "cloudshop-marketing-{version}",
+            "type": "{adminID}",
+            "id": "{marketingId}"
+          },
+          "response": {
+            "json": {
+              "format": "json",
+              "data_parser": {
+                "language": "python",
+                "script": "script.python.data_parser"
+              }
+            }
           }
         }
       ]

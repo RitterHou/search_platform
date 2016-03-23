@@ -75,7 +75,7 @@ class EsProductManager(object):
         :param product:
         :return:
         """
-        app_log.info('Product save is called {0} , {1} , {2} ', index_name, doc_type, product)
+        app_log.info('Product save is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
         if not product:
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
@@ -96,7 +96,7 @@ class EsProductManager(object):
         :param product:
         :return:
         """
-        app_log.info('Product update is called {0} , {1} , {2} ', index_name, doc_type, product)
+        app_log.info('Product update is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
         if not product:
             app_log.error('Product update input product is invalid')
             raise InvalidParamError()
@@ -104,7 +104,10 @@ class EsProductManager(object):
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
-        doc_id = bind_variable(es_config['id'], product)
+        if parse_fields and 'id' in parse_fields and parse_fields['id']:
+            doc_id = parse_fields['id']
+        else:
+            doc_id = bind_variable(es_config['id'], product)
         es_connection.update(index=index_name, doc_type=doc_type, body={'doc': product}, id=doc_id)
         return product
 
@@ -117,8 +120,8 @@ class EsProductManager(object):
         :param product:
         :return:
         """
-        app_log.info('Product delete is called {0} , {1} , {2} ', index_name, doc_type, product)
-        if not product:
+        app_log.info('Product delete is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
+        if product is None:
             app_log.error('Product delete input product is invalid')
             raise InvalidParamError()
         if product.get('ex_body_type') == 'scroll':
@@ -128,7 +131,9 @@ class EsProductManager(object):
             es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
             if not es_connection:
                 raise EsConnectionError()
-            if 'doc_id' in product:
+            if parse_fields and 'id' in parse_fields and parse_fields['id']:
+                doc_id = parse_fields['id']
+            elif 'doc_id' in product:
                 doc_id = product['doc_id']
             else:
                 doc_id = bind_variable(es_config['id'], product)

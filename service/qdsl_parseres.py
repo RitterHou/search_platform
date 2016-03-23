@@ -563,6 +563,7 @@ class ExtendQdslParser(object):
         self.section_regex_size = 'size:(?P<size>[\\d]+)'
         self.highlight_query_tmpl = {"number_of_fragments": 0, "highlight_query": {"bool": {"must": []}}}
         self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment, 'range': self.__get_query_range_fragment,
+                                       'terms': self.__get_query_term_fragment,
                                        'ids': self.__get_query_ids_fragment, 'match': self.__get_query_match_fragment,
                                        'query_string': self.__get_query_querystring_fragment,
                                        'multi_match': self.__get_query_multi_match_fragment,
@@ -588,6 +589,7 @@ class ExtendQdslParser(object):
                                       'cardinality': self.__get_agg_cardinality_fragment,
                                       'missing': self.__get_agg_missing_fragment,
                                       'terms': self.__get_agg_terms_fragment,
+                                      'term': self.__get_agg_terms_fragment,
                                       'range': self.__get_agg_range_fragment,
                                       'date_range': self.__get_agg_date_range_fragment,
                                       'histogram': self.__get_agg_histogram_fragment,

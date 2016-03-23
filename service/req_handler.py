@@ -33,6 +33,7 @@ class RequestHandler(object):
         :param format:
         :return:
         """
+        request_desc = None
         try:
             start_time = time.time()
             request_desc = desc_request(request)
@@ -139,13 +140,13 @@ class RequestHandler(object):
         :return:
         """
         field_values = self.__get_fields_value(request)
-        es_config = self.__get_es_config(destination_config, field_values, parse_fields=field_values)
+        es_config = self.__get_es_config(destination_config, field_values)
 
         res_type = self.handler_config.get('res_type', 'product')
         model = self.__get_model(res_type)
         if model:
             return model.objects.update(es_config, index_name=es_config['index'], doc_type=es_config['type'],
-                                        product=get_request_data(request))
+                                        product=get_request_data(request), parse_fields=field_values)
 
     def delete(self, request, destination_config):
         """

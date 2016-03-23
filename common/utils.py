@@ -309,6 +309,8 @@ def format_dict(_input_dict):
         return '{}'
 
     try:
+        if isinstance(_input_dict, QueryDict):
+            _input_dict = _input_dict.lists()
         return json.dumps(_input_dict)
     except:
         return str(_input_dict)

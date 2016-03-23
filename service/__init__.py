@@ -30,8 +30,8 @@ def desc_request(request):
     url = get_url(request, True)
     client_ip = get_client_ip(request)
     return '{4} url={0}, client_ip={1}, params={2}, data={3}'.format(url, client_ip,
-                                                                     format_dict(request.QUERY_PARAMS.lists()),
-                                                                     format_dict(request.DATA.lists()), request.method)
+                                                                     format_dict(request.QUERY_PARAMS),
+                                                                     format_dict(request.DATA), request.method)
 
 
 def get_request_data(request):
