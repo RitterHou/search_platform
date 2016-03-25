@@ -1141,7 +1141,7 @@
         }
       },
       "general": {
-        "host": "http://172.21.4.201:9200",
+        "host": "http://192.168.65.167:9200,http://192.168.65.175:9200,http://192.168.65.231:9200,http://192.168.65.241:9200,http://192.168.65.242:9200,http://192.168.65.245:9200",
         "mapping": {
           "_all": {
             "store": true,
@@ -3940,7 +3940,7 @@
           "name": "cloudshop_marketing_init",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.cloudshop.platform.initMarketing",
             "filter": {
               "union_operator": "and",
@@ -3959,7 +3959,7 @@
           "source": {
             "type": "iterator_get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "version": "1.0.0",
             "request": {
@@ -3995,7 +3995,7 @@
           "name": "cloudshop_marketing_add",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.cloudshop.platform.marketingChange",
             "filter": {
               "union_operator": "and",
@@ -4020,7 +4020,7 @@
           "source": {
             "type": "get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "version": "1.0.0",
             "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
@@ -4048,7 +4048,7 @@
           "name": "cloudshop_marketing_update",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.cloudshop.platform.marketingChange",
             "filter": {
               "union_operator": "and",
@@ -4073,7 +4073,7 @@
           "source": {
             "type": "get",
             "protocol": "dubbo",
-            "host": "172.19.65.33:2181",
+            "host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
             "version": "1.0.0",
             "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
@@ -4101,7 +4101,7 @@
           "name": "cloudshop_marketing_delete",
           "notification": {
             "type": "MQ",
-            "host": "tcp://172.19.65.38:61616?wireFormat=openwire",
+            "host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
             "topic": "t.cloudshop.platform.marketingChange",
             "filter": {
               "union_operator": "and",
@@ -4800,7 +4800,7 @@
           }
         },
         "ansj_segment_redis": {
-          "host": "localhost:6379",
+          "host": "172.17.8.253:6379",
           "channel": "ansj_term"
         },
         "lock_expire_time": 1800,
