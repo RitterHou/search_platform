@@ -16,15 +16,27 @@ class SpuAndSkuDict(object):
     按照put的顺序存储
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.__ordered_dict = OrderedDict()
+        self.__ignore_spu_ids = []
+        self.__ignore_sku = False
+        if 'aggs_sku_size' in kwargs:
+            self.__ignore_sku_size = kwargs['aggs_sku_size']
+            self.__ignore_sku = True
 
     def put(self, spu_id, sku_id):
         """
         将spuId和skuId存放到数据结构中
         """
         if spu_id in self.__ordered_dict:
-            self.__ordered_dict[spu_id].append(sku_id)
+            spu_sku_ids = self.__ordered_dict[spu_id]
+            if self.__ignore_sku:
+                if spu_id in self.__ignore_spu_ids:
+                    return
+                elif len(spu_sku_ids) >= self.__ignore_sku_size:
+                    self.__ignore_spu_ids.append(spu_id)
+                    return
+            spu_sku_ids.append(sku_id)
         else:
             self.__ordered_dict[spu_id] = [sku_id]
 
@@ -80,10 +92,16 @@ class SpuSearchBySku(object):
         es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, **es_cfg)
         es_scan_result = tuple(es_scan_result)
         query_log.info('get_spu_by_sku scan spends {0}'.format(time.time() - start_time))
-        spu_sku_dict = SpuAndSkuDict()
+        aggs_sku_size = int(args['aggs_sku_size']) if 'aggs_sku_size' in args and int(args['aggs_sku_size']) > 0 else 0
+        if aggs_sku_size > 0:
+            spu_sku_dict = SpuAndSkuDict(aggs_sku_size=aggs_sku_size)
+        else:
+            spu_sku_dict = SpuAndSkuDict()
         for item in es_scan_result:
             if item['fields'].get('spuId') and item['fields'].get('skuId'):
-                spu_sku_dict.put(item['fields'].get('spuId')[0], item['fields'].get('skuId')[0])
+                spu_id = item['fields'].get('spuId')[0]
+                sku_id = item['fields'].get('skuId')[0]
+                spu_sku_dict.put(spu_id, sku_id)
         total_size = spu_sku_dict.get_spu_size()
         page_spu_sku_dict = spu_sku_dict.get_paged_dict(sku_dsl.get('from') or 0, sku_dsl.get('size'))
         sku_id_list = list(page_spu_sku_dict.get_sku_ids())
@@ -102,7 +120,8 @@ class SpuSearchBySku(object):
         query_log.info('get_spu_by_sku multi_search before spends {0}'.format(musearch_start_time - start_time))
         multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
         query_log.info('get_spu_by_sku multi_search spends {0}'.format(time.time() - musearch_start_time))
-        spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict)
+        spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
+                                                delete_goods_field=aggs_sku_size > 0)
 
         self.parse_sku_search_result(spu_list, args, multi_search_results)
 
@@ -112,7 +131,7 @@ class SpuSearchBySku(object):
             aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response)
             print 'get_spu_by_sku spends {0}'.format(time.time() - start_time)
             return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
-        print 'get_spu_by_sku spends {0}'.format(time.time() - start_time)
+        query_log.info('get_spu_by_sku spends {0}'.format(time.time() - start_time))
         return product_dict, None
 
     def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg):
@@ -149,7 +168,7 @@ class SpuSearchBySku(object):
                 if spu_item['spuId'] == sku_item['spuId']:
                     spu_item['skuList'].append(sku_item)
 
-    def parse_spu_search_result(self, multi_search_results, page_spu_sku_dict):
+    def parse_spu_search_result(self, multi_search_results, page_spu_sku_dict, delete_goods_field=False):
         """
         解析SPU查询结果
         :param multi_search_results:
@@ -162,6 +181,8 @@ class SpuSearchBySku(object):
             for spu_item in spu_search_response['hits']['hits']:
                 if spu_id == spu_item['_id']:
                     spu_item['_source']['skuList'] = []
+                    if delete_goods_field:
+                        del spu_item['_source']['goods']
                     spu_list.append(spu_item['_source'])
                     break
         return spu_list
