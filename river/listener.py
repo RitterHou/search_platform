@@ -18,6 +18,7 @@ def init_django_env():
 
 init_django_env()
 import Queue
+import time
 
 import pyactivemq
 from pyactivemq import ActiveMQConnectionFactory
@@ -293,10 +294,20 @@ if __name__ == '__main__':
     message_bus.add_event_listener(Event.TYPE_CONFIG_UPDATE, register.register_listeners)
 
     app_log.info('Listener register finish')
+    start_time = time.time()
+    msg_count = 0
 
     while 1:
         try:
             message_dict = message_queue.get(block=True)
+            if (time.time() - start_time) > 5:
+                msg_count = 0
+                start_time = time.time()
+            if msg_count > 10:
+                msg_count = 0
+                start_time = time.time()
+                app_log.info('River receive msg will be limited')
+                time.sleep(2)
             process_message.delay(message_dict['message'], message_dict['river_key'])
         except Exception as e:
             app_log.exception(e)

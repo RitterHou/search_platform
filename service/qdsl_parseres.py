@@ -564,6 +564,7 @@ class ExtendQdslParser(object):
         self.highlight_query_tmpl = {"number_of_fragments": 0, "highlight_query": {"bool": {"must": []}}}
         self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment, 'range': self.__get_query_range_fragment,
                                        'terms': self.__get_query_term_fragment,
+                                       'size_terms': self.__get_query_size_term_fragment,
                                        'ids': self.__get_query_ids_fragment, 'match': self.__get_query_match_fragment,
                                        'query_string': self.__get_query_querystring_fragment,
                                        'multi_match': self.__get_query_multi_match_fragment,
@@ -970,6 +971,32 @@ class ExtendQdslParser(object):
             }
         }
 
+    def __get_query_size_term_fragment(self, field_name, field_str):
+        """
+        terms查询，可以指定匹配条件数目, 不指定size参数或者指定size为0表示全匹配,
+        ex_q_kkkk=size_terms(value:a,b,c;size:0)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        search_item_str_list = field_str.split(';')
+        term_values = []
+        term_size = 0
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':')
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'value':
+                    term_values = self.__parse_single_input_str(field_str)
+                elif search_item_key_value[0] == 'size':
+                    term_size = int(search_item_key_value[1])
+        if term_size > list(term_values) or term_size == 0:
+            term_size = len(term_values)
+        return {
+            "terms": {
+                field_name: list(term_values),
+                "minimum_should_match": term_size
+            }
+        }
     def __get_query_ids_fragment(self, filed_name, field_str):
         """
         ids查询
