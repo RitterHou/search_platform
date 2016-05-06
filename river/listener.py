@@ -300,14 +300,16 @@ if __name__ == '__main__':
     while 1:
         try:
             message_dict = message_queue.get(block=True)
-            if (time.time() - start_time) > 5:
+            msg_count += 1
+            delta_time = time.time() - start_time
+            if delta_time > 5:
                 msg_count = 0
                 start_time = time.time()
             if msg_count > 10:
                 msg_count = 0
                 start_time = time.time()
                 app_log.info('River receive msg will be limited')
-                time.sleep(2)
+                time.sleep(5 - delta_time)
             process_message.delay(message_dict['message'], message_dict['river_key'])
         except Exception as e:
             app_log.exception(e)
