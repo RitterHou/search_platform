@@ -1191,6 +1191,11 @@
                   "operator": "not",
                   "type": "regex",
                   "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"stock\""
                 }
               ]
             },
@@ -1473,6 +1478,11 @@
                   "operator": "not",
                   "type": "regex",
                   "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"stock\""
                 }
               ]
             },
@@ -1770,6 +1780,11 @@
                   "operator": "not",
                   "type": "regex",
                   "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"stock\""
                 }
               ]
             },
@@ -2052,6 +2067,11 @@
                   "operator": "not",
                   "type": "regex",
                   "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"stock\""
                 }
               ]
             },
