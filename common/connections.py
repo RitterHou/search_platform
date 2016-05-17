@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'liuzhaoming'
-
+import redis
 from elasticsearch import Elasticsearch, Transport, ElasticsearchException
 from dubbo_client import ZookeeperRegistry, DubboClient, ApplicationConfig
 
 from common.utils import COMBINE_SIGN
 from common.loggers import app_log
 
+__author__ = 'liuzhaoming'
 
 BATCH_REQUEST_TIMEOUT = 30
 BATCH_TIMEOUT = 120000
@@ -43,14 +43,16 @@ class EsConnectionPool(object):
         :param es_config:
         :return:
         """
+        from common.configs import config
         _host = host or [es_config['host'] if es_config and 'host' in es_config else None][0]
+        _host = _host.format(**config.get_value('consts/custom_variables'))
         conn = self.__create_connection(_host)
 
         try:
             if create_index and es_config and 'index' in es_config and 'type' in es_config and 'mapping' in es_config \
                     and es_config['mapping']:
                 type_key = ''.join((_host + COMBINE_SIGN, es_config['index'], COMBINE_SIGN, es_config['type']))
-                if type_key in self.es_type_init_info_cache:
+                if type_key in self.es_type_init_info_cache[_host]:
                     return conn
                 app_log.info('Cache doesnot have type key {0}', type_key)
                 if not conn.indices.exists(es_config['index']):
@@ -64,7 +66,7 @@ class EsConnectionPool(object):
                     conn.indices.put_mapping(doc_type=es_config['type'], body=es_config['mapping'],
                                              index=es_config['index'], params={'request_timeout': INDEX_REQUEST_TIMEOUT,
                                                                                'timeout': INDEX_TIMEOUT})
-                self.es_type_init_info_cache[type_key] = ''
+                self.es_type_init_info_cache[_host][type_key] = ''
         except ElasticsearchException as e:
             app_log.exception(e)
 
@@ -79,6 +81,7 @@ class EsConnectionPool(object):
         if host not in self.connection_cache:
             connection = EsConnection(host.split(','), sniff_on_start=True)
             self.connection_cache[host] = connection
+            self.es_type_init_info_cache[host] = {}
         else:
             connection = self.connection_cache[host]
         return connection
@@ -114,6 +117,17 @@ class DubboRegistryPool(object):
 
 DubboRegistryFactory = DubboRegistryPool()
 
+class RedisPool(object):
+    def __init__(self):
+        self.redis_conn_pool = {}
+    def get_redis_connection(self, host):
+        if not host:
+            app_log.error('Get redis connection param is invalid, {0}', host)
+            return None
+        if host not in self.redis_conn_pool or not self.redis_conn_pool[host]:
+            self.redis_conn_pool[host] = redis.ConnectionPool.from_url(host)
+        return redis.Redis(connection_pool=self.redis_conn_pool[host])
+RedisConnectionFactory = RedisPool()
 if __name__ == '__main__':
     es_config = {'host': 'http://172.19.65.66:9200,http://172.19.65.79:9200', 'index': 'test-aaa', 'type': 'test-type',
                  'mapping': {"properties": {"category": {"index": "not_analyzed", "type": "string"}}}}

@@ -4,7 +4,7 @@ import logging
 import sys
 import os
 
-import simplejson
+import ujson as json
 
 
 __author__ = 'liuzhaoming'
@@ -12,6 +12,7 @@ __author__ = 'liuzhaoming'
 
 # 日志等级
 LOGGER_LEVELS = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+_error_logger = logging.getLogger('error')
 
 
 def get_caller_info(level=2):
@@ -71,7 +72,7 @@ class AppLog(object):
         finally:
             # self.logger.error(message)
             _error_logger.error(message)
-            if error:
+            if error and isinstance(error, Exception):
                 # self.logger.exception(error)
                 _error_logger.exception(error)
 
@@ -115,7 +116,7 @@ class InterfaceLog(object):
                 return
             if isinstance(message, dict):
                 message['message'] = ' '.join((get_caller_info(), message.get('message') or ''))
-                message = simplejson.dumps(message)
+                message = json.dumps(message)
             elif args:
                 message = message.format(*args)
                 message = ' '.join((get_caller_info(), message))
@@ -123,6 +124,13 @@ class InterfaceLog(object):
             self.logger.exception(e)
         finally:
             self.logger.info(message)
+    def print_error(self, message, error, *args):
+        if args:
+            message = message.format(*args)
+            message = ' '.join((get_caller_info(), message))
+        if error:
+            message += ', error: ' + str(error)
+            self.logger.error(message)
 
 
 class DebugLog(object):
@@ -166,9 +174,9 @@ class DebugLog(object):
             def new_func(*args, **kwargs):
                 if not self.__has_init:
                     self.init_config()
-                self.__log(self.int_log_level, msgs, 'begin with the params:', *args, **kwargs)
+                # self.__log(self.int_log_level, msgs, 'begin with the params:', *args, **kwargs)
                 result = function(*args, **kwargs)
-                self.__log(self.int_log_level, msgs, 'finish with the result:', result)
+                # self.__log(self.int_log_level, msgs, 'finish with the result:', result)
                 return result
 
             return new_func
@@ -233,7 +241,6 @@ class DebugLog(object):
         return '[{0} : {1}]'.format(str(obj), obj.__dict__ if hasattr(obj, '__dict__') else '')
 
 
-_error_logger = logging.getLogger('error')
 app_log = AppLog()
 debug_log = DebugLog()
 interface_log = InterfaceLog()

@@ -19,15 +19,19 @@ def init_django_env():
 init_django_env()
 import Queue
 import time
+import threading
 
 import pyactivemq
 from pyactivemq import ActiveMQConnectionFactory
 from pyactivemq import AcknowledgeMode
+from common.msg_bus import message_bus, Event
 from river.rivers import process_message
 from common.configs import config
 from common.loggers import debug_log, listener_log as app_log
 from river import get_river_key
-from common.msg_bus import message_bus, Event
+from common.data_parsers import data_parser
+from common.sla import sla
+from common.utils import get_dict_value_by_path
 
 
 __author__ = 'liuzhaoming'
@@ -35,18 +39,29 @@ __author__ = 'liuzhaoming'
 message_queue = Queue.Queue(0)
 
 
+def process_message_wrapper(_message_dict_list):
+    """
+    消息处理函数包装器
+    :param _message_dict:
+    :return:
+    """
+    for _message_dict in _message_dict_list:
+        try:
+            process_message.delay(_message_dict, _message_dict['river_key'])
+        except Exception as e:
+            app_log.error('process message error {0}', e, _message_dict)
 class MQMessageListener(pyactivemq.MessageListener):
     """
     消息监听器，不处理消息，只负责转发消息到celery队列
     """
 
-    def __init__(self, name, river_key):
+    def __init__(self, name, river_key, sla_cfg=None):
         pyactivemq.MessageListener.__init__(self)
         self.name = name
         self.river_key = river_key
+        self.sla_cfg = sla_cfg or {}
+        self.data_parser_config = get_dict_value_by_path('data_parser', self.sla_cfg)
 
-
-    @debug_log.debug('ProductMessageListener.onMessage')
     def onMessage(self, message):
         """
         消息监听器
@@ -56,8 +71,10 @@ class MQMessageListener(pyactivemq.MessageListener):
         try:
             serial_message = self.__convert_message(message)
             app_log.info('Receive MQ message {0}, key={1}', serial_message, self.river_key)
+            serial_message['river_key'] = self.river_key
             if serial_message:
-                message_queue.put({'river_key': self.river_key, 'message': serial_message})
+                sla.send_msg_to_queue(serial_message)
+                # message_queue.put({'river_key': self.river_key, 'message': serial_message})
         except Exception as e:
             app_log.exception(e)
 
@@ -68,10 +85,26 @@ class MQMessageListener(pyactivemq.MessageListener):
         :return:
         """
         if isinstance(message, pyactivemq.TextMessage):
-            return {'type': 'pyactivemq.TextMessage', 'text': message.text}
+            json_msg = {'type': 'pyactivemq.TextMessage', 'text': message.text}
+            self.__get_sla_info(message.text, json_msg)
+            return json_msg
 
         app_log.info('Message type not support {0}', message)
         return None
+    def __get_sla_info(self, message_text, message_json):
+        """
+        获取MQ消息SLA相关配置
+        """
+        if message_text and self.data_parser_config and message_json:
+            data_parse_result = data_parser.parse(message_text, self.data_parser_config)
+            if data_parse_result and data_parse_result['fields'] and data_parse_result['fields']['adminId']:
+                message_json['adminId'] = data_parse_result['fields']['adminId']
+            if 'adminId' not in message_json:
+                message_json['adminId'] = 'default'
+        if 'redo' in self.sla_cfg:
+            message_json['redo'] = self.sla_cfg['redo']
+        else:
+            message_json['redo'] = False
 
 
 class ExceptionListener(pyactivemq.ExceptionListener):
@@ -173,12 +206,70 @@ class ListenerRegister(object):
                 debug_log.print_log('Reconnect mq has exception {0}', e.message)
 
         def __timer():
-            interval = config.get_value('consts/notification/mq_reconnect_time') or 10
+            interval = config.get_value('consts/notification/mq_reconnect_time') or 30
             while True:
                 __reconnect()
                 time.sleep(interval)
 
         thread.start_new_thread(__timer, ())
+    def init_msg_handler(self):
+        """
+        初始化MQ消息处理器
+        :return:
+        """
+        import time
+        def handle_msg(is_vip):
+            """
+            处理消息
+            """
+            time_interval = 1
+            while True:
+                _start_time = time.time()
+                sla.process_msg(process_message_wrapper, is_vip)
+                _cost_time = time.time() - _start_time
+                app_log.info('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
+                time_delta = time_interval - _cost_time
+                if time_delta >= 0.01:
+                    time.sleep(time_delta)
+        def handle_redo_msg():
+            """
+            处理重做消息
+            """
+            time_interval = 10
+            while True:
+                _start_time = time.time()
+                sla.process_redo_msg(process_message_wrapper)
+                _cost_time = time.time() - _start_time
+                app_log.info('handle redo msg spends {0}', _cost_time)
+                time_delta = time_interval - _cost_time
+                if time_delta >= 1:
+                    time.sleep(time_delta)
+        def handle_check_msg_num():
+            """
+            """
+            time.sleep(8)
+            time_interval = 60
+            while True:
+                _start_time = time.time()
+                sla.check_msg_num()
+                _cost_time = time.time() - _start_time
+                app_log.info('handle check msg spends {0}', _cost_time)
+                time_delta = time_interval - _cost_time
+                if time_delta >= 1:
+                    time.sleep(time_delta)
+        if len(self.mq_conn_host_dic.values()) > 0:
+            t1 = threading.Thread(target=handle_msg, args=(True,), name='Vip put thread')
+            t1.setDaemon(True)
+            t2 = threading.Thread(target=handle_msg, args=(False,), name='Experience put thread')
+            t2.setDaemon(True)
+            t3 = threading.Thread(target=handle_redo_msg, name='Handle redo msg thread')
+            t3.setDaemon(True)
+            t4 = threading.Thread(target=handle_check_msg_num, name='Handle check msg num thread')
+            t4.setDaemon(True)
+            t1.start()
+            t2.start()
+            t3.start()
+            t4.start()
 
 
     @staticmethod
@@ -202,7 +293,8 @@ class ListenerRegister(object):
                 app_log.info("Add mq listener is called {0}", mq_notification)
             else:
                 debug_log.print_log("Add mq listener is called {0}", mq_notification)
-            mq_host = mq_notification.get('host')
+
+            mq_host = mq_notification.get('host').format(**config.get_value('consts/custom_variables'))
             mq_topic = mq_notification.get('topic')
             mq_queue = mq_notification.get('queue')
             notification_type = mq_notification.get('type', 'MQ')
@@ -215,7 +307,7 @@ class ListenerRegister(object):
                 self.mq_conn_host_dic[mq_host] = conn
 
             if session_key in self.mq_consumer_topic_dic:
-                return
+                return True
 
             session = conn.createSession(AcknowledgeMode.AUTO_ACKNOWLEDGE)
             if mq_topic:
@@ -224,7 +316,8 @@ class ListenerRegister(object):
             elif mq_queue:
                 queue = session.createQueue(mq_queue.encode('utf8'))
                 subscriber = session.createConsumer(queue, '')
-            listener = MQMessageListener('listener {0}'.format(session_key), session_key)
+            listener = MQMessageListener('listener {0}'.format(session_key), session_key,
+                                         sla_cfg=get_dict_value_by_path('sla', mq_notification, {}))
             subscriber.messageListener = listener
             self.mq_consumer_topic_dic[session_key] = subscriber
 
@@ -289,27 +382,27 @@ if __name__ == '__main__':
     register = ListenerRegister()
     register.register_listeners()
     register.auto_reconnect()
+    register.init_msg_handler()
 
     # 注册配置数据变更消息监听器
     message_bus.add_event_listener(Event.TYPE_CONFIG_UPDATE, register.register_listeners)
 
     app_log.info('Listener register finish')
-    start_time = time.time()
-    msg_count = 0
 
     while 1:
         try:
-            message_dict = message_queue.get(block=True)
-            msg_count += 1
-            delta_time = time.time() - start_time
-            if delta_time > 5:
-                msg_count = 0
-                start_time = time.time()
-            if msg_count > 10:
-                msg_count = 0
-                start_time = time.time()
-                app_log.info('River receive msg will be limited')
-                time.sleep(5 - delta_time)
-            process_message.delay(message_dict['message'], message_dict['river_key'])
+            time.sleep(60)
+            # message_dict = message_queue.get(block=True)
+            # msg_count += 1
+            # delta_time = time.time() - start_time
+            # if delta_time > 5:
+            # msg_count = 0
+            # start_time = time.time()
+            # if msg_count > 10:
+            # msg_count = 0
+            # start_time = time.time()
+            # app_log.info('River receive msg will be limited')
+            # time.sleep(5 - delta_time)
+            # process_message.delay(message_dict['message'], message_dict['river_key'])
         except Exception as e:
             app_log.exception(e)

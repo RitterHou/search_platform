@@ -50,7 +50,7 @@ class EsProductManager(object):
                      doc_type, args, qdsl, qdsl_end_time - start_time)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
-            result, es_agg_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args)
+            result, es_agg_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields)
         else:
             if args.get('ex_body_type') == 'scroll':
                 es_result = self.__scroll_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
@@ -507,7 +507,7 @@ class EsSearchManager(object):
                      doc_type, args, qdsl, qdsl_end_time - start_time)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
-            result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args)
+            result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields)
         else:
             es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
             es_end_time = time.time()

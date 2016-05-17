@@ -5,6 +5,7 @@ from elasticsearch import ElasticsearchException
 from common.adapter import es_adapter
 from common.configs import config
 from common.connections import EsConnectionFactory
+from common.es_routers import es_router
 from common.utils import merge, bind_dict_variable
 from common.loggers import debug_log, app_log
 
@@ -114,15 +115,8 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
             app_log.info("data_list is null")
             return None
 
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = dict(destination_config)
+        es_config = es_router.merge_es_config(destination_config)
 
-        assert 'host' in es_config and 'index' in es_config and 'type' in es_config and 'id' in es_config, \
-            'the es config is not valid, es_config={0}'.format(es_config)
 
         # bind_dict_variable(es_config, param, False)
 
@@ -142,15 +136,8 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
         if 'clear_policy' not in destination_config or not destination_config.get('clear_policy'):
             return
 
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = dict(destination_config)
+        es_config = es_router.merge_es_config(destination_config)
 
-        assert 'host' in es_config and 'index' in es_config and 'type' in es_config and 'id' in es_config, \
-            'the es config is not valid, es_config={0}'.format(es_config)
 
         data, param = data_list[0]
         clear_policy = destination_config.get('clear_policy')
@@ -175,6 +162,7 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
                     bulk_body_list.append({"index": {"_index": index, "_type": es_type, "_id": doc_id}})
                     bulk_body_list.append(data)
 
+        es_config = es_router.route(es_config, input_param=data_list[0][1])
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=es_type, version=config.get_value('version')))
         try:
@@ -182,7 +170,6 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
             es_adapter.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('es operation input param is {0}', e, list(bulk_body_list))
-            app_log.exception(e)
 
 
 DATA_DESTINATION_DICT = {'elasticsearch': ElasticsearchSuggestDestination(),

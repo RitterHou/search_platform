@@ -7,8 +7,9 @@ from collections import OrderedDict
 from re import search
 import redis
 
-from common.connections import EsConnectionFactory
-from common.msg_bus import message_bus
+from common.connections import EsConnectionFactory, RedisConnectionFactory
+from common.es_routers import es_router
+from common.msg_bus import message_bus, Event
 from common.configs import config
 from common.exceptions import UpdateDataNotExistError
 from common.loggers import query_log as app_log
@@ -533,10 +534,10 @@ class Suggest(object):
     拼写建议
     """
 
-    def query_suggest_terms(self, adminID):
+    def query_suggest_terms(self, adminId):
         """
         获取用户ID下所有的拼写提示词
-        :param adminID:
+        :param adminId:
         :return:
         """
         suggest_rivers = config.get_value('suggest/rivers')
@@ -547,14 +548,10 @@ class Suggest(object):
             app_log.error('Cannot find yun_product_suggest_task suggest config')
             return
         destination_config = get_dict_value_by_path('destination', yun_product_suggest_cfg)[0]
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = dict(destination_config)
-        index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs={'version': config.get_value('version'),
-                                                                               'adminID': adminID})
+        variable_values = {'version': config.get_value('version'), 'adminId': adminId}
+        es_config = es_router.merge_es_config(destination_config)
+        es_config = es_router.route(es_config, variable_values)
+        index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, variable_values)
 
         size = 200
         from_size = 0
@@ -567,7 +564,7 @@ class Suggest(object):
             from_size += len(query_result['root'])
             if from_size >= query_result['total']:
                 break
-        product_type = 'gonghuo_product' if adminID == 'gonghuo' else 'product'
+        product_type = 'gonghuo_product' if adminId == 'gonghuo' else 'product'
         return map(lambda es_suggest_doc: self.to_suggestion(es_suggest_doc, product_type), data_list)
 
     def add_suggest_term(self, suggestion):
@@ -618,7 +615,7 @@ class Suggest(object):
     def init_suggest_index(self, admin_id):
         """
         手工执行suggest的全表扫描分词
-        :param adminID:
+        :param admin_id:
         :return:
         """
         suggest_rivers = config.get_value('suggest/rivers')
@@ -647,7 +644,7 @@ class Suggest(object):
         :param suggestion:
         :return:
         """
-        if suggestion['adminID'] != 'gonghuo':
+        if suggestion['adminId'] != 'gonghuo':
             # 云销商品
             es_setting_cfg = config.get_value('es_index_setting/product')
         else:
@@ -1041,6 +1038,45 @@ class ShopProduct(EsDoc):
             doc_list = [data]
 
         return es_adapter.batch_update(es_config, doc_list)
+class VipAdminId(object):
+    def __init__(self):
+        self.host = SERVICE_BASE_CONFIG.get('redis_admin_id_config')
+        self.redis_conn = RedisConnectionFactory.get_redis_connection(self.host)
+        self.vip_users_key = config.get_value(
+            '/consts/global/admin_id_cfg/vip_id_key') or 'search_platform_vip_admin_id_set'
+    def delete(self, admin_id):
+        """
+        将admin 用户降级为非VIP用户
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        self.redis_conn.srem(self.vip_users_key, *admin_id.upper().split(','))
+        self.send_update_msg()
+    def add(self, admin_id):
+        """
+        将admin用户升级为VIP用户
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        self.redis_conn.sadd(self.vip_users_key, *admin_id.upper().split(','))
+        self.send_update_msg()
+    def query(self):
+        """
+        查询所有VIP用户
+        :return:
+        """
+        vip_admin_ids = self.redis_conn.smembers(self.vip_users_key)
+        return vip_admin_ids
+    def send_update_msg(self):
+        """
+        发送VIP用户变更消息
+        :return:
+        """
+        message_bus.publish(Event.TYPE_VIP_ADMIN_ID_UPDATE, source='', body='')
 
 
 SUPERVISOR_PROXY_CACHE = {}
@@ -1057,6 +1093,7 @@ es_index = EsIndex()
 shop = Shop()
 shop_product = ShopProduct()
 es_doc = EsDoc()
+vip_admin_id_model = VipAdminId()
 
 if __name__ == '__main__':
     import json

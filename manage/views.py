@@ -17,7 +17,7 @@ from search_platform import settings
 from search_platform.responses import ExceptionResponse
 from manage.filters import estmpl_validater, suggest_validater, message_validater, ansj_validater
 from models import supervisor, data_river, es_tmpl, query_chain, sys_param, message, ansjSegmentation, suggest, \
-    es_index, shop, shop_product, es_doc
+    es_index, shop, shop_product, es_doc, vip_admin_id_model
 
 
 class DataRiverView(APIView):
@@ -276,31 +276,31 @@ class AnsjSegmentationView(APIView):
 
 
 class SuggestView(APIView):
-    def post(self, request, adminID, operation=None, format=None):
+    def post(self, request, admin_id, operation=None, format=None):
         data = OrderedDict(request.DATA)
         if operation == 'init':
             # 表示需要对suggest 索引执行初始化操作
-            suggest.init_suggest_index(adminID)
+            suggest.init_suggest_index(admin_id)
         else:
-            suggest_validater.validate(request, adminID, data, 'POST')
-            data['adminID'] = adminID
+            suggest_validater.validate(request, admin_id, data, 'POST')
+            data['adminId'] = admin_id
             if not data.get('source_type'):
                 data['source_type'] = '2'
             suggest.add_suggest_term(data)
         return Response(data)
 
-    def get(self, request, adminID, format=None):
-        suggest_terms = suggest.query_suggest_terms(adminID)
+    def get(self, request, admin_id, format=None):
+        suggest_terms = suggest.query_suggest_terms(admin_id)
         return Response(suggest_terms)
 
 
-    def delete(self, request, adminID, word, format=None):
+    def delete(self, request, admin_id, word, format=None):
         data = OrderedDict(request.QUERY_PARAMS)
         data['word'] = word
-        data['adminID'] = adminID
+        data['adminId'] = admin_id
         if not data.get('source_type'):
             data['source_type'] = '1'
-        suggest_validater.validate(request, adminID, data, 'DELETE')
+        suggest_validater.validate(request, admin_id, data, 'DELETE')
         suggest.delete_suggest_term(data)
         return Response({})
 
@@ -494,6 +494,21 @@ class EsDocView(APIView):
             raise InvalidParamError('The doc {0} cannot be null'.format(key))
 
 
+class VipAdminIdView(APIView):
+    """
+    VIP用户Admin ID 管理
+    """
+    def get(self, request, format=None):
+        return Response(vip_admin_id_model.query())
+    def post(self, request, admin_ids=None, operation=None):
+        if admin_ids:
+            vip_admin_id_model.add(admin_ids)
+        elif operation == 'refresh':
+            vip_admin_id_model.send_update_msg()
+        return Response()
+    def delete(self, request, admin_ids):
+        vip_admin_id_model.delete(admin_ids)
+        return Response()
 def supervisor_index(request):
     """
     进程管理主页

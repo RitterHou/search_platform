@@ -8,7 +8,7 @@ from common.data_parsers import data_parser
 from river.destination import destination
 from river.msg_filter import MessageFilter
 from river.source import source
-from river import get_river_key
+from river import get_river_key, do_msg_process_error
 
 __author__ = 'liuzhaoming'
 
@@ -22,31 +22,26 @@ class MessageProcessor(object):
         self.river_config = river_config
         self.__init_config(river_config)
 
-    @debug_log.debug('MessageProcessor.process')
     def process(self, message):
         """
         处理消息
         """
-        try:
-            if not self.__match(message):
-                return None
-            message_parse_result = self.parse_message(message)
-            app_log.info('Message_parse_result finish message={0} result={1}', message, message_parse_result)
-            if None == message_parse_result:
-                app_log.error(
-                    "The message parse result is None, there may be something wrong with message = {0}",
-                    message)
-                return
+        if not self.__match(message):
+            return None
+        message_parse_result = self.parse_message(message)
+        app_log.info('Message_parse_result finish message={0} result={1}', message, message_parse_result)
+        if None == message_parse_result:
+            app_log.error(
+                "The message parse result is None, there may be something wrong with message = {0}",
+                message)
+            return
 
-            self.__do_data_flow(self.river_config, message_parse_result)
-        except Exception as e:
-            app_log.exception(e)
+        self.__do_data_flow(self.river_config, message_parse_result)
 
     def __match(self, message):
         """
         判断消息是否需要处理
         """
-        debug_log.print_log('__match is called {0}', message)
         return self.filter.filter(message) if self.filter else config.get_value(
             "consts/filter/default_match_result") == 'true'
 
@@ -57,17 +52,16 @@ class MessageProcessor(object):
         filter_config = get_dict_value_by_path('notification/filter', river_config)
         self.filter = MessageFilter(filter_config) if filter_config else None
 
-        self.notification_type = get_dict_value_by_path('notification/type', river_config, 'MQ')
-        self.host = get_dict_value_by_path('notification/host', river_config)
-        self.topic = get_dict_value_by_path('notification/topic', river_config)
-        self.queue = get_dict_value_by_path('notification/queue', river_config)
-        if self.notification_type == 'MQ' and (not self.host or (not self.topic and not self.queue)):
+        # self.notification_type = get_dict_value_by_path('notification/type', river_config, 'MQ')
+        # self.host = get_dict_value_by_path('notification/host', river_config)
+        # self.topic = get_dict_value_by_path('notification/topic', river_config)
+        # self.queue = get_dict_value_by_path('notification/queue', river_config)
+        # if self.notification_type == 'MQ' and (not self.host or (not self.topic and not self.queue)):
             # Todo 此处需要处理，如果配置不合法，是抛出异常还是构造函数处理
-            app_log.error(
-                "Notification config is invalid, type is MQ, but host or topic is null, {0}", river_config)
-            return
+        # app_log.error(
+        # "Notification config is invalid, type is MQ, but host or topic is null, {0}", river_config)
+        #     return
 
-    @debug_log.debug('MessageProcessor.parse_message')
     def parse_message(self, message):
         """
         解析消息，目前只支持TextMessage
@@ -192,9 +186,10 @@ class MessageProcessorChain(object):
         self.queue = get_dict_value_by_path('notification/queue', river)
         if self.notification_type == 'MQ':
             self.key = get_river_key(river)
+            self._add_processor(river)
         else:
             # Todo 此处需要处理，如果配置不合法，是抛出异常还是构造函数处理
-            app_log.error("Notification config is invalid, type is not support", self.notification_type)
+            app_log.error("Notification config is invalid, type is not support {0}", self.notification_type)
 
     def process(self, message):
         """
@@ -206,14 +201,16 @@ class MessageProcessorChain(object):
             try:
                 processor.process(message)
             except Exception as e:
-                app_log.error("Process message has error, processor.test_river={0}, message={1},  exception={2}", e,
+                app_log.error("Process message has error, processor.test_river={0}, message={1}", e,
                               processor.river_config, message)
+                do_msg_process_error(e)
 
-    def add_processor(self, river):
+    def _add_processor(self, river):
         """
         增加消息处理器
         :param river:
         :return:
         """
-        if get_river_key(river) == self.key:
-            self.processor_list.append(MessageProcessor(river))
+        branches = get_dict_value_by_path('branches', river)
+        if branches:
+            self.processor_list.extend(map(lambda river_branch: MessageProcessor(river_branch), branches))

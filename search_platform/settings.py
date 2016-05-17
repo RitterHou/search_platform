@@ -118,7 +118,9 @@ LOGGING = {
             'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
             'phone_numbers': '15051885330,18651618480',
             'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
-                                    'elasticsearch.exceptions.ConnectionTimeout', 'DubboError']
+                                    'elasticsearch.exceptions.ConnectionTimeout', 'DubboError', 'MsgQueueFullError',
+                                    'RedoMsgQueueFullError', 'FinalFailMsgQueueFullError'
+            ]
         }
     },
     'handlers': {
@@ -308,7 +310,7 @@ REST_FRAMEWORK = {
 }
 
 SERVICE_BASE_CONFIG = {
-    'meta_file': '/common/config.json',
+    'meta_file': '/config',
     'redis': 'redis://172.17.8.253:6379/2',
     'elasticsearch': 'http://192.168.65.167:9200,http://192.168.65.175:9200,http://192.168.65.231:9200,http://192.168.65.241:9200,http://192.168.65.242:9200,http://192.168.65.245:9200',
     'meta_es_index': 'sp_search_platform_cfg',
@@ -318,13 +320,15 @@ SERVICE_BASE_CONFIG = {
     'celery_broker_url': 'redis://172.17.8.253:6379/0',
     'celery_backend_url': 'redis://172.17.8.253:6379/0',
     'redis_lock_store': 'redis://172.17.8.253:6379/1',
-    'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER'
+    'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER',
+    'redis_admin_id_config': 'redis://172.17.8.253:6379/3',
+    'msg_queue': 'redis://172.17.8.253:6379/4'
 }
 
 
 # 测量结果ES别名
 MEASUERE_ALIAS = 'sp_measure-alias'
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 
 # from river import rivers

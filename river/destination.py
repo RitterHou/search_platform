@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-__author__ = 'liuzhaoming'
+from common.es_routers import es_router
+from river import do_msg_process_error
+
 from common.adapter import es_adapter
-from common.utils import merge
-from common.configs import config
 from common.loggers import debug_log, app_log
+__author__ = 'liuzhaoming'
 
 
 class DataDestination(object):
@@ -42,15 +43,8 @@ class ElasticSearchDestination(DataDestination):
         :param data:
         :return:
         """
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = destination_config
+        es_config = es_router.merge_es_config(destination_config)
 
-        assert 'host' in es_config and 'index' in es_config and 'type' in es_config and 'id' in es_config, \
-            'the es config is not valid, es_config={0}'.format(es_config)
 
         operation = destination_config.get('operation', 'create')
         if not isinstance(data, (list, tuple)):
@@ -71,12 +65,7 @@ class ElasticSearchDestination(DataDestination):
         :param data:
         :return:
         """
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = destination_config
+        es_config = es_router.merge_es_config(destination_config)
 
         assert es_config['host'] and es_config['index'] and es_config['type'] and es_config[
             'id'], 'the es config is not valid, es_config={0}'.format(es_config)
@@ -93,13 +82,6 @@ class ElasticSearchDestination(DataDestination):
                 data = dict(data, param)
             es_adapter.delete_all_doc_by_type(es_config, data)
 
-    def __merge_es_config(self, destination_config, reference_es_config):
-        """
-        合并引用和实际的配置，以实际的为准
-        :param destination_config:
-        :param reference_es_config:
-        :return:
-        """
 
 
 DATA_DESTINATION_DICT = {'elasticsearch': ElasticSearchDestination()}
@@ -124,6 +106,7 @@ class DestinationHelp(object):
             except Exception as e:
                 app_log.error("Process message has error, destination_config={0}, data={1}", e,
                               destination_config, data)
+                do_msg_process_error(e)
 
     def clear(self, river_config, data, param=None):
         if 'destination' not in river_config:
@@ -136,6 +119,7 @@ class DestinationHelp(object):
             except Exception as e:
                 app_log.error("Process message has error, destination_config={0}, data={1}, param={2}", e,
                               destination_config, data, param)
+                do_msg_process_error(e)
 
 
 destination = DestinationHelp()

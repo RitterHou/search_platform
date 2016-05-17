@@ -1,11 +1,16 @@
 # coding=utf-8
+import time
 __author__ = 'liuzhaoming'
 
-ERROR_INFO = {'GenericError': {'code': 900, 'message': 'eneric exception'},
+ERROR_INFO = {'GenericError': {'code': 900, 'message': 'Generic exception'},
               'InvalidParamError': {'code': 1000, 'message': 'Param is invalid'},
               'UpdateDataNotExistError': {'code': 1001, 'message': 'The update data not exists'},
               'PKIsNullError': {'code': 1002, 'message': 'The resource id cannot be null'},
-              'EsConnectionError': {'code': 1003, 'message': 'Cannot connect Es server'}, }
+              'EsConnectionError': {'code': 1003, 'message': 'Cannot connect Es server'},
+              'MsgHandlingFailError': {'code': 2000, 'message': 'MQ message handle error'},
+              'MsgQueueFullError': {'code': 2001, 'message': 'MQ message queue is full'},
+              'RedoMsgQueueFullError': {'code': 2002, 'message': 'Redo message queue is full'},
+              'FinalFailMsgQueueFullError': {'code': 2003, 'message': 'Final message queue is full'}}
 
 
 class SearchPlatformException(Exception):
@@ -87,6 +92,100 @@ class EsConnectionError(SearchPlatformException):
                                          ERROR_INFO['EsConnectionError']['message'])
 
 
+class MsgQueueFullError(SearchPlatformException):
+    """
+    MQ队列已满
+    """
+    def __init__(self, admin_id, capacity, is_vip=True):
+        SearchPlatformException.__init__(self, ERROR_INFO['MsgQueueFullError']['code'],
+                                         ERROR_INFO['MsgQueueFullError']['message'])
+        self._admin_id = admin_id
+        self._capacity = capacity
+        self._is_vip = is_vip
+    @property
+    def admin_id(self):
+        return self._admin_id
+    @property
+    def capacity(self):
+        return self._capacity
+    @property
+    def is_vip(self):
+        return self._is_vip
+    def __str__(self):
+        return '{0}(AdminID:{1}, Vip:{2}, Capacity:{3}, {4})'.format(str(self.__class__.__name__), self.admin_id,
+                                                                     self.is_vip, self.capacity, self.error)
+    def __unicode__(self):
+        return '{0}(AdminID:{1}, Vip:{2}, Capacity:{3}, {4})'.format(str(self.__class__.__name__), self.admin_id,
+                                                                     self.is_vip, self.capacity, self.error)
+class RedoMsgQueueFullError(SearchPlatformException):
+    """
+    重做消息队列已满
+    """
+    def __init__(self, admin_id, capacity, is_vip=True):
+        SearchPlatformException.__init__(self, ERROR_INFO['RedoMsgQueueFullError']['code'],
+                                         ERROR_INFO['RedoMsgQueueFullError']['message'])
+        self._admin_id = admin_id
+        self._capacity = capacity
+        self._is_vip = is_vip
+    @property
+    def admin_id(self):
+        return self._admin_id
+    @property
+    def capacity(self):
+        return self._capacity
+    @property
+    def is_vip(self):
+        return self._is_vip
+    def __str__(self):
+        return '{0}(AdminID:{1}, Vip:{2}, Capacity:{3}, {4})'.format(str(self.__class__.__name__), self.admin_id,
+                                                                     self.is_vip, self.capacity, self.error)
+    def __unicode__(self):
+        return '{0}(AdminID:{1}, Vip:{2}, Capacity:{3}, {4})'.format(str(self.__class__.__name__), self.admin_id,
+                                                                     self.is_vip, self.capacity, self.error)
+class FinalFailMsgQueueFullError(SearchPlatformException):
+    """
+    最终失败消息队列已满
+    """
+    def __init__(self, capacity):
+        SearchPlatformException.__init__(self, ERROR_INFO['FinalFailMsgQueueFullError']['code'],
+                                         ERROR_INFO['FinalFailMsgQueueFullError']['message'])
+        self._capacity = capacity
+    @property
+    def capacity(self):
+        return self._capacity
+    def __str__(self):
+        return '{0}(Capacity:{1}, {2})'.format(str(self.__class__.__name__), self.capacity, self.error)
+    def __unicode__(self):
+        return '{0}(Capacity:{1}, {2})'.format(str(self.__class__.__name__), self.capacity, self.error)
+class MsgHandlingFailError(SearchPlatformException):
+    """
+    MQ 消息处理失败异常
+    """
+    DUBBO_ERROR = 1
+    HTTP_ERROR = 2
+    ES_READ_TIMEOUT = 3
+    ES_ERROR = 4
+    PROCESS_ERROR = 5
+    def __init__(self, source):
+        SearchPlatformException.__init__(self, ERROR_INFO['MsgHandlingFailError']['code'],
+                                         ERROR_INFO['MsgHandlingFailError']['message'])
+        self._source = source
+        self._event_time = time.time()
+    @property
+    def source(self):
+        return self._source
+    @property
+    def event_time(self):
+        return self._event_time
+    @property
+    def json(self):
+        return {"source": self.source, "event_time": self.event_time}
+    def __str__(self):
+        return '{0}({1}, {2}, source={3}, event_time={4})'.format(str(self.__class__.__name__), self.error_code,
+                                                                  self.error, self.source, self.event_time)
+    def __unicode__(self):
+        return '{0}({1}, {2}, source={3}, event_time={4})'.format(str(self.__class__.__name__), self.error_code,
+                                                                  self.error, self.source, self.event_time)
 if __name__ == '__main__':
     error = InvalidParamError()
     print error

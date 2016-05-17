@@ -23,6 +23,8 @@ class Event(object):
     TYPE_PROCESS_LOGIN = 'process_login'
     TYPE_PROCESS_DESTROY = 'process_destroy'
     TYPE_CONFIG_UPDATE = 'config_update'
+    TYPE_VIP_ADMIN_ID_UPDATE = 'vip_admin_ids_update'
+    TYPE_VIP_ADMIN_PARAMS_UPDATE = 'admin_params_update'
 
 
     def __init__(self, type, source=None, destination='all', data=None):

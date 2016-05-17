@@ -1,0 +1,633 @@
+{
+  "chain": [
+    {
+      "name": "sup_product_query",
+      "res_type": "product",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^products/gonghuo/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/products/gonghuo"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "gonghuo_product"
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_product_query",
+      "res_type": "product",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^products/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/products/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "products/(?P<adminId>[\\d\\D]+)",
+          "ids": "ids=(?P<ids>[\\d\\D]+?);"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "id": "{skuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_experience",
+              "id": "{skuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_spu_query",
+      "res_type": "product",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^spus/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/spus/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "spus/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_vip",
+              "id": "{spuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_experience",
+              "id": "{spuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "sup_product_aggregation",
+      "res_type": "aggregation",
+      "http_method": "GET",
+      "url_format": "^aggregations/gonghuo/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/aggregations/gonghuo"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "gonghuo_product"
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_product_aggregation",
+      "res_type": "aggregation",
+      "http_method": "GET",
+      "url_format": "^aggregations/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/aggregations/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "aggregations/(?P<adminId>[\\d\\D]+)",
+          "ids": "ids=(?P<ids>[\\d\\D]+?);"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "id": "{skuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_experience",
+              "id": "{skuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_spu_aggregation",
+      "res_type": "aggregation",
+      "http_method": "GET",
+      "url_format": "^spu_aggregations/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/spu_aggregations/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "spu_aggregations/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_vip",
+              "id": "{spuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_experience",
+              "id": "{spuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yun_product_suggest",
+      "res_type": "suggest",
+      "http_method": "GET",
+      "url_format": "^suggests/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/suggests/[^/]+$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "suggests/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "suggest"
+      },
+      "response": {
+        "json": {
+          "format": "json",
+          "data_parser": {
+            "language": "python",
+            "script": "script.python.data_parser"
+          }
+        }
+      }
+    },
+    {
+      "name": "sup_product_search",
+      "res_type": "search",
+      "http_method": "GET",
+      "url_format": "^search/gonghuo/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/search/gonghuo"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "gonghuo_product"
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_product_search",
+      "res_type": "search",
+      "http_method": "GET",
+      "url_format": "^search/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/search/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "search/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "id": "{skuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_experience",
+              "id": "{skuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "yun_spu_search",
+      "res_type": "search",
+      "http_method": "GET",
+      "url_format": "^spu_search/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/spu_search/(?!gonghuo)[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "spu_search/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_vip",
+              "id": "{spuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_experience",
+              "id": "{spuId}",
+              "tag": "default"
+            }
+          ]
+        }
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "stats_search",
+      "res_type": "measure",
+      "http_method": "GET",
+      "url_format": "^stats/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/stats/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "index": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+        }
+      }
+    },
+    {
+      "name": "exstats_search",
+      "res_type": "ex_measure",
+      "http_method": "GET",
+      "url_format": "^exstats/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/exstats/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "index": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+        }
+      }
+    },
+    {
+      "name": "ex_suggest",
+      "res_type": "ex_suggest",
+      "http_method": "GET",
+      "url_format": "^suggests/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/suggests/[\\d\\D]+?/scenes/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/suggests/(?P<adminId>[\\d\\D]+?)/scenes",
+          "scene": "/scenes/(?P<scene>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "suggest"
+      }
+    },
+    {
+      "name": "recommendation",
+      "res_type": "recommendation",
+      "http_method": "GET",
+      "url_format": "^recommendations/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/recommendations/[\\d\\D]+?/scenes/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/recommendations/(?P<adminId>[\\d\\D]+?)/scenes",
+          "scene": "/scenes/(?P<scene>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "product"
+      }
+    },
+    {
+      "name": "cloudshop_marketing_query",
+      "res_type": "default",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^cloudshop/marketings/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/cloudshop/marketings/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketings/(?P<adminId>[^/]+)",
+          "id": "marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "cloudshop-marketing-{version}",
+        "type": "{adminId}",
+        "id": "{marketingId}"
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "billstock_basic_query",
+      "res_type": "default",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^billstock/[\\d\\D]+?/basic[\\d\\D]*",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/billstock/[\\d\\D]+?/basic"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "billstock/(?P<adminId>[^/]+)/basic",
+          "id": "/basic/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "billstock-{version}",
+        "type": "basic-{adminId}",
+        "id": "{billId}"
+      },
+      "response": {
+        "json": {
+          "format": "json",
+          "data_parser": {
+            "language": "python",
+            "script": "script.python.data_parser"
+          }
+        }
+      }
+    },
+    {
+      "name": "billstock_detail_query",
+      "res_type": "default",
+      "http_method": "GET,PUT,POST,DELETE",
+      "url_format": "^billstock/[\\d\\D]+?/detail[\\d\\D]*",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/billstock/[\\d\\D]+?/detail"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "billstock/(?P<adminId>[^/]+)/detail",
+          "id": "/detail/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "billstock-{version}",
+        "type": "detail-{adminId}",
+        "id": "{id}"
+      },
+      "response": {
+      }
+    }
+  ]
+}

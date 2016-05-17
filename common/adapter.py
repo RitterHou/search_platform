@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-import json
 import time
 from itertools import chain
+import ujson as json
 
 import re
 from elasticsearch import ElasticsearchException
 from elasticsearch import helpers
+
+from common.admin_config import admin_config
+from common.es_routers import es_router
 
 from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, get_default_es_host
 from common.loggers import app_log, debug_log
@@ -36,6 +39,7 @@ class EsIndexAdapter(object):
         """
         if not doc_list:
             return
+        es_config = es_router.route(es_config, input_param=doc_list[0])
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc_list[0])
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -48,7 +52,7 @@ class EsIndexAdapter(object):
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
-
+            raise e
 
     def batch_update(self, es_config, doc_list):
         """
@@ -59,6 +63,7 @@ class EsIndexAdapter(object):
         """
         if not doc_list:
             return
+        es_config = es_router.route(es_config, input_param=doc_list[0])
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc_list[0])
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -69,11 +74,12 @@ class EsIndexAdapter(object):
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
+            raise e
 
     def batch_update_with_props_by_ids(self, es_config, doc_list, id_separater=','):
         """
         根据给定的ID批量更新某个或某几个属性
-        doc的格式为：{ids:"1,2,3,4", data:{prop1:value1, prop2:value2}, adminID:a12000}
+        doc的格式为：{ids:"1,2,3,4", data:{prop1:value1, prop2:value2}, adminId:a12000}
         :param es_config:
         :param doc_list:
         :return:
@@ -81,6 +87,7 @@ class EsIndexAdapter(object):
         if not doc_list:
             return
         bulk_body = []
+        es_config = es_router.route(es_config, input_param=doc_list[0])
         for doc in doc_list:
             index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
             if 'ids' not in doc or 'data' not in doc:
@@ -97,7 +104,7 @@ class EsIndexAdapter(object):
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
-
+            raise e
 
     def batch_delete(self, es_config, request_param):
         """
@@ -111,6 +118,7 @@ class EsIndexAdapter(object):
         if isinstance(request_param, tuple) or isinstance(request_param, list):
             request_param = request_param[0]
 
+        es_config = es_router.route(es_config, input_param=request_param)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=request_param)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -128,11 +136,13 @@ class EsIndexAdapter(object):
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
+            raise e
 
     def batch_delete_by_ids(self, es_config, doc_ids, message_parse_result={}, separator=':'):
         if not doc_ids:
             return
         doc_id_list = doc_ids.strip().strip(';').split(separator)
+        es_config = es_router.route(es_config, input_param=message_parse_result)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=message_parse_result)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -143,7 +153,7 @@ class EsIndexAdapter(object):
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('es operation input param is {0}', e, list(bulk_body))
-
+            raise e
 
     def delete_all_doc(self, es_config, doc):
         """
@@ -151,6 +161,7 @@ class EsIndexAdapter(object):
         :param es_config:
         :return:
         """
+        es_config = es_router.route(es_config, input_param=doc)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -167,6 +178,7 @@ class EsIndexAdapter(object):
         :param doc:
         :return:
         """
+        es_config = es_router.route(es_config, input_param=doc)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -188,6 +200,7 @@ class EsIndexAdapter(object):
         :param body:
         :return:
         """
+        es_config = es_router.route(es_config, input_param=doc)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
@@ -411,7 +424,7 @@ class EsIndexAdapter(object):
         :param admin_id:
         :return:
         """
-        variable_values = {'adminID': admin_id if admin_id else '[\\d\\D]+?', 'version': config.get_value('version')}
+        variable_values = {'adminId': admin_id if admin_id else '[\\d\\D]+?', 'version': config.get_value('version')}
         if admin_id == 'gonghuo':
             sup_shop_es_cfg = config.get_value('/es_index_setting/gonghuo_product')
             return bind_dict_variable(sup_shop_es_cfg, variable_values)
@@ -485,8 +498,10 @@ class EsIndexAdapter(object):
         :param admin_id:
         :return:
         """
-        spu_es_setting = config.get_value('/es_index_setting/spu')
-        params = {'adminID': admin_id, 'version': config.get_value('version')}
+        spu_setting_key = '/es_index_setting/spu_vip' if admin_config.is_vip(
+            admin_id) else  '/es_index_setting/spu_experience'
+        spu_es_setting = config.get_value(spu_setting_key)
+        params = {'adminId': admin_id, 'version': config.get_value('version')}
         return {'index': bind_variable(spu_es_setting.get('index'), params),
                 'type': bind_variable(spu_es_setting.get('type'), params),
                 'id': bind_variable(spu_es_setting.get('id'), params)}
@@ -497,11 +512,13 @@ class EsIndexAdapter(object):
         :param admin_id:
         :return:
         """
-        spu_es_setting = config.get_value('/es_index_setting/product')
-        params = {'adminID': admin_id, 'version': config.get_value('version')}
-        return {'index': bind_variable(spu_es_setting.get('index'), params),
-                'type': bind_variable(spu_es_setting.get('type'), params),
-                'id': bind_variable(spu_es_setting.get('id'), params)}
+        sku_setting_key = '/es_index_setting/product_vip' if admin_config.is_vip(
+            admin_id) else '/es_index_setting/product_experience'
+        sku_es_setting = config.get_value(sku_setting_key)
+        params = {'adminId': admin_id, 'version': config.get_value('version')}
+        return {'index': bind_variable(sku_es_setting.get('index'), params),
+                'type': bind_variable(sku_es_setting.get('type'), params),
+                'id': bind_variable(sku_es_setting.get('id'), params)}
 
     def __build_batch_create_body(self, es_config, doc_list):
         """

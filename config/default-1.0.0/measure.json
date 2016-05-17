@@ -1,0 +1,243 @@
+{
+  "measure_unit": [
+    {
+      "name": "es_index_stats",
+      "measure_obj": {
+        "type": "es_index"
+      },
+      "measurements": [
+        {
+          "name": "doc_count",
+          "type": "elasticsearch",
+          "operation": "search",
+          "search_type": "count",
+          "dsl": "",
+          "calculate_policy": "max",
+          "data_type": "int"
+        },
+        {
+          "name": "doc_count_increment",
+          "type": "elasticsearch",
+          "operation": "search",
+          "search_type": "count",
+          "dsl": "",
+          "calculate_policy": "sub",
+          "data_type": "int"
+        },
+        {
+          "name": "storage_size",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/store/size_in_bytes",
+          "calculate_policy": "max"
+        },
+        {
+          "name": "index_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/indexing/index_total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "index_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/indexing/index_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "delete_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/indexing/delete_total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "delete_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/indexing/delete_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "get_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/get/total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "get_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/get/time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "search_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/search/query_total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "search_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/search/query_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "suggest_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/suggest/total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "suggest_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/suggest/time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "warmer_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/warmer/total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "warmer_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/warmer/total_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "refresh_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/refresh/total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "refresh_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/refresh/total_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "flush_current",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/flush/total",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        },
+        {
+          "name": "flush_time",
+          "type": "elasticsearch",
+          "operation": "stats",
+          "value_field": "/primaries/flush/total_time_in_millis",
+          "calculate_policy": "sub",
+          "collect_policy": "sum"
+        }
+      ]
+    },
+    {
+      "name": "spu_stats",
+      "measure_obj": {
+        "type": "es_index"
+      },
+      "measurements": [
+        {
+          "name": "spu_count",
+          "type": "elasticsearch",
+          "operation": "search",
+          "search_type": "aggs",
+          "dsl": {"aggs": {"spu_count": {"cardinality": {"field": "spuId"}}}},
+          "value_field": "/aggregations/spu_count/value",
+          "calculate_policy": "max",
+          "data_type": "int"
+        },
+        {
+          "name": "spu_count_increment",
+          "type": "elasticsearch",
+          "operation": "search",
+          "search_type": "aggs",
+          "dsl": {"aggs": {"spu_count": {"cardinality": {"field": "spuId"}}}},
+          "value_field": "/aggregations/spu_count/value",
+          "calculate_policy": "sub",
+          "data_type": "int"
+        }
+      ]
+    }
+  ],
+  "measure_task": [
+    {
+      "name": "index_stats",
+      "measure_unit_name": "es_index_stats",
+      "measure_obj": {
+        "host": "",
+        "filter": {
+          "union_operator": "and",
+          "conditions": [
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "index",
+              "expression": "qmshop-[\\d\\D]+"
+            }
+          ]
+        }
+      },
+      "period": {
+        "type": "interval",
+        "sample_period": {"minutes": 60},
+        "measure_period": {"minutes": 60}
+      },
+      "save_sample_data": true
+    },
+    {
+      "name": "spu_stats",
+      "measure_unit_name": "spu_stats",
+      "measure_obj": {
+        "host": "",
+        "filter": {
+          "union_operator": "and",
+          "conditions": [
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "index",
+              "expression": "qmshop-[\\d\\D]+"
+            }
+          ]
+        }
+      },
+      "period": {
+        "type": "interval",
+        "sample_period": {"minutes": 60},
+        "measure_period": {"minutes": 60}
+      },
+      "save_sample_data": true
+    }
+  ]
+}

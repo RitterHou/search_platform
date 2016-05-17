@@ -121,10 +121,11 @@ data_parser = DataParser()
 item_parser = ItemParser()
 
 if __name__ == '__main__':
+    import time
     parser_config = {
         "type": "regex",
         "fields": {
-            "adminID": "chainMasterId\":\"(?P<adminID>[\\d\\D]+?)\"",
+            "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
             "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
             "skuids": {
                 "type": "script",
@@ -145,6 +146,12 @@ if __name__ == '__main__':
             }
         }
     }
+    start_time = time.time()
+    i = 0
+    for i in xrange(100000):
+        data = '{"chainMasterId":"A857673","ids":"21182:g4903;21188:g4951;21224:g4989;","operation":"stock","sys":2,"type":"update"}'
+        data_parser.parse(data, parser_config)
+    print 'spend time : ' + str(time.time() - start_time)
     data = '{"chainMasterId":"A857673","ids":"21182:g4903;21188:g4951;21224:g4989;","operation":"stock","sys":2,"type":"update"}'
     print data_parser.parse(data, parser_config)
     data = '{"chainMasterId":"A857673","ids":"21182:g4903;","operation":"stock","sys":2,"type":"update"}'

@@ -83,7 +83,7 @@ class SpuSearchBySku(object):
     """
 
 
-    def get_spu_by_sku(self, sku_dsl, es_cfg, args):
+    def get_spu_by_sku(self, sku_dsl, es_cfg, args, parse_fields):
         from service.models import Aggregation
 
         start_time = time.time()
@@ -108,7 +108,7 @@ class SpuSearchBySku(object):
         spu_id_list = list(page_spu_sku_dict.get_spu_ids())
 
         multi_search_body = [
-            {'index': es_cfg['index'], 'type': es_adapter.get_spu_es_setting('').get('type')},
+            {'index': es_cfg['index'], 'type': es_adapter.get_spu_es_setting(parse_fields.get('adminId')).get('type')},
             {'query': {'ids': {'values': spu_id_list}}, 'size': sku_dsl.get('size')},
             {'index': es_cfg['index'], 'type': es_cfg['type']},
             self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg)]

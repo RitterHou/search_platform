@@ -63,7 +63,7 @@ class ProductSuggests(object):
                         self.suggest_notification.notify)
                     self.scheduler.add_job(notfification_notify_fun, args=[notification_config, suggest_river],
                                            trigger=trigger, id=('suggest_river_' + str(index)))
-                    # notification_result = self.suggest_notification.notify(notification_config)
+                    notification_result = self.suggest_notification.notify(notification_config, suggest_river)
             except Exception as e:
                 app_log.error('Suggest notification has error, suggest river is {0}', e, suggest_river)
             index += 1

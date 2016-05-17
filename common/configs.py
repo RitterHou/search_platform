@@ -3,6 +3,8 @@ from json import load
 from collections import OrderedDict
 import json
 
+import os
+from elasticsearch import Elasticsearch
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 from watchdog.observers import Observer
 
@@ -24,7 +26,8 @@ def get_config(key=None):
     """
     app_log.info('Get config is called')
     try:
-        es_connection = EsConnectionFactory.get_es_connection(host=SERVICE_BASE_CONFIG.get('elasticsearch'))
+        # es_connection = EsConnectionFactory.get_es_connection(host=SERVICE_BASE_CONFIG.get('elasticsearch'))
+        es_connection = Elasticsearch(hosts=SERVICE_BASE_CONFIG.get('elasticsearch').split(','))
         es_result = es_connection.search(index=SERVICE_BASE_CONFIG.get('meta_es_index'),
                                          doc_type=SERVICE_BASE_CONFIG.get('meta_es_type'))
         doc_list = es_result['hits'].get('hits')
@@ -160,10 +163,25 @@ class ConfigHolder(object):
         从配置文件中获取配置数据
         """
         try:
-            meta_file = BASE_DIR + SERVICE_BASE_CONFIG['meta_file']
-            f = open(meta_file, 'r')
-            meta_data = load(f, 'utf8')
-            f.close()
+            meta_file_path = BASE_DIR + SERVICE_BASE_CONFIG['meta_file']
+            version_dirs = os.listdir(meta_file_path)
+            meta_data = {}
+            for version_dir in version_dirs:
+                cur_path = meta_file_path + '/' + version_dir
+                if not os.path.isdir(cur_path):
+                    continue
+                package, version = version_dir.split('-')
+                meta_data[package] = {}
+                meta_data[package]['version'] = version
+                meta_files = os.listdir(cur_path)
+                for meta_file in meta_files:
+                    file_path = cur_path + '/' + meta_file
+                    if os.path.isfile(file_path):
+                        f = open(file_path, 'r')
+                        part_meta_data = load(f, 'utf8')
+                        prop_name = meta_file[:-5]
+                        meta_data[package][prop_name] = part_meta_data
+                        f.close()
             return True, meta_data
         except Exception as e:
             app_log.exception(e)
@@ -223,7 +241,7 @@ class Config(object):
 
     def __init__(self, config_file_path=BASE_DIR + SERVICE_BASE_CONFIG['meta_file']):
         self.__config_file_path = config_file_path
-        self.__add_file_monitor()
+        # self.__add_file_monitor()
 
     def get_config_file_path(self):
         return self.__config_file_path

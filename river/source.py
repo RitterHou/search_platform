@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import time
 
+from common.exceptions import MsgHandlingFailError
 __author__ = 'liuzhaoming'
 
 import httplib
 import urllib
-import json
+import ujson as json
 
 from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, COMBINE_SIGN, local_host_name, \
     format_time
@@ -61,24 +62,21 @@ class HttpDataSource(DataSource):
             _request_param['version'] = version
         get_method_url_template = get_dict_value_by_path('request/url', source_config)
         get_method_url = bind_variable(get_method_url_template, _request_param)
-        host = source_config['host']
+        host = source_config['host'].format(**config.get_value('consts/custom_variables'))
         http_method = get_dict_value_by_path('request/http_method', source_config, 'POST')
         body_template = get_dict_value_by_path('request/body', source_config, {})
         body = bind_dict_variable(body_template, _request_param)
         timeout = get_dict_value_by_path('request/timeout', source_config, 60)
         if 'version' in body_template:
             body['version'] = version
-        try:
-            response = json.loads(self.call_http_method(host, get_method_url, http_method, body, timeout))
+
+        response = json.loads(self.call_http_method(host, get_method_url, http_method, body, timeout))
             # 如果返回code，抛出异常
-            if 'code' in response:
-                app_log.error(
-                    'Can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3} '
-                    'error code is {4}',
-                    source_config, version, _request_param, response, response.get('code'))
-                return None
-        except Exception as e:
-            app_log.exception(e)
+        if 'code' in response:
+            app_log.error(
+                'Can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3} '
+                'error code is {4}',
+                source_config, version, _request_param, response, response.get('code'))
             return None
 
         return response['root'] if 'root' in response else response
@@ -114,9 +112,8 @@ class HttpDataSource(DataSource):
             response = h1.getresponse()
             result = response.read()
             app_log.info('Call http method finish successfully host = {0}, url={1}', host, url)
-            return result
-        finally:
-            cost_time = time.time() - start_time
+
+            cost_time = int((time.time() - start_time) * 1000)
             json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
                                'receiver_host': host,
                                'invoke_time': format_time(start_time), 'message': 'Call http method is invoked',
@@ -124,6 +121,18 @@ class HttpDataSource(DataSource):
                                'param_values': [host, url, app_params],
                                'result_value': result}
             interface_log.print_log(json_log_record)
+            return result
+        except Exception as e:
+            app_log.error('Call http method error host = {0}, url={1}', host, url)
+            cost_time = int((time.time() - start_time) * 1000)
+            json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
+                               'receiver_host': host,
+                               'invoke_time': format_time(start_time), 'message': 'Call http method has error, {0}',
+                               'param_types': ['host', 'url', 'app_params'],
+                               'param_values': [host, url, app_params],
+                               'result_value': result}
+            interface_log.print_error(json_log_record, error=e)
+            raise MsgHandlingFailError(MsgHandlingFailError.HTTP_ERROR)
 
 
 class PassthroughSource(DataSource):
@@ -147,7 +156,6 @@ class DubboDataSource(DataSource):
     Dubbo数据源
     """
 
-    @debug_log.debug('DubboDataSource.pull')
     def pull(self, source_config, request_param):
         """
         从数据源拉取数据
@@ -161,28 +169,24 @@ class DubboDataSource(DataSource):
             _request_param['version'] = version
         service_interface_template = get_dict_value_by_path('service_interface', source_config)
         service_interface = bind_variable(service_interface_template, _request_param)
-        host = source_config['host']
+        host = source_config['host'].format(**config.get_value('consts/custom_variables'))
         method = get_dict_value_by_path('request/method', source_config)
         body_template = get_dict_value_by_path('request/body', source_config, {})
         body = bind_dict_variable(body_template, _request_param)
         timeout = get_dict_value_by_path('request/timeout', source_config, 60)
         if 'version' in body_template:
             body['version'] = version
-        try:
-            response = self.call_dubbo_method(host, service_interface, method, body, version, timeout)
+
+        response = self.call_dubbo_method(host, service_interface, method, body, version, timeout)
             # 如果返回code，抛出异常
-            if response is None:
-                app_log.error(
-                    'can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3}', None,
-                    source_config, version, _request_param, response)
-                return None
-        except Exception as e:
-            app_log.exception(e)
+        if response is None:
+            app_log.error(
+                'can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3}',
+                source_config, version, _request_param, response)
             return None
 
         return response['root'] if 'root' in response else response
 
-    @debug_log.debug('DubboDataSource.call_method')
     def call_dubbo_method(self, host, service_interface, method, body, version, timeout=120):
         """
         调用Dubbo方法
@@ -209,9 +213,8 @@ class DubboDataSource(DataSource):
             app_log.info(
                 'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}', host,
                 service_interface, method)
-            return result
-        finally:
-            cost_time = time.time() - start_time
+
+            cost_time = int((time.time() - start_time) * 1000)
             json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
                                'receiver_host': host,
                                'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method is invoked',
@@ -219,6 +222,19 @@ class DubboDataSource(DataSource):
                                'param_values': [host, service_interface, method, version, body],
                                'result_value': result}
             interface_log.print_log(json_log_record)
+            return result
+        except Exception as e:
+            app_log.error('Call JsonRPC method has error, host = {0}, service_interface={1}, method={2}, body={3}',
+                          e, host, service_interface, method, body)
+            cost_time = int((time.time() - start_time) * 1000)
+            json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
+                               'receiver_host': host,
+                               'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method has error {0}',
+                               'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
+                               'param_values': [host, service_interface, method, version, body],
+                               'result_value': result}
+            interface_log.print_error(json_log_record, e)
+            raise MsgHandlingFailError(MsgHandlingFailError.DUBBO_ERROR)
 
 
 def get_source_key(source_config):

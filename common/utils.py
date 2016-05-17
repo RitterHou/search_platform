@@ -8,7 +8,6 @@ import os
 
 from django.http import QueryDict
 
-from common.loggers import app_log
 
 
 __author__ = 'liuzhaoming'
@@ -77,8 +76,8 @@ def bind_variable(expression, kwargs):
     try:
         if isinstance(expression, str) or isinstance(expression, unicode):
             return expression.format(**kwargs)
-    except Exception as e:
-        app_log.warning(e.message)
+    except:
+        pass
     return expression
 
 
@@ -303,7 +302,7 @@ def format_dict(_input_dict):
     :param _input_dict:
     :return:
     """
-    import simplejson as json
+    import ujson as json
 
     if not _input_dict:
         return '{}'
@@ -319,10 +318,10 @@ def format_dict(_input_dict):
 if __name__ == '__main__':
     # print to_utf_chars('China u中华人民共和国 ￥$end')
     print 'bind_variable test start........'
-    print bind_variable('/products/{adminID}/{version}/{ids}',
-                        {'adminID': 'a100000', 'version': '1.2', 'ids': ['11', '34', '9876'], 'test': 'kkkkk'})
+    print bind_variable('/products/{adminId}/{version}/{ids}',
+                        {'adminId': 'a100000', 'version': '1.2', 'ids': ['11', '34', '9876'], 'test': 'kkkkk'})
     print 'unbind_variable test start........'
-    print unbind_variable('\|(?P<adminID>a\\d+)\|', 'adminID', 'pwtew|aest222222|a0123456789|kkkerwerw|4*&(&4')
+    print unbind_variable('\|(?P<adminId>a\\d+)\|', 'adminId', 'pwtew|aest222222|a0123456789|kkkerwerw|4*&(&4')
     str_temp = 'abd123kg'
     m = search('444', str_temp)
     m = search("msgtype=(?P<msg_type>444)", str_temp)

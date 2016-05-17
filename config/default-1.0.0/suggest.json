@@ -1,0 +1,126 @@
+{
+  "rivers": [
+    {
+      "name": "yun_product_suggest_task",
+      "notification": {
+        "type": "elasticsearch_regularly_scan",
+        "crontab": {
+          "second": "0",
+          "minute": "53",
+          "hour": "0"
+        },
+        "host": "http://172.21.4.201:9200",
+        "filter": {
+          "type": "es_regex",
+          "union_operator": "and",
+          "conditions": [
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "index",
+              "expression": "^qmshop-[\\d\\D]*"
+            },
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "type",
+              "expression": "^Product$"
+            }
+          ]
+        }
+      },
+      "source": {
+        "type": "iterator_es_get",
+        "size": 50,
+        "data_parser": {
+          "type": "map",
+          "keyword_filter_regex": "^[一-龥A-Za-z0-9]{2,}$",
+          "fields": {
+            "title": "title",
+            "brand": "brand",
+            "category": "type"
+          }
+        },
+        "param_parser": {
+          "type": "regex",
+          "fields": {
+            "adminId": {
+              "field": "index",
+              "type": "regex",
+              "expression": "^qmshop-(?P<adminId>[\\d\\D]+?)-"
+            }
+          }
+        },
+        "tags": {
+          "default": "{\"term\": {\"onSale\": true}}",
+          "d2p": {
+            "bool": {
+              "must": [
+                {"term": {"D2POnSale": true}},
+                {"term": {"sys": 2}},
+                {
+                  "nested": {
+                    "path": "cats",
+                    "query": {"term": {"cats.name": "b2b"}}
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "stock",
+                    "query": {"range": {"stock.stock": {"gte": 1}}}
+                  }
+                }
+              ]
+            }
+          },
+          "d2c": {
+            "bool": {
+              "must": [
+                {"term": {"D2COnSale": true}},
+                {"term": {"sys": 2}},
+                {"term": {"productLine": 2}}
+              ]
+            }
+          }
+        }
+      },
+      "processing": {
+        "type": "basic_processing",
+        "output": {
+          "weight": {
+            "type": "script",
+            "language": "mvel",
+            "script": "ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)",
+            "param": {
+              "type": "math_expression",
+              "fields": {
+                "current_weight": "int((hits['default']*0.25 + source_type_weight)/2)"
+              }
+            }
+          },
+          "payloads": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "hits": "hits"
+            }
+          },
+          "common_fields": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "id": "id"
+            }
+          }
+        }
+      },
+      "destination": [
+        {
+          "destination_type": "elasticsearch_processed",
+          "reference": "suggest",
+          "operation": "create"
+        }
+      ]
+    }
+  ]
+}

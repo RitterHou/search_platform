@@ -2,13 +2,15 @@
 
 import time
 
+from common.exceptions import MsgHandlingFailError
+from common.sla import sla
 from common.utils import COMBINE_SIGN
-from common.loggers import app_log, debug_log
+from common.loggers import app_log
 from common.configs import config
 from common.msg_bus import message_bus, Event
-from search_platform.celery_config import app
 from river.processor import MessageProcessorChain
 from river import get_river_key
+from search_platform.celery_config import app
 
 
 __author__ = 'liuzhaoming'
@@ -27,9 +29,11 @@ def process_message(self, message, river_key):
             return
 
         message_process_chain.process(message)
-        debug_log.print_log('Celery process message spend {0}', time.time() - start_time)
+        app_log.info('Celery process message spend {0}', time.time() - start_time)
     except Exception as e:
         app_log.error('Process_message has error, message={0}, river_key={1}', e, message, river_key)
+        if isinstance(e, MsgHandlingFailError):
+            sla.process_do_error_message(message, e)
 
 
 class DataRivers(object):
@@ -67,7 +71,6 @@ class DataRivers(object):
             river_key = get_river_key(river)
             if river_key not in self.processor_chain_dict:
                 self.processor_chain_dict[river_key] = MessageProcessorChain(river)
-            self.processor_chain_dict[river_key].add_processor(river)
 
 
 data_rivers = DataRivers()

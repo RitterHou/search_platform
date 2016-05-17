@@ -3,12 +3,12 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from common.data_parsers import item_parser
+from common.es_routers import es_router
 from service.req_filter import request_filter
 from service import (get_request_data, desc_request, get_url, get_client_ip)
 from service.models import *
 from common.loggers import query_log as app_log, interface_log
-from common.utils import merge, query_dict_to_normal_dict, local_host_name, format_time
-from common.configs import config
+from common.utils import query_dict_to_normal_dict, local_host_name, format_time
 
 
 __author__ = 'liuzhaoming'
@@ -67,9 +67,8 @@ class RequestHandler(object):
             interface_log.print_log(json_log_record)
             return response
         except Exception as e:
-            app_log.error('Handle http request error, {0}, {1}'.format(
-                self.handler_config.get('name') or self.handler_config.get('res_type'), request_desc))
-            app_log.exception(e)
+            app_log.error('Handle http request error, {0}, {1}', e,
+                          self.handler_config.get('name') or self.handler_config.get('res_type'), request_desc)
             raise e
 
     def match(self, request):
@@ -86,12 +85,8 @@ class RequestHandler(object):
         :param destination_config:
         :return:
         """
-        if 'reference' in destination_config:
-            es_config = config.get_value('es_index_setting/' + destination_config['reference'])
-            es_config = merge(es_config, destination_config)
-            assert es_config, 'the reference is not exist, reference={0}'.format(destination_config)
-        else:
-            es_config = dict(destination_config)
+        es_config = es_router.merge_es_config(destination_config)
+        es_config = es_router.route(es_config, input_param=field_values)
         index, doc_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs=field_values)
         es_config['index'] = index
         es_config['type'] = doc_type
@@ -181,7 +176,7 @@ class RequestHandler(object):
         :return:
         """
         if 'data_parser' not in self.handler_config or not self.handler_config['data_parser']:
-            app_log.error('The data_parser is invalid, {0}'.format(self.handler_config))
+            app_log.error('The data_parser is invalid, {0}', self.handler_config)
             return {}
         data_parser_config = self.handler_config['data_parser']
 
@@ -199,12 +194,12 @@ class RequestHandler(object):
             :param item_config:
             :return:
             """
-            if not isinstance(item_config, dict) or 'input_data' not in item_config or item_config[
-                'input_data'] == 'url':
+            if not isinstance(item_config, dict) or 'input_param' not in item_config or item_config[
+                'input_param'] == 'url':
                 # 不配置默认从URL中解析
                 return data['url']
-            elif item_config['input_data'].startswith('param'):
-                temp_strs = item_config['input_data'].split('.')
+            elif item_config['input_param'].startswith('param'):
+                temp_strs = item_config['input_param'].split('.')
                 return str(data['param'].get(temp_strs[1])) if len(temp_strs) == 2 else str(data['param'])
             return data['url']
 
@@ -227,4 +222,4 @@ class RequestHandler(object):
 
 
 if __name__ == '__main__':
-    print "adminID=(?P<adminID>[\d\D]+?);".find('(?P<adminID>')
+    print "adminId=(?P<adminId>[\d\D]+?);".find('(?P<adminId>')

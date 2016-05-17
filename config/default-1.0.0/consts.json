@@ -1,0 +1,270 @@
+{
+  "global": {
+    "query_min_score": 1,
+    "agg_size": 500,
+    "query_size": {
+      "from": {
+        "min": 0,
+        "max": 6000,
+        "default": 0
+      },
+      "size": {
+        "min": 0,
+        "max": 200,
+        "default": 60
+      },
+      "suggest_size": {
+        "min": 0,
+        "max": 50,
+        "default": 10
+      },
+      "like_str_size": {
+        "min": 0,
+        "max": 20,
+        "default": 10
+      }
+    },
+    "ansj_segment_redis": {
+      "host": "172.21.4.197:6379",
+      "channel": "ansj_term"
+    },
+    "lock_expire_time": 1800,
+    "algorithm": {
+      "price_section_num": 6,
+      "section_range_rate": 20,
+      "price_section_opt_range": [
+        10,
+        20,
+        30,
+        50,
+        100
+      ],
+      "optimize": true,
+      "like_string_suggest_size": 10,
+      "like_string_fuzzy_size": 10,
+      "content_based_recom": {
+        "vectors": {
+          "brand": {"weight": 1},
+          "salePrice": {
+            "weight": 1,
+            "type": "range"
+          },
+          "salePoint": {"weight": 1},
+          "tags": {"weight": 1},
+          "spuId": {"weight": 1},
+          "props": {
+            "weight": 1,
+            "type": "nest"
+          },
+          "title": {"weight": 0.5},
+          "cats": {
+            "type": "cats",
+            "weight": 1
+          }
+        },
+        "recommend": {
+          "size": 5,
+          "min_cosine_similarity": 0.5,
+          "candidate_multiple": 3,
+          "type_query_size": 5000
+        }
+      }
+    },
+    "es_conn_param": {
+      "sniff_on_start": true,
+      "timeout": 30
+    },
+    "admin_id_cfg": {
+       "vip_id_key": "search_platform_vip_admin_id_set",
+      "admin_id_params_key": "search_platform_admin_id_params",
+      "vip_max_msg": 5,
+      "vip_time_interval": 5,
+      "experience_max_msg": 1,
+      "experience_time_interval": 5,
+      "vip_msg_redo_enable": true,
+      "experience_msg_redo_enable": true,
+      "vip_msg_iter_capacity": 5,
+      "experience_msg_iter_capacity": 1,
+      "vip_msg_thread_num": 5,
+      "experience_msg_thread_num": 5,
+      "vip_redo_iter_capacity": 50,
+      "experience_redo_iter_capacity": 5,
+      "vip_redo_thread_num": 5,
+      "experience_redo_thread_num": 5,
+      "vip_redo_queue_threshold": 200,
+      "experience_redo_queue_threshold": 100,
+      "final_queue_threshold": 500,
+      "vip_msg_queue_threshold": 200,
+      "experience_msg_queue_threshold": 100,
+      "vip_fail_msg_policy": {
+        "dubbo": {
+          "redo_times": 3,
+          "redo_interval": "5,60,120"
+        },
+        "process": {
+          "redo_times": 2,
+          "redo_interval": "5,30"
+        },
+        "es_error": {
+          "redo_times": 0,
+          "redo_interval": ""
+        },
+        "es_read_timeout": {
+          "redo_times": 0,
+          "redo_interval": ""
+        }
+      },
+      "experience_fail_msg_policy": {
+        "dubbo": {
+          "redo_times": 2,
+          "redo_interval": "5,120"
+        },
+        "process": {
+          "redo_times": 1,
+          "redo_interval": "5"
+        },
+        "es_error": {
+          "redo_times": 0,
+          "redo_interval": ""
+        },
+        "es_read_timeout": {
+          "redo_times": 0,
+          "redo_interval": ""
+        }
+      },
+      "msg_final_queue_key": "sp_msg_final_queue",
+      "msg_redo_queue_key": "sp_msg_redo_queue_{0}",
+      "msg_redo_admin_queue_key": "sp_msg_redo_admin_queue",
+      "msg_queue_key": "sp_msg_queue_{0}",
+      "msg_admin_queue_key": "sp_msg_admin_queue"
+    }
+  },
+  "query": {
+    "orders": {
+      "1": "asc",
+      "0": "desc"
+    },
+    "scroll_time": "1m",
+    "agg_cats_default_depth": 2,
+    "default_index": "sp_reserve_index",
+    "query_string": {
+      "default": "match_selected_fields",
+      "match_all": {
+        "analyzer": "qm_standard",
+        "fields": "_all"
+      },
+      "match_selected_fields": {
+        "analyzer": "qm_standard",
+        "fields": {
+          "normal": [
+            "tags",
+            "type.standard",
+            "salePoint",
+            "title.standard",
+            "brand.standard"
+          ],
+          "nest": {
+            "props.value.standard": {
+              "field": "props",
+              "level": 0
+            },
+            "cats.name.standard": {
+              "field": "cats",
+              "level": 0
+            },
+            "cats.childs.name.standard": {
+              "field": "cats",
+              "level": 1,
+              "path": "childs"
+            },
+            "cats.childs.childs.name.standard": {
+              "field": "cats",
+              "level": 2,
+              "path": "childs"
+            },
+            "cats.childs.childs.childs.name.standard": {
+              "field": "cats",
+              "level": 3,
+              "path": "childs"
+            }
+          }
+        }
+      },
+      "score": {
+        "fields": "_all",
+        "query_type": "query_string",
+        "boost": 1.5
+      }
+    },
+    "preference": "_primary_first"
+  },
+  "notification": {
+    "mq_reconnect_time": 30,
+    "mq_client_id": "search_platform1"
+  },
+  "filter": {
+    "default_match_result": "true"
+  },
+  "source": {
+    "default_iteration_get_size": 100
+  },
+  "suggest": {
+    "default_es_iterator_get_size": 100,
+    "source_type": {
+      "1": 1,
+      "2": 10
+    },
+    "tag_query_multiple": 10
+  },
+  "manager": {
+    "default": {
+      "supervisor_port": "9001",
+      "supervisor_user": "user",
+      "supervisor_password": "123"
+    },
+    "hosts": [
+    ],
+    "message": {
+      "es_store": {
+        "index": "sp_search_platform_msg",
+        "type": "message"
+      }
+    }
+  },
+  "logger": {
+    "debug": {
+      "level": "DEBUG"
+    },
+    "interface": {
+      "level": "INFO"
+    },
+    "app": {
+      "level": "INFO"
+    },
+    "query": {
+      "level": "INFO"
+    }
+  },
+  "measure": {
+    "es": {
+      "task": {
+        "index": "sp_measure-{year}-{version}",
+        "type": "{task_name}",
+        "id": "{time_stamp}"
+      },
+      "sample": {
+        "index": "sp_measure_sample-{year}-{version}",
+        "type": "{task_name}",
+        "id": "{time_stamp}"
+      }
+    },
+    "save_sample_data": true
+  },
+  "custom_variables": {
+    "experience_es_host": "http://192.168.65.133:9200,http://192.168.65.134:9200,http://192.168.65.135:9200,http://192.168.65.136:9200,http://192.168.65.137:9200,http://192.168.65.138:9200",
+    "vip_es_host": "http://192.168.65.167:9200,http://192.168.65.175:9200,http://192.168.65.231:9200,http://192.168.65.241:9200,http://192.168.65.242:9200,http://192.168.65.245:9200",
+    "mq_host": "failover:(tcp://192.168.65.182:61616,tcp://192.168.65.181:61616,tcp://192.168.65.180:61616)?randomize=false",
+    "zookeeper_host": "192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181",
+    "gonghuo_http_host": "oss.gonghuo.com"
+  }
+}

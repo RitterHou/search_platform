@@ -1,8 +1,8 @@
 # coding=utf-8
 from collections import OrderedDict
 from itertools import chain
-import json
 
+import ujson as json
 from common.configs import config
 from common.connections import EsConnectionFactory
 from common.utils import get_dict_value_by_path, unbind_variable
@@ -196,7 +196,7 @@ class ElasticsearchDataSource(SuggestSource):
 
     def _parse_param(self, source_config, request_param):
         """
-        从给定的source参数中解析出需要的变量，目前主要是从索引或type中解析出adminID
+        从给定的source参数中解析出需要的变量，目前主要是从索引或type中解析出adminId
         :param source_config:
         :param request_param:
         :return:
@@ -275,7 +275,7 @@ class SpecifyWordsDataSource(ElasticsearchDataSource):
             return 0, None
 
         host = get_dict_value_by_path('notification/host', suggest_config)
-        additional_param = {'adminID': request_param['adminID']} if 'adminID' in request_param else {}
+        additional_param = {'adminId': request_param['adminId']} if 'adminId' in request_param else {}
 
         if isinstance(request_param['word'], (set, tuple, list)):
             keyword_list = request_param['word']

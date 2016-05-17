@@ -2,11 +2,11 @@
 from __future__ import absolute_import
 
 
-__author__ = 'liuzhaoming'
 import os
 from celery import Celery
 from django.conf import settings
 
+__author__ = 'liuzhaoming'
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'search_platform.settings')
 
 broker_url = settings.SERVICE_BASE_CONFIG['celery_broker_url']
