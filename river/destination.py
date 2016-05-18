@@ -28,7 +28,7 @@ class DataDestination(object):
         destination_type = destination_config.get('destination_type', 'elasticsearch')
         __destination = DATA_DESTINATION_DICT.get(destination_type)
         assert __destination, 'the destination is not exist, destination_config={0}'.format(destination_config)
-        __destination.clear(destination_config, data)
+        __destination.clear(destination_config, data, param)
 
 
 class ElasticSearchDestination(DataDestination):
@@ -66,21 +66,27 @@ class ElasticSearchDestination(DataDestination):
         :param data:
         :return:
         """
+        if not data:
+            app_log.warning('destination clear fail, because data is null, {0}', destination_config)
+            return
         es_config = es_router.merge_es_config(destination_config)
 
-        assert es_config['host'] and es_config['index'] and es_config['type'] and es_config[
-            'id'], 'the es config is not valid, es_config={0}'.format(es_config)
+        if not isinstance(data, (list, tuple)):
+            data = [data]
 
-        if 'clear_policy' not in destination_config or not destination_config.get('clear_policy'):
+        es_config = es_router.route(es_config, input_param=data[0])
+
+        if 'clear_policy' not in es_config or not es_config.get('clear_policy'):
             return
-        clear_policy = destination_config.get('clear_policy')
+        clear_policy = es_config.get('clear_policy')
         if clear_policy == 'every_msg,all':
             if (isinstance(data, tuple) or isinstance(data, list)) and len(data) > 0:
                 data = data[0]
             elif not data:
                 data = {}
             if param:
-                data = dict(data, param)
+                param = param['fields'] if 'fields' in param else param
+                data = dict(data, **param)
             es_adapter.delete_all_doc_by_type(es_config, data)
 
 
