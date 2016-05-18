@@ -246,38 +246,38 @@ LOGGING = {
         ####################################################
         'app': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'error': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
             'filters': ['sms_alarm_filter']
         },
         'interface': {
             'handlers': ['interface_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'listener': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'debug': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'query': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'django': {
             'handlers': ['app_logstash_log'],
-            'propagate': True,
+            'propagate': False,
             'level': 'INFO',
         },
         'django.request': {
