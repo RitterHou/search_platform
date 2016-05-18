@@ -34,8 +34,9 @@ class RequestHandler(object):
         :return:
         """
         request_desc = None
+        response = None
+        start_time = time.time()
         try:
-            start_time = time.time()
             request_desc = desc_request(request)
             app_log.info("Receive http request : {0}", request_desc)
             destination_config = self.handler_config.get('destination')
@@ -55,7 +56,7 @@ class RequestHandler(object):
                 response = self.put(request, destination_config)
             else:
                 response = Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-            cost_time = time.time() - start_time
+            cost_time = int((time.time() - start_time) * 1000)
             app_log.info('Finish handle http request {0}, and spend {1}'.format(request_desc, cost_time))
             json_log_record = {'cost_time': cost_time, 'sender_host': get_client_ip(request),
                                'receiver_name': 'search_platform',
@@ -67,8 +68,17 @@ class RequestHandler(object):
             interface_log.print_log(json_log_record)
             return response
         except Exception as e:
+            cost_time = int((time.time() - start_time) * 1000)
+            json_log_record = {'cost_time': cost_time, 'sender_host': get_client_ip(request),
+                               'receiver_name': 'search_platform',
+                               'receiver_host': local_host_name,
+                               'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
+                               'param_types': ['http_request'],
+                               'param_values': [request_desc],
+                               'result_value': response}
             app_log.error('Handle http request error, {0}, {1}', e,
                           self.handler_config.get('name') or self.handler_config.get('res_type'), request_desc)
+            interface_log.print_error(json_log_record, e)
             raise e
 
     def match(self, request):
