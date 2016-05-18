@@ -125,12 +125,14 @@ class InterfaceLog(object):
         finally:
             self.logger.info(message)
     def print_error(self, message, error, *args):
-        if args:
+        if isinstance(message, dict):
+            message['message'] = ' '.join((get_caller_info(), message.get('message') or ''))
+            message['exceptionMsg'] = str(error)
+            message = json.dumps(message)
+        elif args:
             message = message.format(*args)
             message = ' '.join((get_caller_info(), message))
-        if error:
-            message += ', error: ' + str(error)
-            self.logger.error(message)
+        self.logger.error(message)
 
 
 class DebugLog(object):
