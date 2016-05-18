@@ -46,9 +46,10 @@ class ElasticSearchDestination(DataDestination):
         es_config = es_router.merge_es_config(destination_config)
 
 
-        operation = destination_config.get('operation', 'create')
         if not isinstance(data, (list, tuple)):
             data = [data]
+        es_config = es_router.route(es_config, input_param=data[0])
+        operation = es_config.get('operation', 'create')
         if operation == 'create':
             es_adapter.batch_create(es_config, data)
         elif operation == 'update':
