@@ -115,7 +115,7 @@ class AdminConfig(object):
             while self.__write_id_lock:
                 time.sleep(0.007)
 
-        return admin_id in self.__vip_admin_id_dict
+        return admin_id.upper() in self.__vip_admin_id_dict or admin_id in self.__vip_admin_id_dict
 
     def _query_vip_admin_ids(self):
         """

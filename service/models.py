@@ -340,7 +340,7 @@ class EsAggManager(object):
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=cur_qdsl)
         result = self.parse_es_agg_range_result(es_result, args)
         app_log.info('EsAggManager get agg range return is {0}', result)
-        print 'get_agg_range_result spends {0}'.format(time.time() - start_time)
+        debug_log.print_log('get_agg_range_result spends {0}'.format(time.time() - start_time))
         return result
 
     def parse_es_agg_range_result(self, es_result, query_params):
@@ -369,7 +369,7 @@ class EsAggManager(object):
             agg_range_list = equal_section_partitions.merge_child_sections(
                 es_result['aggregations'][agg_range_result_key]['buckets'], total_doc_count, section_num, optimize)
             agg_range_result[field_name + '_section'] = agg_range_list
-        print 'parse_es_agg_range_result spends {0}'.format(time.time() - start_time)
+        debug_log.print_log('parse_es_agg_range_result spends {0}', (time.time() - start_time))
         return agg_range_result
 
 

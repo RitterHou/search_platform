@@ -212,7 +212,7 @@ class SLA(object):
         :return:
         """
         experience_admin_ids, vip_admin_ids = self._query_msg_admin_ids()
-        app_log.info('kkkkkk process_msg experience ids={0},  is_vip={1}', experience_admin_ids, is_vip)
+        # app_log.info('kkkkkk process_msg experience ids={0},  is_vip={1}', experience_admin_ids, is_vip)
         if is_vip:
             if vip_admin_ids:
                 self._vip_msg_pool.map(lambda vip_admin_id: self.process_admin_msg(vip_admin_id, msg_handler_fun),

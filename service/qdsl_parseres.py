@@ -574,6 +574,9 @@ class ExtendQdslParser(object):
                                        'span_first': self.__get_query_span_first_fragment,
                                        'span_near': self.__get_query_span_near_fragment,
                                        'wildcard': self.__get_query_wildcard_fragment,
+                                       'stock': self.__get_query_stock_fragment,
+                                       'nested': self.__get_query_nested_fragment,
+                                       'ematch': self.__get_query_ematch_fragment
         }
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
@@ -1086,6 +1089,105 @@ class ExtendQdslParser(object):
             }
         }
 
+    def __get_query_ematch_fragment(self, field_name, field_str):
+        """
+        ematch(扩展match) 查询
+        格式为：ex_q_kkk=ematch(query:abcdefg;minimum_should_match:2;operator:and)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        if not field_str:
+            return None
+        match_dsl = {}
+        search_item_str_list = field_str.split(';')
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':')
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'minimum_should_match':
+                    match_dsl[search_item_key_value[0]] = int(search_item_key_value[1])
+                else:
+                    match_dsl[search_item_key_value[0]] = search_item_key_value[1]
+        if 'query' not in match_dsl:
+            return {}
+        return {"match": {field_name: match_dsl}}
+    def __get_query_stock_fragment(self, field_name, field_str):
+        """
+        获取库存查询接口，库存查询参数为：
+        ex_q_stock=stock(range:-10,20-60,70-;region:nanjing,field:stock)，
+        如果不带region参数表示是全部库存，带region表示区域库存
+        field字段表示查询库存数目字段，默认值为stock
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        search_item_str_list = field_str.split(';')
+        region = None
+        range_str = None
+        stock_num_field = 'stock'
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':')
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'range':
+                    range_str = search_item_key_value[1]
+                elif search_item_key_value[0] == 'region':
+                    region = search_item_key_value[1]
+                elif search_item_key_value[0] == 'field':
+                    stock_num_field = search_item_key_value[1]
+        if not range_str:
+            return {}
+        if not region:
+            range_dsl = self.__get_query_range_fragment('{0}.{1}'.format(field_name, stock_num_field), range_str)
+            return {"nested": {"path": field_name, "query": range_dsl}}
+        else:
+            range_dsl = self.__get_query_range_fragment('{0}.regions.{1}'.format(field_name, stock_num_field),
+                                                        range_str)
+            return {
+                "nested": {"path": field_name,
+                           "query": {"nested": {"path": field_name + '.regions', "query": range_dsl}}}}
+    def __get_query_nested_fragment(self, field_name, field_str):
+        """
+        嵌套文档查询
+        ex_q_kkk=nested(field:a|b;query:<>)
+        field：如果中间有多层路径则放在path中,用“|”分隔
+        query：存放嵌套查询的实体查询
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        def parse_query_value(_query_str):
+            if not _query_str:
+                return None
+            _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
+            return _nested_item_query_str
+        def compute_nested_path_dsl(_path_fields, level, _nested_item_query_dsl):
+            """
+            计算多层嵌套文档查询DSL
+            """
+            if level < len(_path_fields):
+                cur_path_field_str = '.'.join(path_fields[0:level])
+                return {
+                    "nested": {"path": cur_path_field_str,
+                               "query": compute_nested_path_dsl(_path_fields, level + 1, _nested_item_query_dsl)}}
+            elif level == len(_path_fields):
+                return _nested_item_query_dsl
+        search_item_str_list = field_str.split(';')
+        path_fields = None
+        nested_item_query_str = None
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':')
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'field':
+                    path_str = search_item_key_value[1]
+                    path_fields = path_str.split('|')
+                elif search_item_key_value[0] == 'query':
+                    query_str = search_item_key_value[1]
+                    nested_item_query_str = parse_query_value(query_str)
+        if not nested_item_query_str or not path_fields:
+            return {}
+        path_fields = [field_name] + path_fields
+        nested_item_query_dsl = self.get_query_qdsl_single_fragment('.'.join(path_fields), nested_item_query_str)
+        return compute_nested_path_dsl(path_fields, 1, nested_item_query_dsl)
     def __get_query_multi_match_fragment(self, field_name, field_str):
         """
         multi_match match 查询

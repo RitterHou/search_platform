@@ -88,10 +88,9 @@ class SpuSearchBySku(object):
 
         start_time = time.time()
         spu_dsl = self.get_spu_sku_id_query_dsl(sku_dsl)
-        query_log.info('get_spu_by_sku get spu dsl spends {0}'.format(time.time() - start_time))
         es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, **es_cfg)
         es_scan_result = tuple(es_scan_result)
-        query_log.info('get_spu_by_sku scan spends {0}'.format(time.time() - start_time))
+        # 限制SPU中聚合的SKU数目
         aggs_sku_size = int(args['aggs_sku_size']) if 'aggs_sku_size' in args and int(args['aggs_sku_size']) > 0 else 0
         if aggs_sku_size > 0:
             spu_sku_dict = SpuAndSkuDict(aggs_sku_size=aggs_sku_size)
@@ -116,10 +115,7 @@ class SpuSearchBySku(object):
             # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
             sku_dsl['size'] = 0
             multi_search_body.extend(({'index': es_cfg['index'], 'type': es_cfg['type']}, sku_dsl))
-        musearch_start_time = time.time()
-        query_log.info('get_spu_by_sku multi_search before spends {0}'.format(musearch_start_time - start_time))
         multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
-        query_log.info('get_spu_by_sku multi_search spends {0}'.format(time.time() - musearch_start_time))
         spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
                                                 delete_goods_field=aggs_sku_size > 0)
 
@@ -129,9 +125,9 @@ class SpuSearchBySku(object):
         if 'aggs' in sku_dsl:
             aggs_search_response = multi_search_results['responses'][2]
             aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response)
-            print 'get_spu_by_sku spends {0}'.format(time.time() - start_time)
+            query_log.info('get_spu_by_sku spends {0}', time.time() - start_time)
             return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
-        query_log.info('get_spu_by_sku spends {0}'.format(time.time() - start_time))
+        query_log.info('get_spu_by_sku spends {0}', time.time() - start_time)
         return product_dict, None
 
     def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg):

@@ -227,7 +227,7 @@ class ListenerRegister(object):
                 _start_time = time.time()
                 sla.process_msg(process_message_wrapper, is_vip)
                 _cost_time = time.time() - _start_time
-                app_log.info('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
+                debug_log.print_log('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
                 time_delta = time_interval - _cost_time
                 if time_delta >= 0.01:
                     time.sleep(time_delta)
@@ -240,7 +240,7 @@ class ListenerRegister(object):
                 _start_time = time.time()
                 sla.process_redo_msg(process_message_wrapper)
                 _cost_time = time.time() - _start_time
-                app_log.info('handle redo msg spends {0}', _cost_time)
+                debug_log.print_log('handle redo msg spends {0}', _cost_time)
                 time_delta = time_interval - _cost_time
                 if time_delta >= 1:
                     time.sleep(time_delta)
@@ -253,7 +253,7 @@ class ListenerRegister(object):
                 _start_time = time.time()
                 sla.check_msg_num()
                 _cost_time = time.time() - _start_time
-                app_log.info('handle check msg spends {0}', _cost_time)
+                debug_log.print_log('handle check msg spends {0}', _cost_time)
                 time_delta = time_interval - _cost_time
                 if time_delta >= 1:
                     time.sleep(time_delta)
