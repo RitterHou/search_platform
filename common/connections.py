@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import redis
-from elasticsearch import Elasticsearch, Transport, ElasticsearchException
+from elasticsearch import Elasticsearch, Transport, ElasticsearchException, TransportError
 from dubbo_client import ZookeeperRegistry, DubboClient, ApplicationConfig
 
 from common.utils import COMBINE_SIGN
 from common.loggers import app_log
+from search_platform import settings
 
 __author__ = 'liuzhaoming'
 
