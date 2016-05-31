@@ -320,6 +320,7 @@ SERVICE_BASE_CONFIG = {
     'celery_broker_url': 'redis://172.17.8.253:6379/0',
     'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER',
     'msg_queue': 'redis://172.17.8.253:6379/4',
+    'redis_admin_id_config': 'redis://172.17.8.253:6379/3',
     'register_zk_host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181'
 }
 

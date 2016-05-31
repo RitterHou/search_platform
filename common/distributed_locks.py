@@ -21,10 +21,10 @@ class LockStoreFactory(object):
         # 目前只支持Redis同步锁
         lock_store_type = 'redis'
         if lock_store_type == 'redis':
-            if 'redis' not in LOCKSTORE_DICT:
+            if 'redis' not in LOCK_STORE_DICT:
                 # LOCKSTORE_DICT['redis'] = RedisLockStore(config.get_value('consts/global/lock_store'))
-                LOCKSTORE_DICT['redis'] = RedisLockStore(SERVICE_BASE_CONFIG.get('redis_lock_store'))
-        __lock_store = LOCKSTORE_DICT.get(lock_store_type)
+                LOCK_STORE_DICT['redis'] = RedisLockStore(SERVICE_BASE_CONFIG.get('redis'))
+        __lock_store = LOCK_STORE_DICT.get(lock_store_type)
         if not __lock_store:
             app_log.error('lock_store_type is invalid, {0}', None, lock_store_type)
         return __lock_store
@@ -47,9 +47,9 @@ class RedisLockStore(LockStore):
     用Redis实现的锁仓库
     """
 
-    def __init__(self, host):
+    def __init__(self, _host):
         self.__has_initialized = False
-        self.__host = host
+        self.__host = _host
         self.__init_store()
 
     def get_lock_info(self, task_name, timeout=0):
@@ -120,7 +120,7 @@ class RedisLockStore(LockStore):
         self.__client_id = get_client_id()
 
 
-LOCKSTORE_DICT = {}
+LOCK_STORE_DICT = {}
 
 
 class DistributedLock(object):
@@ -165,5 +165,5 @@ distributed_lock = DistributedLock()
 if __name__ == '__main__':
     host = config.get_value('consts/global/lock_store') or 'redis://127.0.0.1:6379/1'
     lock_store = RedisLockStore(host)
-    lock_store.get_conn().hmset('test_key', {{'houst1': {'key1': 'value1', 'key2': 122}, 'houst2': 'kkker'}})
+    lock_store.get_conn().hmset('test_key', {{'host1': {'key1': 'value1', 'key2': 122}, 'host2': 'google'}})
 
