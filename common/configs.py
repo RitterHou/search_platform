@@ -322,7 +322,7 @@ class Config(object):
 config = Config()
 config_holder = ConfigHolder()
 # config模块在系统启动时会加载，注册中心注册也放在该模块中进行
-register_center.register()
+# register_center.register()
 
 if __name__ == '__main__':
     config1 = Config()
