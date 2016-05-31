@@ -67,6 +67,8 @@ class DataRivers(object):
         """
         self.processor_chain_dict = {}
         river_list = config.get_value('data_river/rivers')
+        app_log.info('__init_processor_chain_config {0}', config.get_config())
+        print '__init_processor_chain_config {0}'.format(config.get_config())
         for river in river_list:
             river_key = get_river_key(river)
             if river_key not in self.processor_chain_dict:
