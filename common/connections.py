@@ -79,7 +79,12 @@ class EsConnectionPool(object):
         :return:
         """
         if host not in self.connection_cache:
-            connection = EsConnection(host.split(','), sniff_on_start=True)
+            try:
+                connection = EsConnection(host.split(','), sniff_on_start=True)
+            except TransportError as e:
+                app_log.error('create elasitcsearch connection fail, host={0}', e, host)
+                if 'Unable to sniff hosts' in str(e):
+                    connection = EsConnection(host.split(','), sniff_on_start=False)
             self.connection_cache[host] = connection
             self.es_type_init_info_cache[host] = {}
         else:

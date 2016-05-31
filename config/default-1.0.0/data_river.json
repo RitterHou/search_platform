@@ -2662,6 +2662,135 @@
           ]
         }
       ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.search_platform.shopInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "sp_vip_yun_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"sys\":[02]"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 30,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "fromSys": "{fromSys}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "operation": "create",
+              "id": "{skuId}",
+              "clear_policy": "every_msg,all",
+              "tag": "vip"
+            }
+          ]
+        },
+        {
+          "name": "sp_vip_spu_yun_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"sys\":[02]"
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 30,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "fromSys": "{fromSys}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "spu_vip",
+              "operation": "create",
+              "id": "{spuId}",
+              "clear_policy": "every_msg,all",
+              "tag": "vip"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

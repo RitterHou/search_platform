@@ -686,6 +686,71 @@
       },
       "response": {
       }
+    },
+    {
+      "name": "open_api_qmcs_log",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^openapi/logs/qmcs$",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/openapi/logs/qmcs"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "openapi-srvlog",
+        "type": "SRV_LOG",
+        "host": "{log_es_host}",
+        "id": "generate"
+      },
+      "response": {
+      }
+    },
+    {
+      "name": "test",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "^test/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/test"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "test-{version}",
+        "type": "default",
+        "id": "{id}"
+      },
+      "response": {
+      }
     }
   ]
 }

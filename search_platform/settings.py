@@ -318,11 +318,9 @@ SERVICE_BASE_CONFIG = {
     'meta_es_id': 'config_data',
     'message_bus_channel': 'search_platform_message_bus_channel',
     'celery_broker_url': 'redis://172.17.8.253:6379/0',
-    'celery_backend_url': 'redis://172.17.8.253:6379/0',
-    'redis_lock_store': 'redis://172.17.8.253:6379/1',
     'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER',
-    'redis_admin_id_config': 'redis://172.17.8.253:6379/3',
-    'msg_queue': 'redis://172.17.8.253:6379/4'
+    'msg_queue': 'redis://172.17.8.253:6379/4',
+    'register_zk_host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181'
 }
 
 
