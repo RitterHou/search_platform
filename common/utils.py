@@ -142,6 +142,24 @@ def get_dict_value_by_path(path, data_dict, default_value=None):
     return __get_value_from_dict(data_dict, default_key_list)
 
 
+def set_dict_value_by_path(path, data_dict, value):
+    """
+    设置dict路径值，'/fethcer/kk/www'
+    :param path:
+    :param data_dict:
+    :param value:
+    :return:
+    """
+    default_key_list = filter(lambda key: key, path.split('/'))
+    temp = data_dict
+    for iter_key in default_key_list:
+        last_dict = temp
+        if iter_key in last_dict:
+            temp = last_dict[iter_key]
+        else:
+            return None
+    last_dict[iter_key] = value
+    return value
 def merge(dict_param, other_dict_param):
     """
     合并字典，支持嵌套，返回一个全新字典
