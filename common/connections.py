@@ -126,6 +126,7 @@ DubboRegistryFactory = DubboRegistryPool()
 class RedisPool(object):
     def __init__(self):
         self.redis_conn_pool = {}
+
     def get_redis_connection(self, host):
         if not host:
             app_log.error('Get redis connection param is invalid, {0}', host)
@@ -133,7 +134,9 @@ class RedisPool(object):
         if host not in self.redis_conn_pool or not self.redis_conn_pool[host]:
             self.redis_conn_pool[host] = redis.ConnectionPool.from_url(host)
         return redis.Redis(connection_pool=self.redis_conn_pool[host])
+
 RedisConnectionFactory = RedisPool()
+
 if __name__ == '__main__':
     es_config = {'host': 'http://172.19.65.66:9200,http://172.19.65.79:9200', 'index': 'test-aaa', 'type': 'test-type',
                  'mapping': {"properties": {"category": {"index": "not_analyzed", "type": "string"}}}}
