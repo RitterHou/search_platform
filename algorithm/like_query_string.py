@@ -7,7 +7,7 @@ from common.configs import config
 from common.loggers import app_log
 from common.pingyin_utils import pingyin_utils
 from common.utils import get_default_es_host
-from service.qdsl_parseres import qdsl_parser
+from service.dsl_parser import qdsl_parser
 
 
 __author__ = 'liuzhaoming'

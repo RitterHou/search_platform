@@ -3,7 +3,7 @@
 import time
 
 from common.exceptions import MsgHandlingFailError
-from common.sla import sla
+from common.sla import msg_sla
 from common.utils import COMBINE_SIGN
 from common.loggers import app_log
 from common.configs import config
@@ -20,6 +20,12 @@ LIST_SEP_SIGN = ';'
 
 @app.task(bind=True)
 def process_message(self, message, river_key):
+    """
+    将消息处理放到celery集群中处理
+    :param message:
+    :param river_key:
+    :return:
+    """
     start_time = time.time()
     app_log.info('Celery process_message ia called  {0}  {1}', message, river_key)
     try:
@@ -33,7 +39,26 @@ def process_message(self, message, river_key):
     except Exception as e:
         app_log.error('Process_message has error, message={0}, river_key={1}', e, message, river_key)
         if isinstance(e, MsgHandlingFailError):
-            sla.process_do_error_message(message, e)
+            msg_sla.process_do_error_message(message, e)
+def process_syn_message(message, river_key):
+    """
+    同步调用处理MQ消息
+    :param message:
+    :param river_key:
+    :return:
+    """
+    start_time = time.time()
+    app_log.info('Syn process_message ia called  {0}  {1}', message, river_key)
+    try:
+        message_process_chain = data_rivers.get_message_process_chain(river_key)
+        if not message_process_chain:
+            app_log.error('Cannot find process chain by river_key : {0}', river_key)
+            return
+        message_process_chain.process(message)
+        app_log.info('Syn process message spend {0}', time.time() - start_time)
+    except Exception as e:
+        app_log.error('Process_syn_message has error, message={0}, river_key={1}', e, message, river_key)
+        raise e
 
 
 class DataRivers(object):

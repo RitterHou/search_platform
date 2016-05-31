@@ -3,6 +3,8 @@ import copy
 from itertools import imap, chain, groupby
 import xmlrpclib
 from collections import OrderedDict
+import ujson as json
+import urllib2
 
 from re import search
 import redis
@@ -10,12 +12,15 @@ import redis
 from common.connections import EsConnectionFactory, RedisConnectionFactory
 from common.es_routers import es_router
 from common.msg_bus import message_bus, Event
-from common.configs import config
-from common.exceptions import UpdateDataNotExistError
+from common.configs import config, config_holder
+from common.exceptions import UpdateDataNotExistError, InvalidParamError
 from common.loggers import query_log as app_log
 from common.adapter import es_adapter
 from common.registers import register_center
-from common.utils import get_dict_value_by_path, bind_dict_variable, merge
+from common.utils import get_dict_value_by_path, bind_dict_variable, merge, unbind_variable
+from river import get_river_key
+from river.rivers import process_syn_message
+from search_platform import settings
 from search_platform.settings import SERVICE_BASE_CONFIG
 from service.models import SearchPlatformDoc, Product
 from suggest.data_processings import data_processing
@@ -46,34 +51,34 @@ class DataRiver(object):
             return filter(lambda river: river.get('name') == river_name, cfg_rivers)
         return cfg_rivers
 
-    def save(self, data_river):
+    def save(self, _data_river):
         """
         新增加数据流
-        :param data_river:
+        :param _data_river:
         :return:
         """
         data_river_cfg = es_adapter.get_config('data_river')
         if 'rivers' not in data_river_cfg['data_river']:
             data_river_cfg['data_river']['rivers'] = []
         cfg_rivers = data_river_cfg['data_river']['rivers']
-        cfg_rivers.append(data_river)
+        cfg_rivers.append(_data_river)
         es_adapter.save_config({'data_river': {'rivers': cfg_rivers}})
 
-    def update(self, data_river):
+    def update(self, _data_river):
         """
         更新数据流，如果同名的数据流不存在，则返回错误
-        :param data_river:
+        :param _data_river:
         :return:
         """
         data_river_cfg = es_adapter.get_config('data_river')
         if 'rivers' not in data_river_cfg['data_river']:
             data_river_cfg['data_river']['rivers'] = []
         cfg_rivers = data_river_cfg['data_river']['rivers']
-        filter_river_list = filter(lambda (index, river): river.get('name') == data_river.get('name'),
-                                   enumerate(cfg_rivers))
-        if not len(filter_river_list):
+        filter_river_list = filter(lambda (index, river): river.get('name') == _data_river.get('name'),
+                                   list(cfg_rivers))
+        if 0 == len(filter_river_list):
             raise UpdateDataNotExistError()
-        cfg_rivers[filter_river_list[0][0]] = data_river
+        cfg_rivers[filter_river_list[0][0]] = _data_river
         es_adapter.save_config({'data_river': {'rivers': cfg_rivers}})
 
     def delete(self, name):
@@ -108,7 +113,7 @@ class EsTmpl(object):
         """
         tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
         if not tmpl_cfg:
-            app_log.info("Get Estmpl cannot find es_index_setting")
+            app_log.info("Get EsTmpl cannot find es_index_setting")
             return []
         tmpl_list = map(lambda (key, value): OrderedDict(value, **{'name': key}), tmpl_cfg.iteritems())
         if tmpl_name:
@@ -129,7 +134,7 @@ class EsTmpl(object):
     def update(self, tmpl):
         """
         更新ES模板，如果同名的ES模板不存在，则返回错误
-        :param data_river:
+        :param tmpl:
         :return:
         """
         tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
@@ -171,7 +176,7 @@ class QueryChain(object):
     def save(self, handler):
         """
         新增加REST处理器
-        :param data_river:
+        :param handler:
         :return:
         """
         query_chain_cfg = es_adapter.get_config('query')
@@ -184,7 +189,7 @@ class QueryChain(object):
     def update(self, handler):
         """
         更新REST处理器，如果同名的REST处理器不存在，则返回错误
-        :param data_river:
+        :param handler:
         :return:
         """
         query_chain_cfg = es_adapter.get_config('query')
@@ -674,24 +679,24 @@ class EsIndex(object):
     ES索引操作接口
     """
 
-    def add_index(self, es_index):
+    def add_index(self, _es_index):
         """
         增加索引
         """
-        if not es_index:
+        if not _es_index:
             return
-        if 'host' not in es_index:
-            es_index['host'] = self._get_default_es_host()
+        if 'host' not in _es_index:
+            _es_index['host'] = self._get_default_es_host()
 
-        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
-        if not es_connection.indices.exists(es_index['index']):
-            app_log.info('Creates index {0}', es_index['index'])
-            es_connection.indices.create(es_index['index'], body={"number_of_shards": "2"})
-        is_type_exist = es_connection.indices.exists_type(es_index['index'], es_index['type'])
+        es_connection = EsConnectionFactory.get_es_connection(host=_es_index['host'])
+        if not es_connection.indices.exists(_es_index['index']):
+            app_log.info('Creates index {0}', _es_index['index'])
+            es_connection.indices.create(_es_index['index'], body={"number_of_shards": "2"})
+        is_type_exist = es_connection.indices.exists_type(_es_index['index'], _es_index['type'])
         if not is_type_exist:
-            app_log.info('Creates type {0}', es_index['type'])
-            es_connection.indices.put_mapping(doc_type=es_index['type'], body=es_index['mapping'],
-                                              index=es_index['index'])
+            app_log.info('Creates type {0}', _es_index['type'])
+            es_connection.indices.put_mapping(doc_type=_es_index['type'], body=_es_index['mapping'],
+                                              index=_es_index['index'])
 
     def delete_type(self, es_index):
         """
@@ -719,18 +724,18 @@ class EsIndex(object):
             es_connection.indices.delete(es_index['index'])
 
 
-    def delete_all_index_docs(self, es_index):
+    def delete_all_index_docs(self, _es_index):
         """
         删除索引中的所有文档
         """
-        if not es_index:
+        if not _es_index:
             return
-        if 'host' not in es_index:
-            es_index['host'] = self._get_default_es_host()
+        if 'host' not in _es_index:
+            _es_index['host'] = self._get_default_es_host()
 
-        es_connection = EsConnectionFactory.get_es_connection(host=es_index['host'])
-        app_log.info('Delete all products in {0} {1}', es_index['index'], es_index['type'])
-        es_connection.delete_by_query(index=es_index['index'], doc_type=es_index['type'],
+        es_connection = EsConnectionFactory.get_es_connection(host=_es_index['host'])
+        app_log.info('Delete all products in {0} {1}', _es_index['index'], _es_index['type'])
+        es_connection.delete_by_query(index=_es_index['index'], doc_type=_es_index['type'],
                                       body={"query": {"match_all": {}}})
 
     def query_es_index_info_list(self, shop_es_dict, match_type='equal'):
@@ -895,8 +900,8 @@ class EsDoc(object):
     def query(self, es_cfg, query_params):
         """
         查找文档数据
-        :param request:
-        :param format:
+        :param es_cfg:
+        :param query_params:
         :return:
         """
         if 'host' not in es_cfg:
@@ -1040,10 +1045,15 @@ class ShopProduct(EsDoc):
         return es_adapter.batch_update(es_config, doc_list)
 class VipAdminId(object):
     def __init__(self):
-        self.host = SERVICE_BASE_CONFIG.get('redis_admin_id_config')
+        self.host = SERVICE_BASE_CONFIG.get('msg_queue')
         self.redis_conn = RedisConnectionFactory.get_redis_connection(self.host)
         self.vip_users_key = config.get_value(
             '/consts/global/admin_id_cfg/vip_id_key') or 'search_platform_vip_admin_id_set'
+        sp_shop_init_rivers = filter(
+            lambda item: item['notification'].get('queue', '') == 'q.search_platform.shopInit',
+            config.get_value('/data_river/rivers'))
+        self.sp_shop_init_river = sp_shop_init_rivers[0] if sp_shop_init_rivers else {}
+        self.sp_shop_init_river_key = get_river_key(self.sp_shop_init_river)
     def delete(self, admin_id):
         """
         将admin 用户降级为非VIP用户
@@ -1052,31 +1062,228 @@ class VipAdminId(object):
         """
         if not admin_id:
             return
-        self.redis_conn.srem(self.vip_users_key, *admin_id.upper().split(','))
+        self.redis_conn.srem(self.vip_users_key, *admin_id.split(','))
         self.send_update_msg()
     def add(self, admin_id):
         """
-        将admin用户升级为VIP用户
+        将admin用户添加为VIP用户
         :param admin_id:
         :return:
         """
         if not admin_id:
             return
-        self.redis_conn.sadd(self.vip_users_key, *admin_id.upper().split(','))
+        self.redis_conn.sadd(self.vip_users_key, *admin_id.split(','))
         self.send_update_msg()
-    def query(self):
+    def upgrade_vip(self, admin_id):
+        """
+        将用户从体验用户升级为VIP，
+        首先初始化用户数据到VIP集群，通过同步执行‘q.search_platform.shopInit’消息数据流，
+        初始化成功后再将用户admin id添加到集群中
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            return
+        if self.redis_conn.sismember(self.vip_users_key, admin_id):
+            return
+        try:
+            sys = 0 if admin_id == 'A000000' else 2
+            message_text = '"chainMasterId":"{0}","sys":{1}'.format(admin_id, sys)
+            message_text = '{' + message_text + '}'
+            msg = {'type': 'pyactivemq.TextMessage', 'text': message_text, 'adminId': admin_id, 'redo': False,
+                   'river_key': self.sp_shop_init_river_key}
+            process_syn_message(msg, self.sp_shop_init_river_key)
+            self.add(admin_id)
+        except Exception as e:
+            app_log.error('upgrade_vip fail {0}', e, admin_id)
+    def query(self, admin_ids=None):
         """
         查询所有VIP用户
         :return:
         """
         vip_admin_ids = self.redis_conn.smembers(self.vip_users_key)
-        return vip_admin_ids
+        if admin_ids:
+            admin_id_list = admin_ids.split(',')
+            intersection_list = [admin_id.strip() for admin_id in admin_id_list if admin_id.strip() in vip_admin_ids]
+            return None if not intersection_list else intersection_list
+        return sorted(vip_admin_ids)
     def send_update_msg(self):
         """
         发送VIP用户变更消息
         :return:
         """
         message_bus.publish(Event.TYPE_VIP_ADMIN_ID_UPDATE, source='', body='')
+class Cluster():
+    def __init__(self):
+        message_bus.add_event_listener(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, self.update_config)
+        self._msg_redis_host = settings.SERVICE_BASE_CONFIG.get('msg_queue')
+        self._msg_redis_conn = RedisConnectionFactory.get_redis_connection(self._msg_redis_host)
+        self._final_msg_queue_key = config.get_value(
+            '/consts/global/admin_id_cfg/msg_final_queue_key') or "sp_msg_final_queue"
+        self._redo_msg_queue_key = config.get_value(
+            '/consts/global/admin_id_cfg/msg_redo_queue_key') or "sp_msg_redo_queue_{0}"
+        self._msg_queue_key = config.get_value(
+            '/consts/global/admin_id_cfg/msg_queue_key') or "sp_msg_queue_{0}"
+    def fail_over_es(self, data):
+        """
+        将ES切换到备份服务器上
+        :param data:
+        :return:
+        """
+        def set_vip_es_host(_body):
+            back_vip_es_host = config.get_value('/consts/custom_variables/back_vip_es_host')
+            _body['/consts/custom_variables/vip_es_host'] = back_vip_es_host
+        def set_experience_es_host(_body):
+            back_experience_es_host = config.get_value('/consts/custom_variables/back_experience_es_host')
+            _body['/consts/custom_variables/experience_es_host'] = back_experience_es_host
+        target = data.get('target')
+        body = {}
+        if target == 'vip':
+            set_vip_es_host(body)
+        elif target == 'experience':
+            set_experience_es_host(body)
+        elif target == 'both':
+            set_experience_es_host(body)
+            set_vip_es_host(body)
+        if body:
+            message_bus.publish(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, source='',
+                                body={'update_values': body, 'operation': 'update'})
+    def fail_back_es(self, data=None):
+        """
+        将ES切换回正式服务器
+        :param data:
+        :return:
+        """
+        message_bus.publish(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, source='', body={'operation': 'reload'})
+    def update_config(self, event):
+        """
+        根据config配置更新消息处理函数
+        :param event:
+        :return:
+        """
+        app_log.info('Cluster update config is called {0}', event)
+        if not event.data:
+            app_log.info('Cluster update config event has no data')
+            return
+        if event.data.get('operation') == 'update':
+            update_values = event.data.get('update_values', {})
+            app_log.info('Cluster update config {0}', update_values)
+            for item_key, item_value in update_values.iteritems():
+                config.update_value(item_key, item_value)
+        elif event.data.get('operation') == 'reload':
+            config_holder.synchronize_config('file', 'cache', True)
+    def operate_rest_qos_processor(self, operation='stop'):
+        """
+        处理restful接口失败消息重做程序启停
+        :param operation 目前支持 'start' 和 'stop'
+        :return:
+        """
+        app_log.info('Cluster operate rest qos processor is called')
+        message_bus.publish(Event.TYPE_REST_KAFKA_CONSUMER_START_STOP, source='', body={'operation': operation})
+    def get_msg_queue(self, admin_id, start=0, size=0):
+        """
+        获取消息队列信息，如果size参数大于0，则返回size条消息记录
+        :param admin_id:
+        :param start:
+        :param size:
+        :return:
+        """
+        if not admin_id:
+            raise InvalidParamError('Admin ID cannot be null')
+        admin_msg_queue_key = self._msg_queue_key.format(admin_id)
+        return self._get_redis_list_info(admin_msg_queue_key, start, size)
+    def delete_msg_queue(self, admin_id):
+        """
+        删除消息队列信息
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            raise InvalidParamError('Admin ID cannot be null')
+        admin_msg_queue_key = self._msg_queue_key.format(admin_id)
+        return self._msg_redis_conn.delete(admin_msg_queue_key)
+    def get_redo_msg_queue(self, admin_id, start=0, size=0):
+        """
+        获取用户重做消息队列信息
+        :param admin_id:
+        :param start:
+        :param size:
+        :return:
+        """
+        if not admin_id:
+            raise InvalidParamError('Admin ID cannot be null')
+        admin_msg_queue_key = self._redo_msg_queue_key.format(admin_id)
+        return self._get_redis_list_info(admin_msg_queue_key, start, size)
+    def delete_redo_msg_queue(self, admin_id):
+        """
+        删除用户重做队列信息
+        :param admin_id:
+        :return:
+        """
+        if not admin_id:
+            raise InvalidParamError('Admin ID cannot be null')
+        admin_msg_queue_key = self._redo_msg_queue_key.format(admin_id)
+        return self._msg_redis_conn.delete(admin_msg_queue_key)
+    def get_final_msg_queue(self, start=0, size=0):
+        """
+        获取最终失败消息队列信息
+        :param start:
+        :param size:
+        :return:
+        """
+        return self._get_redis_list_info(self._final_msg_queue_key, start, size)
+    def delete_final_msg_queue(self):
+        """
+        删除最终失败消息队列信息
+        :return:
+        """
+        return self._msg_redis_conn.delete(self._final_msg_queue_key)
+    def _get_redis_list_info(self, list_key, start, size):
+        """
+        获取redis list信息，如果size参数大于0，则返回size条记录
+        :param list_key:
+        :param start:
+        :param size:
+        :return:
+        """
+        queue_size = self._get_redis_list_size(list_key)
+        result = {'total': queue_size}
+        if size > 0:
+            msg_str_list = self._get_redis_list_range(list_key, start, size - 1)
+            msg_list = map(lambda msg_str: json.loads(msg_str), msg_str_list)
+            result['root'] = msg_list
+        return result
+    def _get_redis_list_size(self, list_key):
+        """
+        获取redis队列长度
+        :param list_key:
+        :return:
+        """
+        return self._msg_redis_conn.llen(list_key)
+    def _get_redis_list_range(self, list_key, start=0, size=4):
+        """
+        获取redis队列范围
+        :param list_key:
+        :param start:
+        :param size:
+        :return:
+        """
+        return self._msg_redis_conn.lrange(list_key, start, start + size)
+    def get_rest_request_queue(self):
+        """
+        获取REST请求失败队列信息, kafka python接口无法获取topic offset，通过kafka manager 接口获取html进行解析
+        :return:
+        """
+        kafka_manager_host = config.get_value('/consts/custom_variables/kafka_manager_host')
+        kafka_manager_cluster_name = config.get_value('/consts/query/sla/kafka_manager_cluster_name')
+        kafka_consumer_group = config.get_value('/consts/query/sla/rest_request_fail_consumer_redo_group')
+        if not kafka_manager_host:
+            return None
+        url = kafka_manager_host + '/clusters/' + kafka_manager_cluster_name + '/consumers/' + kafka_consumer_group + '/type/KF'
+        response = urllib2.urlopen(url, timeout=5)
+        content = response.read(30000)
+        _, str_offset_lag = unbind_variable(r'<td>[ ]*(?P<offset_lag>[\d]+)[ ]*</td>', 'offset_lag', content)
+        return {'total': int(str_offset_lag) if str_offset_lag else 0}
 
 
 SUPERVISOR_PROXY_CACHE = {}
@@ -1094,9 +1301,9 @@ shop = Shop()
 shop_product = ShopProduct()
 es_doc = EsDoc()
 vip_admin_id_model = VipAdminId()
+cluster = Cluster()
 
 if __name__ == '__main__':
-    import json
 
 
     # proxy = xmlrpclib.ServerProxy('http://localhost:9001/RPC2')
@@ -1106,7 +1313,4 @@ if __name__ == '__main__':
     # print supervisor.getPID()
     # print supervisor.getAllProcessInfo()
     # print supervisor.readLog(-300, 0)
-    f = open('../common/config.json')
-    config_data = json.load(f, object_pairs_hook=OrderedDict)
-    es_adapter.insert_config(config_data['default'])
-    print es_adapter.get_config()
+    print cluster.get_rest_request_queue()

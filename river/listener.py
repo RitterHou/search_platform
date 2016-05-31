@@ -30,7 +30,7 @@ from common.configs import config
 from common.loggers import debug_log, listener_log as app_log
 from river import get_river_key
 from common.data_parsers import data_parser
-from common.sla import sla
+from common.sla import msg_sla
 from common.utils import get_dict_value_by_path
 
 
@@ -42,7 +42,7 @@ message_queue = Queue.Queue(0)
 def process_message_wrapper(_message_dict_list):
     """
     消息处理函数包装器
-    :param _message_dict:
+    :param _message_dict_list:
     :return:
     """
     for _message_dict in _message_dict_list:
@@ -73,10 +73,10 @@ class MQMessageListener(pyactivemq.MessageListener):
             app_log.info('Receive MQ message {0}, key={1}', serial_message, self.river_key)
             serial_message['river_key'] = self.river_key
             if serial_message:
-                sla.send_msg_to_queue(serial_message)
+                msg_sla.send_msg_to_queue(serial_message)
                 # message_queue.put({'river_key': self.river_key, 'message': serial_message})
-        except Exception as e:
-            app_log.exception(e)
+        except Exception as ex:
+            app_log.exception(ex)
 
     def __convert_message(self, message):
         """
@@ -134,8 +134,8 @@ class StompMessageListener(object):
             app_log.info('Receive MQ message {0}', serial_message)
             if serial_message:
                 message_queue.put({'river_key': self.river_key, 'message': serial_message})
-        except Exception as e:
-            app_log.exception(e)
+        except Exception as ex:
+            app_log.exception(ex)
 
     def __convert_message(self, headers, message):
         """
@@ -202,8 +202,8 @@ class ListenerRegister(object):
                     host_conn = self.mq_conn_host_dic.get(host)
                     if host_conn:
                         self.__start_mq_conn(host_conn)
-            except Exception as e:
-                debug_log.print_log('Reconnect mq has exception {0}', e.message)
+            except Exception as ex:
+                debug_log.print_log('Reconnect mq has exception {0}', ex.message)
 
         def __timer():
             interval = config.get_value('consts/notification/mq_reconnect_time') or 30
@@ -225,7 +225,7 @@ class ListenerRegister(object):
             time_interval = 1
             while True:
                 _start_time = time.time()
-                sla.process_msg(process_message_wrapper, is_vip)
+                msg_sla.process_msg(process_message_wrapper, is_vip)
                 _cost_time = time.time() - _start_time
                 debug_log.print_log('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
                 time_delta = time_interval - _cost_time
@@ -238,7 +238,7 @@ class ListenerRegister(object):
             time_interval = 10
             while True:
                 _start_time = time.time()
-                sla.process_redo_msg(process_message_wrapper)
+                msg_sla.process_redo_msg(process_message_wrapper)
                 _cost_time = time.time() - _start_time
                 debug_log.print_log('handle redo msg spends {0}', _cost_time)
                 time_delta = time_interval - _cost_time
@@ -251,7 +251,7 @@ class ListenerRegister(object):
             time_interval = 60
             while True:
                 _start_time = time.time()
-                sla.check_msg_num()
+                msg_sla.check_msg_num()
                 _cost_time = time.time() - _start_time
                 debug_log.print_log('handle check msg spends {0}', _cost_time)
                 time_delta = time_interval - _cost_time
@@ -326,12 +326,12 @@ class ListenerRegister(object):
             else:
                 debug_log.print_log("Add mq session successfully {0}", session_key)
             return True
-        except Exception as e:
+        except Exception as ex:
             if not debug_print:
-                app_log.exception(e)
+                app_log.exception(ex)
             else:
-                debug_log.print_log("Add mq session has exception {0}", e.message)
-            if isinstance(e, pyactivemq.CMSException):
+                debug_log.print_log("Add mq session has exception {0}", ex.message)
+            if isinstance(ex, pyactivemq.CMSException):
                 # 表示连接不上服务端，需要记录下来定时重连
                 self.fail_mq_notification_dict[session_key] = mq_notification
             return False

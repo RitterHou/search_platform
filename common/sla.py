@@ -4,24 +4,27 @@ SLA等级服务策略
 """
 from itertools import groupby
 from multiprocessing.dummy import Pool
+import threading
 import time
 from datetime import date
 import ujson as json
 
+import jsonpickle
 from common.admin_config import admin_config
 from common.configs import config
-from common.connections import RedisConnectionFactory
+from common.connections import RedisConnectionFactory, KafkaClientFactory
 from common.exceptions import MsgHandlingFailError, RedoMsgQueueFullError, FinalFailMsgQueueFullError, MsgQueueFullError
 from common.loggers import app_log
+from common.rest_quest import RestRequest
 from search_platform.settings import SERVICE_BASE_CONFIG
 
 
 __author__ = 'liuzhaoming'
 
 
-class SLA(object):
+class MsgSLA(object):
     """
-    SLA服务等级
+    MQ消息SLA服务等级
     """
 
     def __init__(self, ):
@@ -615,8 +618,9 @@ class SLA(object):
         if cur_redo_time >= total_redo_time:
             return False, msg
 
-        if source_key in redo_policy and 'redo_times' in redo_policy[source_key] and redo_policy[source_key][
-            'redo_times'] and 'redo_interval' in redo_policy[source_key] and redo_policy[source_key]['redo_interval']:
+        if source_key in redo_policy and 'redo_times' in redo_policy[source_key] \
+                and redo_policy[source_key]['redo_times'] and 'redo_interval' in redo_policy[source_key] \
+                and redo_policy[source_key]['redo_interval']:
             msg.setdefault('redo_time', [])
             msg.setdefault('redo_num', 0)
             msg.setdefault('redo_times', redo_policy[source_key]['redo_times'])
@@ -694,4 +698,78 @@ class SLA(object):
             app_log.error('Send redo msg admin id to queue fail, admin_id={0}', e, admin_id)
 
 
-sla = SLA()
+msg_sla = MsgSLA()
+class RestSLA(object):
+    """
+    RESTFul 接口SLA
+    """
+    def __init__(self):
+        self._kafka_host = config.get_value('/consts/custom_variables/kafka_host')
+        self._rest_quest_topic = config.get_value('/consts/query/sla/rest_request_fail_topic') \
+                                 or 'search_platform_fail_rest_request'
+        self._redo_consumer_group = config.get_value('/consts/query/sla/rest_request_fail_consumer_redo_group') \
+                                    or 'redo_consumer_groups'
+        self._sla_enable = config.get_value('/consts/query/sla/enable')
+        self._kafka_producer = None
+        self._kafka_topic = None
+        self._mutex = threading.Lock()
+    def process_http_error_request(self, request, exception, timestamp):
+        """
+        处理操作失败的http请求
+        :param request:
+        :param exception:
+        :param timestamp:
+        :return:
+        """
+        try:
+            if not self._sla_enable:
+                return
+            if request.method != 'POST' and request.method != 'DELETE' and request.method != 'PUT':
+                return
+            message = {'timestamp': timestamp, 'request': jsonpickle.encode(RestRequest(request)),
+                       'exception': str(exception)}
+            self._send_fail_rest_request(json.dumps(message))
+        except Exception as e:
+            app_log.error('send fail rest request to kafka ', e)
+    def _send_fail_rest_request(self, message):
+        """
+        发送处理失败REST请求到kafka
+        :param message:
+        :return:
+        """
+        producer = self._get_kafka_producer()
+        producer.produce(message)
+    def get_kafka_topic(self):
+        """
+        获取kafka消息topic
+        :return:
+        """
+        if self._kafka_topic:
+            return self._kafka_topic
+        else:
+            client = KafkaClientFactory.get_kafka_client(self._kafka_host)
+            self._kafka_topic = client.topics[str(self._rest_quest_topic)]
+            return self._kafka_topic
+    def _get_kafka_producer(self):
+        """
+        获取kafka消息生产者，如果没有就初始化一个
+        :return:
+        """
+        if self._kafka_producer:
+            return self._kafka_producer
+        else:
+            if self._mutex.acquire():
+                if self._kafka_producer:
+                    self._mutex.release()
+                    return self._kafka_producer
+                try:
+                    kafka_topic = self.get_kafka_topic()
+                    self._kafka_producer = kafka_topic.get_producer(ack_timeout_ms=1000)
+                except Exception as e:
+                    app_log.error('get kafka producer fail', e)
+                finally:
+                    self._mutex.release()
+                    return self._kafka_producer
+rest_sla = RestSLA()
+if __name__ == '__main__':
+    pass

@@ -17,7 +17,7 @@ from search_platform import settings
 from search_platform.responses import ExceptionResponse
 from manage.filters import estmpl_validater, suggest_validater, message_validater, ansj_validater
 from models import supervisor, data_river, es_tmpl, query_chain, sys_param, message, ansjSegmentation, suggest, \
-    es_index, shop, shop_product, es_doc, vip_admin_id_model
+    es_index, shop, shop_product, es_doc, vip_admin_id_model, cluster
 
 
 class DataRiverView(APIView):
@@ -498,17 +498,60 @@ class VipAdminIdView(APIView):
     """
     VIP用户Admin ID 管理
     """
-    def get(self, request, format=None):
-        return Response(vip_admin_id_model.query())
-    def post(self, request, admin_ids=None, operation=None):
+    def get(self, request, admin_ids=None, format=None):
+        result = vip_admin_id_model.query(admin_ids)
+        return Response(result) if result is not None else Response(status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, admin_ids=None, operation=None, admin_id=None):
         if admin_ids:
             vip_admin_id_model.add(admin_ids)
         elif operation == 'refresh':
             vip_admin_id_model.send_update_msg()
+        elif admin_id and operation == 'upgrade':
+            vip_admin_id_model.upgrade_vip(admin_id)
         return Response()
     def delete(self, request, admin_ids):
         vip_admin_id_model.delete(admin_ids)
         return Response()
+class ClusterView(APIView):
+    """
+    集群管理
+    """
+    def post(self, request, res_type=None, operation=None):
+        if res_type == 'es':
+            if operation == 'failover':
+                cluster.fail_over_es(dict(request.DATA))
+            elif operation == 'failback':
+                cluster.fail_back_es({})
+        elif res_type == 'rest_qos':
+            if operation in ('start', 'stop'):
+                cluster.operate_rest_qos_processor(operation)
+        elif res_type == 'msg_qos':
+            pass
+    def get(self, request, res_type=None, admin_id=None, metrics=None):
+        if res_type == 'msg_qos':
+            start_str = request.QUERY_PARAMS.get('start')
+            size_str = request.QUERY_PARAMS.get('size')
+            start = int(start_str) if start_str else 0
+            size = int(size_str) if size_str else 0
+            if metrics == 'queue':
+                return Response(cluster.get_msg_queue(admin_id, start, size))
+            elif metrics == 'redo_queue':
+                return Response(cluster.get_redo_msg_queue(admin_id, start, size))
+            elif metrics == 'final_queue':
+                return Response(cluster.get_final_msg_queue(start, size))
+        elif res_type == 'rest_qos':
+            if metrics == 'redo_queue':
+                return Response(cluster.get_rest_request_queue())
+        raise InvalidParamError('Cannot support the request')
+    def delete(self, request, res_type=None, admin_id=None, metrics=None):
+        if res_type == 'msg_qos':
+            if metrics == 'queue':
+                return Response(cluster.delete_msg_queue(admin_id))
+            elif metrics == 'redo_queue':
+                return Response(cluster.delete_redo_msg_queue(admin_id))
+            elif metrics == 'final_queue':
+                return Response(cluster.delete_final_msg_queue())
+        raise InvalidParamError('Cannot support the request')
 def supervisor_index(request):
     """
     进程管理主页

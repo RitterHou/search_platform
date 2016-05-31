@@ -20,7 +20,7 @@ class AdminConfig(object):
     """
 
     def __init__(self):
-        self.__redis_host = SERVICE_BASE_CONFIG.get('redis_admin_id_config')
+        self.__redis_host = SERVICE_BASE_CONFIG.get('msg_queue')
         self.__redis_conn = RedisConnectionFactory.get_redis_connection(self.__redis_host)
         self.__vip_users_key = config.get_value(
             '/consts/global/admin_id_cfg/vip_id_key') or 'search_platform_vip_admin_id_set'

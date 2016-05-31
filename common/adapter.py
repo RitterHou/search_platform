@@ -10,7 +10,7 @@ from elasticsearch import helpers
 
 from common.admin_config import admin_config
 from common.es_routers import es_router
-
+from common.exceptions import EsBulkOperationError
 from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, get_default_es_host
 from common.loggers import app_log, debug_log
 from common.configs import config
@@ -20,10 +20,11 @@ from search_platform.settings import SERVICE_BASE_CONFIG
 
 __author__ = 'liuzhaoming'
 
-BATCH_REQUEST_TIMEOUT = 30
-BATCH_TIMEOUT = 120000
-INDEX_REQUEST_TIMEOUT = 120
-INDEX_TIMEOUT = 120000
+BATCH_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/batch_request_timeout') or 30
+BATCH_TIMEOUT = config.get_value('consts/global/es_conn_param/batch_timeout') or 120000
+INDEX_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/index_request_timeout') or 120
+INDEX_TIMEOUT = config.get_value('consts/global/es_conn_param/index_timeout') or 120000
+
 
 class EsIndexAdapter(object):
     """
@@ -626,6 +627,26 @@ class EsIndexAdapter(object):
         app_log.error('ES bulk operation has errors:{0}', fail_op_results)
         return fail_op_results
 
+    def get_es_bulk_result(self, bulk_result):
+        """
+        处理ES bulk操作结果
+        :param bulk_result:
+         {u'items':
+            [{u'update': {u'status': 200, u'_type': u'QmShopProduct', u'_id': u'1', u'_version': 15,
+                          u'_index': u'seach_test' }},
+            {u'update': {u'status': 404, u'_type': u'QmShopProduct', u'_id': u'20', u'error':
+                          u'DocumentMissingException[[seach_test][-1] [QmShopProduct][20]: document missing]',
+                          u'_index': u'seach_test'}},
+            {u'index': {u'status': 200, u'_type': u'QmShopProduct', u'_id': u'301', u'_version': 2,
+                        u'_index': u'seach_test'}}
+            ],
+        u'errors': True, u'took': 6}
+        :return:
+        """
+        if not bulk_result or not bulk_result.get('errors'):
+            return None
+        op_results = map(lambda result_item: not self.__is_es_op_fail(result_item), bulk_result['items'])
+        raise EsBulkOperationError(op_results)
     def __is_es_op_fail(self, op_result):
         """
         判断ES操作是否成功

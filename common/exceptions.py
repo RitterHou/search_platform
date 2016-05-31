@@ -10,7 +10,8 @@ ERROR_INFO = {'GenericError': {'code': 900, 'message': 'Generic exception'},
               'MsgHandlingFailError': {'code': 2000, 'message': 'MQ message handle error'},
               'MsgQueueFullError': {'code': 2001, 'message': 'MQ message queue is full'},
               'RedoMsgQueueFullError': {'code': 2002, 'message': 'Redo message queue is full'},
-              'FinalFailMsgQueueFullError': {'code': 2003, 'message': 'Final message queue is full'}}
+              'FinalFailMsgQueueFullError': {'code': 2003, 'message': 'Final message queue is full'},
+              'EsBulkOperationError': {'code': 1004, 'message': 'Elasticsearch bulk operation fail'}}
 
 
 class SearchPlatformException(Exception):
@@ -92,6 +93,14 @@ class EsConnectionError(SearchPlatformException):
                                          ERROR_INFO['EsConnectionError']['message'])
 
 
+class EsBulkOperationError(SearchPlatformException):
+    """
+    ES bulk操作异常
+    """
+    def __init__(self, bulk_result):
+        self.bulk_result = bulk_result
+        error_msg = ERROR_INFO['EsBulkOperationError']['message']
+        SearchPlatformException.__init__(self, ERROR_INFO['EsBulkOperationError']['code'], error_msg)
 class MsgQueueFullError(SearchPlatformException):
     """
     MQ队列已满

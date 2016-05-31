@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import threading
+from kazoo.client import KazooClient
+from pykafka import KafkaClient
 import redis
 from elasticsearch import Elasticsearch, Transport, ElasticsearchException, TransportError
 from dubbo_client import ZookeeperRegistry, DubboClient, ApplicationConfig
@@ -137,6 +140,69 @@ class RedisPool(object):
 
 RedisConnectionFactory = RedisPool()
 
+class ZkClientPool(object):
+    """
+    ZK client
+    """
+    def __init__(self):
+        self.zk_client_pool = {}
+        self.mutex = threading.Lock()
+    def get_zk_client(self, host=None):
+        """
+        获取ZK客户端
+        :param host:
+        :return:
+        """
+        if not host:
+            host = settings.SERVICE_BASE_CONFIG['register_zk_host']
+        if host in self.zk_client_pool:
+            return self.zk_client_pool[host]
+        else:
+            if self.mutex.acquire():
+                if host in self.zk_client_pool:
+                    self.mutex.release()
+                    return self.zk_client_pool[host]
+                else:
+                    try:
+                        zk = KazooClient(hosts=host)
+                        zk.start()
+                        self.zk_client_pool[host] = zk
+                    except Exception as e:
+                        app_log.error('start zk client fail {0}', e, host)
+                    finally:
+                        self.mutex.release()
+                        return self.zk_client_pool.get(host, None)
+ZkClientFactory = ZkClientPool()
+class KafkaClientPool(object):
+    """
+    kafka消息客户端
+    """
+    def __init__(self):
+        self.kafka_client_pool = {}
+        self.mutex = threading.Lock()
+    def get_kafka_client(self, host):
+        """
+        获取kafka客户端
+        :param host:
+        :return:
+        """
+        if host in self.kafka_client_pool:
+            return self.kafka_client_pool[host]
+        else:
+            if self.mutex.acquire():
+                if host in self.kafka_client_pool:
+                    self.mutex.release()
+                    return self.kafka_client_pool[host]
+                else:
+                    try:
+                        client = KafkaClient(hosts=host)
+                        self.kafka_client_pool[host] = client
+                    except Exception as e:
+                        app_log.error('start kafka client fail {0}', e, host)
+                    finally:
+                        self.mutex.release()
+                        return self.kafka_client_pool.get(host, None)
+KafkaClientFactory = KafkaClientPool()
 if __name__ == '__main__':
     es_config = {'host': 'http://172.19.65.66:9200,http://172.19.65.79:9200', 'index': 'test-aaa', 'type': 'test-type',
                  'mapping': {"properties": {"category": {"index": "not_analyzed", "type": "string"}}}}

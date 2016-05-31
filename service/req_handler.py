@@ -26,11 +26,12 @@ class RequestHandler(object):
         self.handler_config = handler_config
         self.filter_config = handler_config.get('filter')
 
-    def handle(self, request, format):
+    def handle(self, request, format, timestamp=None, redo=False):
         """
         处理HTTP请求
         :param request:
         :param format:
+        :param timestamp
         :return:
         """
         request_desc = None
@@ -38,7 +39,7 @@ class RequestHandler(object):
         start_time = time.time()
         try:
             request_desc = desc_request(request)
-            app_log.info("Receive http request : {0}", request_desc)
+            app_log.info("Receive http request : {0} , timestamp={1} , redo={2}", request_desc, timestamp, redo)
             destination_config = self.handler_config.get('destination')
             if not destination_config:
                 # app_log.error('The destination_config is invalid, {0}'.format(self.handler_config))
@@ -49,11 +50,11 @@ class RequestHandler(object):
             elif request.method == 'GET':
                 response = self.__fetch_from_es(request, destination_config, format)
             elif request.method == 'POST':
-                response = self.post(request, destination_config)
+                response = self.post(request, destination_config, timestamp, redo)
             elif request.method == 'DELETE':
-                response = self.delete(request, destination_config)
+                response = self.delete(request, destination_config, timestamp, redo)
             elif request.method == 'PUT':
-                response = self.put(request, destination_config)
+                response = self.put(request, destination_config, timestamp, redo)
             else:
                 response = Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
             cost_time = int((time.time() - start_time) * 1000)
@@ -121,11 +122,12 @@ class RequestHandler(object):
                                        args=get_request_data(request), parse_fields=field_values)
             return result
 
-    def post(self, request, destination_config):
+    def post(self, request, destination_config, timestamp, redo=False):
         """
         执行POST操作
         :param request:
         :param destination_config:
+        :param redo
         :return:
         """
         field_values = self.__get_fields_value(request)
@@ -135,13 +137,15 @@ class RequestHandler(object):
         model = self.__get_model(res_type)
         if model:
             return model.objects.save(es_config, index_name=es_config['index'], doc_type=es_config['type'],
-                                      product=get_request_data(request), parse_fields=field_values)
+                                      product=get_request_data(request), parse_fields=field_values, timestamp=timestamp,
+                                      redo=redo)
 
-    def put(self, request, destination_config):
+    def put(self, request, destination_config, timestamp, redo=False):
         """
         执行put操作
         :param request:
         :param destination_config:
+        :param redo
         :return:
         """
         field_values = self.__get_fields_value(request)
@@ -151,13 +155,15 @@ class RequestHandler(object):
         model = self.__get_model(res_type)
         if model:
             return model.objects.update(es_config, index_name=es_config['index'], doc_type=es_config['type'],
-                                        product=get_request_data(request), parse_fields=field_values)
+                                        product=get_request_data(request), parse_fields=field_values,
+                                        timestamp=timestamp, redo=redo)
 
-    def delete(self, request, destination_config):
+    def delete(self, request, destination_config, timestamp, redo=False):
         """
         执行delete操作
         :param request:
         :param destination_config:
+        :param redo
         :return:
         """
         field_values = self.__get_fields_value(request)
@@ -168,7 +174,7 @@ class RequestHandler(object):
         if model:
             product = query_dict_to_normal_dict(get_request_data(request))
             return model.objects.delete(es_config, index_name=es_config['index'], doc_type=es_config['type'],
-                                        product=product, parse_fields=field_values)
+                                        product=product, parse_fields=field_values, timestamp=timestamp, redo=redo)
 
     def __get_model(self, res_type):
         """
@@ -233,3 +239,4 @@ class RequestHandler(object):
 
 if __name__ == '__main__':
     print "adminId=(?P<adminId>[\d\D]+?);".find('(?P<adminId>')
+    print time.time()

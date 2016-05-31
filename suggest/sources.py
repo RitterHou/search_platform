@@ -8,7 +8,7 @@ from common.connections import EsConnectionFactory
 from common.utils import get_dict_value_by_path, unbind_variable
 from common.adapter import es_adapter
 from common.loggers import app_log, debug_log
-from service.qdsl_parseres import qdsl_parser
+from service.dsl_parser import qdsl_parser
 
 
 __author__ = 'liuzhaoming'

@@ -25,7 +25,8 @@ class Event(object):
     TYPE_CONFIG_UPDATE = 'config_update'
     TYPE_VIP_ADMIN_ID_UPDATE = 'vip_admin_ids_update'
     TYPE_VIP_ADMIN_PARAMS_UPDATE = 'admin_params_update'
-
+    TYPE_REST_CLUSTER_UPDATE_CONFIG = 'rest_cluster_update_config'
+    TYPE_REST_KAFKA_CONSUMER_START_STOP = 'rest_kafka_consumer_start_stop'
 
     def __init__(self, type, source=None, destination='all', data=None):
         self._type = type
@@ -66,6 +67,9 @@ class Event(object):
         return self._destination
 
     def __unicode__(self):
+        return 'Event(type={0},source={1},destination={2},data={3})'.format(self._type, self._source, self._destination,
+                                                                            self._data)
+    def __str__(self):
         return 'Event(type={0},source={1},destination={2},data={3})'.format(self._type, self._source, self._destination,
                                                                             self._data)
 
@@ -160,7 +164,7 @@ class RedisSubscriber(object):
                 return
 
             # json.loads方法不支持单引号
-            data = data.replace('\'', '"')
+            # data = data.replace('\'', '"')
             message_body = json.loads(data)
 
             if 'destination' in message_body and (
@@ -242,7 +246,7 @@ class MessageBus(object):
             app_log.info('Message is invalid ')
             return
         data = {'type': type, 'destination': destination, 'source': source, 'data': body}
-        self.__redis_conn.publish(channel, data)
+        self.__redis_conn.publish(channel, json.dumps(data))
 
     def dispatch_event(self, event=None, **kwargs):
         """

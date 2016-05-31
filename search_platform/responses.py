@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
-from common.exceptions import SearchPlatformException, ERROR_INFO, InvalidParamError, PKIsNullError
+from common.exceptions import SearchPlatformException, ERROR_INFO, InvalidParamError, PKIsNullError, \
+    EsBulkOperationError
 from common.loggers import query_log
 
 
@@ -22,6 +23,11 @@ class ExceptionResponse(Response):
             resp_status = resp_status or status.HTTP_400_BAD_REQUEST
             code = error.error_code
             message = error.error
+        elif isinstance(error, EsBulkOperationError):
+            resp_status = resp_status or status.HTTP_500_INTERNAL_SERVER_ERROR
+            code = error.error_code
+            message = error.error
+            data = {'status_code': resp_status, 'detail': message, 'error_code': code, 'bulk_result': error.bulk_result}
         elif isinstance(error, SearchPlatformException):
             code = error.error_code
             message = error.error

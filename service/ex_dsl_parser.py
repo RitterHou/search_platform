@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding=utf-8
 import json
-from itertools import *
 
 import re
 
@@ -8,545 +7,13 @@ from algorithm.section_partitions import equal_section_partitions
 from common.configs import config
 from common.connections import EsConnectionFactory
 from common.exceptions import InvalidParamError
-from common.scripts import python_invoker
-from common.utils import singleton, get_dict_value, unbind_variable, deep_merge
 from common.loggers import debug_log, query_log
+from common.scripts import python_invoker
+from common.utils import deep_merge, unbind_variable, get_dict_value
 from search_platform import settings
-from common.adapter import es_adapter
 
 
 __author__ = 'liuzhaoming'
-
-DEFAULT_VALUE = config.get_value('/consts/global/query_size')
-
-
-@singleton
-class QdslParser(object):
-    DEFAULT_AGG_SIZE = 1000
-
-    suggest_qdl = {
-        "completion_suggest": {
-            "text": "",
-            "completion": {
-                "field": "suggest",
-                "size": 10
-            }
-        }
-    }
-
-    def get_origin_agg_qdl(self):
-        agg_size = config.get_value('/consts/global/agg_size') or self.DEFAULT_AGG_SIZE
-        agg_dsl = {
-            # "category": {"terms": {"field": "category"}
-            # },
-            "brand": {
-                "terms": {
-                    "field": "brand",
-                    "size": agg_size
-                }
-            },
-            "props": {
-                "nested": {
-                    "path": "props"
-                },
-                "aggs": {
-                    "name": {
-                        "terms": {
-                            "field": "props.name",
-                            "size": agg_size
-                        },
-                        "aggs": {
-                            "value": {
-                                "terms": {
-                                    "field": "props.value",
-                                    "size": agg_size
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return agg_dsl
-
-
-    @debug_log.debug('get_product_query_qdsl')
-    def get_product_query_qdsl(self, index, type, query_params, es_connection=None):
-        """
-        获取商品查询DSL
-        :param index:
-        :param query_params:
-        :return:
-        """
-        query_string = get_dict_value(query_params, 'q')
-        from_num = get_dict_value(query_params, 'from', DEFAULT_VALUE['from']['default'], DEFAULT_VALUE['from']['min'],
-                                  DEFAULT_VALUE['from']['max'], int)
-        size_num = get_dict_value(query_params, 'size', DEFAULT_VALUE['size']['default'], DEFAULT_VALUE['size']['min'],
-                                  DEFAULT_VALUE['size']['max'], int)
-        category = get_dict_value(query_params, 'cat')
-        basic_condition = get_dict_value(query_params, 'basic')
-        prop_condition = get_dict_value(query_params, 'prop')
-        sort = get_dict_value(query_params, 'sort')
-        cats = get_dict_value(query_params, 'cats')
-        # min_score = config.get_value('/consts/global/query_min_score') or 1.0
-
-        must_bool_query_qdsl_list = list(
-            chain(self.parse_query_string_condition(query_string, es_connection, query_params),
-                  self.parse_cat_condition(category),
-                  self.parse_basic_conditions(basic_condition),
-                  self.parse_prop_conditions(prop_condition),
-                  self.parse_catpath_query_condition(cats)))
-
-        product_query_qdsl = reduce(lambda dict_1, dict_2: dict(dict_1, **dict_2),
-                                    filter(lambda item: item,
-                                           [{'query': {'bool': {'must': must_bool_query_qdsl_list}}},
-                                            self.parse_page_param(from_num, size_num), self.parse_sort_params(sort)]))
-        extend_query_qdsl = extend_parser.get_qdsl(query_params)
-        return deep_merge(product_query_qdsl, extend_query_qdsl)
-
-    def parse_query_string_condition(self, query_string, es_connection, query_params, field=None):
-        """
-        获取搜索框字符查询QDSL
-        :param query_string:
-        :return:
-        """
-        match_type = query_params.get('q_match_type')
-        if not match_type == 'match_all' and not match_type == 'match_selected_fields':
-            match_type = config.get_value('/consts/query/query_string/default')
-        q_match_dsl = self._get_match_all_query_string_dsl(es_connection, field, query_string) \
-            if match_type == 'match_all' else self._get_selected_fields_query_string_dsl(es_connection, query_string)
-        score_dsl = self._get_score_query_string_dsl(es_connection, query_string)
-        return q_match_dsl + score_dsl
-
-    def _get_match_all_query_string_dsl(self, es_connection, field, query_string):
-        """
-        通过对_all 字段进行match查询的方式实现关键词搜索
-        :param es_connection:
-        :param field:
-        :param query_string:
-        :return:
-        """
-        analyzer = config.get_value('/consts/query/query_string/match_all/analyzer') or 'standard'
-        default_index_name = config.get_value('/consts/query/default_index')
-        field = config.get_value('/consts/query/query_string/match_all/fields') or field
-        if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
-                                                                                     query_string,
-                                                                                     index=default_index_name)
-            if analyze_token_list:
-                return map(lambda analyze_token: {'match': {field: analyze_token}}, analyze_token_list)
-        return [{'match': {field: query_string}} if query_string else {'match_all': {}}]
-
-    def _get_selected_fields_query_string_dsl(self, es_connection, query_string):
-        """
-        通过对_all 字段进行match查询的方式实现关键词搜索
-        :param es_connection:
-        :param field:
-        :param query_string:
-        :return:
-        """
-
-        def _get_fields_match_dsl(_field_cfg, _word):
-            normal_fields = _field_cfg.get('normal')
-            normal_fields_match_dsl, nest_items_dsl_list = [], []
-            if normal_fields:
-                # normal_fields_match_dsl = [{'multi_match': {'query': _word, 'fields': normal_fields}}]
-                for normal_field in normal_fields:
-                    normal_fields_match_dsl.append({'match': {normal_field: _word}})
-
-            nest_field_dict = _field_cfg.get('nest') or {}
-            for nest_field_key in nest_field_dict:
-                nest_field_item = nest_field_dict[nest_field_key]
-                level = nest_field_item.get('level') or 0
-                item_dsl = {'match': {nest_field_key: _word}}
-                nest_item_dsl = self._get_nest_dsl(nest_field_item.get('path'), level, nest_field_item['field'],
-                                                   item_dsl)
-                nest_items_dsl_list.append(nest_item_dsl)
-            if normal_fields_match_dsl or nest_items_dsl_list:
-                fields_match_dsl = {
-                    'bool': {'minimum_should_match': 1, 'should': normal_fields_match_dsl + nest_items_dsl_list}}
-            else:
-                fields_match_dsl = {}
-            return fields_match_dsl
-
-
-        analyzer = config.get_value('/consts/query/query_string/match_selected_fields/analyzer') or 'standard'
-        default_index_name = config.get_value('/consts/query/default_index')
-        fields_cfg = config.get_value('/consts/query/query_string/match_selected_fields/fields') or {}
-        if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
-                                                                                     query_string,
-                                                                                     index=default_index_name)
-            if analyze_token_list:
-                return [{'bool': {'must': map(lambda analyze_token: _get_fields_match_dsl(fields_cfg, analyze_token),
-                                              analyze_token_list)}}]
-        return [{'match': {'_all': query_string}} if query_string else {'match_all': {}}]
-
-    def _get_score_query_string_dsl(self, es_connection, query_string):
-        """
-        获取普通query_string查询作为得分项，主要是增加连续词的得分
-        :param es_connection:
-        :param query_string:
-        :return:
-        """
-        if not query_string:
-            return []
-        boost = config.get_value('/consts/query/query_string/score/boost') or 1.0
-        return [{'bool': {'minimum_should_match': 0, 'boost': boost, 'should': [{'match': {'_all': query_string}}]}}]
-
-    def _get_nest_dsl(self, path, level, root_field, item_dsl):
-        """
-        获取嵌套查询的DSL
-        :param path:
-        :param level:
-        :param root_field:
-        :param item_dsl:
-        :return:
-        """
-        if level == 0:
-            return {'nested': {'path': root_field, 'query': item_dsl}}
-        else:
-            complete_path_list = [root_field] + list(repeat(path, level))
-            return {'nested': {'path': '.'.join(complete_path_list),
-                               'query': self._get_nest_dsl(path, level - 1, root_field, item_dsl)}}
-
-    def parse_cat_condition(self, category):
-        """
-        获取category商品类目查询QDSL
-        :param category:
-        :return:
-        """
-        return [{'terms': {self.field_to_es_field('category'): category.strip().split(
-            ',')}}] if category and category.strip() else []
-
-    def parse_page_param(self, from_num, size_num):
-        """
-        生成分页相关qdsl
-        :param from_num:
-        :param size_num:
-        :return:
-        """
-        return {'from': from_num, 'size': size_num}
-
-    def parse_sort_params(self, sort):
-        """
-        生成排序QDSL
-        :param sort:
-        :return:
-        """
-        if not sort or not sort.strip():
-            return None
-        if 'script:' in sort or 'geodistance' in sort:
-            sort_item_list = sort.split(';')
-        elif ';' in sort:
-            sort_item_list = sort.split(';')
-        elif '_' in sort:
-            sort_item_list = sort.split('_')
-        else:
-            sort_item_list = sort.split(';')
-        return {'sort': [self.parse_sort_param_item(item) for item in sort_item_list if item]}
-
-
-    def parse_sort_param_item(self, sort_item):
-        """
-        单个排序字段进行处理，字段和顺序用":"分割，price:1 示例表示：价格升序
-        sort=price:1_stock:0
-        Sort=price:1;stock:0
-        Sort=price:1;stock:order(0)
-        Sort=price:1; script:script(),type(),order() ; geodistance:location(48.8, 2.35),unit(km),order(0)
-        :param sort_item:
-        :return:
-        """
-        sort_field_id, sort_seq_id = sort_item.strip().split(':', 1)
-        order = unbind_variable('order\\((?P<order>[\\d\\D]+?)\\)', 'order', sort_seq_id)[1] or sort_seq_id
-        order = self.order_num_to_es_str(order)
-        if sort_field_id == 'script':
-            # 支持根据动态脚本排序
-            script = unbind_variable('script\\((?P<script>[\\d\\D]+?)\\)', 'script', sort_seq_id)[1]
-            script = extend_parser.format_script_str(script)
-            script_type = unbind_variable('type\\((?P<type>[\\d\\D]+?)\\)', 'type', sort_seq_id)[1] or 'string'
-            return {'_script': {'script': script, 'type': script_type, 'order': order}}
-        elif sort_field_id == 'geodistance':
-            # 支持根据距离排序
-            location = unbind_variable('location\\((?P<location>[\\d\\D]+?)\\)', 'location', sort_seq_id)[1]
-            unit = unbind_variable('unit\\((?P<unit>[\\d\\D]+?)\\)', 'unit', sort_seq_id)[1] or 'km'
-            distance_type = unbind_variable('distancetype\\((?P<distancetype>[\\d\\D]+?)\\)', 'distancetype',
-                                            sort_seq_id)[1] or 'sloppy_arc'
-            mode = unbind_variable('mode\\((?P<mode>[\\d\\D]+?)\\)', 'mode', sort_seq_id)[1]
-            return {'_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type,
-                                      'mode': mode}} if mode else {
-                '_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type}}
-        return {self.global_id_to_field(sort_field_id): order}
-
-
-    def parse_basic_conditions(self, basic_conditions):
-        """
-        获取基础查询条件QDSL
-        :param basic_condition:
-        :return:
-        """
-        return chain(*map(lambda condition_item: self.parse_basic_condition_item(condition_item),
-                          basic_conditions.split('_'))) if basic_conditions else []
-
-    def parse_basic_condition_item(self, basic_condition_item):
-        """
-        解析基本查询条件中的每个查询项,防止传过来的参数有问题，需要做容错性处理
-        :param basic_condition_item:
-        :return:
-        """
-        if not basic_condition_item or ':' not in basic_condition_item:
-            return []
-        key, value_str = basic_condition_item.strip().split(':', 1)
-        values = value_str.strip().split(',')
-        if key == 'brand':
-            item_qdsl = [{'terms': {self.field_to_es_field('brand'): values}}]
-        elif key == 'price':
-            item_qdsl = map(
-                lambda value_item: {'range': {self.field_to_es_field('price'): self.to_range_qdsl(value_item)}},
-                values)
-            item_qdsl = [{'bool': {'should': item_qdsl, 'minimum_should_match': 1}}]
-        return item_qdsl
-
-    def parse_prop_conditions(self, prop_conditions):
-        """
-        获取Prop扩展属性查询条件QDSL
-        :param prop_conditions:
-        :return:
-        """
-        return chain(*map(lambda condition_item: self.parse_prop_condition_item(condition_item),
-                          prop_conditions.split('_'))) if prop_conditions else []
-
-    def parse_prop_condition_item(self, prop_condition_item):
-        """
-        解析扩展查询条件中的每个查询项,防止传过来的参数有问题，需要做容错性处理
-        :param prop_condition_item:
-        :return:
-        """
-        if not prop_condition_item or ':' not in prop_condition_item:
-            return []
-        key, value_str = prop_condition_item.strip().split(':', 1)
-        values = value_str.strip().split(',')
-
-        return [{"nested": {"path": "props", "query": {
-            "bool": {"must": [{"term": {"props.name": key}}, {"terms": {"props.value": values}}]}}}}]
-
-    def parse_catpath_query_condition(self, cats_str):
-        """
-        解析路径查询QDSL
-        :param query_condition_dic:
-        :return:
-        """
-        category_path_list = cats_str.strip().split(',') if cats_str else []
-        _query_dsl = self.get_catpath_query_qdl(len(category_path_list), category_path_list)
-        return [_query_dsl] if _query_dsl else []
-
-    def get_catpath_qdsl_last_element(self, catpath_dsl, level, max_level):
-        """
-        获取路径查询QDSL中的设值属性,采用递归消除for循环中的局部变量重复赋值
-        :param catpath_dsl:
-        :param level:
-        :param max_level:
-        :return:
-        """
-        return catpath_dsl['nested']['query']['bool'][
-            'must'] if level == max_level else self.get_catpath_qdsl_last_element(catpath_dsl['nested']['query'][
-                                                                                      'bool']['must'][1], level + 1,
-                                                                                  max_level)
-
-    def get_catpath_query_qdl(self, level, category_path_list):
-        if level == 0:
-            return {}
-        elif level == 1:
-            return self.get_catpath_query_item(1, category_path_list[0])
-
-        last_item = self.get_catpath_query_qdl(level - 1, category_path_list[:(level - 1)])
-        must_list = self.get_catpath_qdsl_last_element(last_item, 0, level - 2)
-        must_list.append(self.get_catpath_query_item(level + 1, category_path_list[level - 1]))
-        return last_item
-
-    def get_catpath_query_item(self, level, catpath_value):
-        """
-        获取当前嵌套的路径查询QDSL，需要考虑路径嵌套
-        :param level:
-        :param catpath_value:
-        :return:
-        """
-        path = reduce(lambda x, y: x + '.childs', repeat('cats', level - 1)) if level > 1 else 'cats'
-        field = path + '.name'
-        return {
-            "nested": {
-                "path": path,
-                "query": {
-                    "bool": {
-                        "must": [
-                            {
-                                "terms": {
-                                    field: self.to_array(catpath_value)
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        }
-
-
-    @staticmethod
-    def field_to_es_field(field_name):
-        if field_name == 'price':
-            return 'salePrice'
-        return field_name
-
-    @staticmethod
-    def to_range_qdsl(value_str):
-        """
-        获取范围查询的QDSL， 支持100-300，-300， 100三种格式
-        :param value_str:
-        :return:
-        """
-        if not value_str:
-            return ""
-
-        ranges = value_str.split('-')
-        if '-' in value_str:
-            range_qdsl = {'gte': float(ranges[0].strip()) if len(ranges) == 2 else 0,
-                          'lt': float(ranges[1].strip()) if len(ranges) == 2 else float(ranges[0].strip())}
-        else:
-            range_qdsl = {'gte': float(ranges[0].strip())}
-
-        return range_qdsl
-
-    def global_id_to_field(self, field_id):
-        """
-        全局的ID和名称映射
-        :param field_id:
-        :return:
-        """
-        return self.field_to_es_field(field_id)
-
-    @staticmethod
-    def order_num_to_es_str(order_num):
-        """
-        排序字段映射, 默认1代表升序，0代表降序
-        :param order_num:
-        :return:
-        """
-        order_ids = config.get_value('/consts/query/orders')
-        return order_ids[order_num] if order_num in order_ids else 'asc'
-
-    @staticmethod
-    def to_array(obj):
-        """
-        将参数转换为list，如果已经是truple或者list，则什么也不做
-        :param obj:
-        :return:
-        """
-        return obj if isinstance(obj, tuple) or isinstance(obj, list) else [obj]
-
-    ###########################################################################################
-    # 聚合QDSL解析相关函数 start
-    ###########################################################################################
-    @debug_log.debug('get_agg_qdl::')
-    def get_agg_qdl(self, index, type, query_params, es_connection=None):
-        cats = get_dict_value(query_params, 'cats')
-        catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
-        # cur_agg_qdl = self.agg_dsl.copy().update(catpath_agg_qdl)
-        cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
-        if 'brand' in query_params:
-            # 如果品牌在查询条件中，那么就表示不需要再对品牌做聚合
-            cur_agg_qdl.pop('brand', None)
-        qdsl = self.get_product_query_qdsl(index, type, query_params, es_connection)
-        qdsl['aggs'] = cur_agg_qdl
-        qdsl['size'] = 0
-        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
-        return qdsl
-
-
-    def parse_catpath_agg_condition(self, cats_str):
-        category_path_list = cats_str.strip().split(',') if cats_str else []
-        cats_agg = self.get_catpath_agg_qdl(len(category_path_list))
-        cats_agg['wheel_cats'] = self.get_catpath_agg_qdl(len(category_path_list) + 1)['cats']
-        return cats_agg
-
-    def get_catpath_agg_qdl(self, level):
-        agg_size = config.get_value('/consts/global/agg_size') or self.DEFAULT_AGG_SIZE
-        if level == 0:
-            return {"cats": {
-                "aggs": {
-                    "name": {
-                        "terms": {
-                            "field": "cats.name",
-                            "size": agg_size
-                        }
-                    }
-                },
-                "nested": {
-                    "path": "cats"
-                }
-            }}
-
-        last_item = self.get_catpath_agg_qdl(level - 1)
-        dic = self.get_catpath_agg_qdsl_last_element(last_item['cats'], 0, level - 1)
-        dic['aggs'] = {'childs': self.get_catpath_agg_item(level + 1)}
-        return last_item
-
-    def get_catpath_agg_qdsl_last_element(self, agg_dsl, level, max_level):
-        """
-        获取路径聚合QDSL中的设值属性,采用递归消除for循环中的局部变量重复赋值
-        :param agg_dsl:
-        :param level:
-        :param max_level:
-        :return:
-        """
-        return agg_dsl['aggs']['name'] if level == max_level else \
-            self.get_catpath_agg_qdsl_last_element(agg_dsl['aggs']['name']['aggs']['childs'], level + 1, max_level)
-
-    def get_catpath_agg_item(self, level):
-        agg_size = config.get_value('/consts/global/agg_size') or self.DEFAULT_AGG_SIZE
-        path = reduce(lambda x, y: x + '.childs', repeat('cats', level)) if level > 0 else 'cats'
-        field = path + '.name'
-        return {"aggs": {"name": {"terms": {"field": field, "size": agg_size}}}, "nested": {"path": path}}
-
-    ###########################################################################################
-    # Suggest QDSL解析相关函数 start
-    ###########################################################################################
-    @debug_log.debug('get_suggest_qdl')
-    def get_suggest_qdl(self, index, type, query_params):
-        word = get_dict_value(query_params, 'q')
-        # type = get_dict_value(query_params, 'type', 1)  #暂时不支持type，type表示建议类型（可不填，默认为1），1表示搜索框的拼写建议，2表示“你要找的是不是…”
-        suggest_size = get_dict_value(query_params, 'size', DEFAULT_VALUE['suggest_size']['default'],
-                                      DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
-        cur_suggest_qdl = self.suggest_qdl.copy()
-        cur_suggest_qdl['completion_suggest']['text'] = word
-        suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
-        cur_suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size) * suggest_size_multiple
-        return cur_suggest_qdl
-
-
-    ###########################################################################################
-    # Search QDSL解析相关函数 start
-    ###########################################################################################
-    @debug_log.debug('get_search_qdl')
-    def get_search_qdl(self, index, type, query_params, es_connection=None):
-        res_str = get_dict_value(query_params, 'res')
-        if not res_str:
-            res_str = 'products,aggregations'
-        res_list = map(lambda res: res.strip(), res_str.strip().split(','))
-
-        qdsl = self.get_product_query_qdsl(index, type, query_params, es_connection)
-        if 'aggregations' in res_list:
-            cats = get_dict_value(query_params, 'cats')
-            catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
-            cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
-            if 'brand' in query_params:
-                # 如果品牌在查询条件中，那么就表示不需要再对品牌做聚合
-                cur_agg_qdl.pop('brand', None)
-            qdsl['aggs'] = cur_agg_qdl
-        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
-        if 'products' not in res_list:
-            qdsl['size'] = 0
-
-        return qdsl
 
 
 class ExtendQdslParser(object):
@@ -555,7 +22,7 @@ class ExtendQdslParser(object):
     """
 
     def __init__(self):
-        self.regex = '(?P<op_type>[\\d\\D]+?)\\((?P<field_str>[\\d\\D]*)\\)'
+        self.regex_field_str = '(?P<op_type>[\\d\\D]+?)\\((?P<field_str>[\\d\\D]*)\\)'
         self.dsl_regex_tmpl = 'tmpl:\\((?P<tmpl>[\\d\\D]+?)\\)'
         self.dsl_regex_param = 'param:\\((?P<param>[\\d\\D]+?)\\)'
         self.variable_name_pattern = re.compile(r'{[a-zA-Z$][a-zA-Z0-9_$]*?}')
@@ -576,8 +43,9 @@ class ExtendQdslParser(object):
                                        'wildcard': self.__get_query_wildcard_fragment,
                                        'stock': self.__get_query_stock_fragment,
                                        'nested': self.__get_query_nested_fragment,
-                                       'ematch': self.__get_query_ematch_fragment
-        }
+                                       'ematch': self.__get_query_ematch_fragment,
+                                       'not_null': self.__get_query_not_null_fragment,
+                                       'not': self.__get_query_not_fragment}
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
                                         'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment}
@@ -599,8 +67,8 @@ class ExtendQdslParser(object):
                                       'histogram': self.__get_agg_histogram_fragment,
                                       'date_histogram': self.__get_agg_date_histogram_fragment,
                                       'geo_distance': self.__get_agg_geo_distance_fragment,
-                                      'cats': self.__get_agg_cats_fragment
-        }
+                                      'cats': self.__get_agg_cats_fragment,
+                                      'key_value': self.__get_agg_key_value_fragment}
 
     @debug_log.debug('get_qdsl')
     def get_qdsl(self, query_params):
@@ -660,8 +128,7 @@ class ExtendQdslParser(object):
         """
         返回section range aggreations dsl
         :param query_params:
-        :param avg:
-        :param std_deviation:
+        :param agg_es_result:
         :return:
         """
         ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_section_')
@@ -731,10 +198,13 @@ class ExtendQdslParser(object):
 
     def get_highlight_dsl(self, query_params):
         """
-        获取高亮查询DSL, url高亮的查询语法为：ex_highlight_title=highlight(q:kkkkyyy,pre_tags:<em>,post_tags:</em>,multi_field:title.standard)
+        获取高亮查询DSL, url高亮的查询语法为：
+        ex_highlight_title=highlight(q:kkkkyyy,pre_tags:<em>,post_tags:</em>,multi_field:title.standard)
         :param query_params:
         :return:
         """
+        from service.dsl_parser import qdsl_parser
+
         ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_highlight_')
         sum_highlight_dsl = {}
         global_query_string = get_dict_value(query_params, 'q')
@@ -786,7 +256,6 @@ class ExtendQdslParser(object):
                 var_name, field_name = unbind_variable('ex_highlight_(?P<field_name>[\\d\\D]+)', 'field_name', key)
                 return field_name
         query_log.error('Fail to get highlight field to origin : {0}', highlight_field_name)
-
 
     @debug_log.debug('get_query_qdsl')
     def get_query_qdsl(self, query_params):
@@ -847,7 +316,6 @@ class ExtendQdslParser(object):
         if function:
             return function(query_params)
 
-
     def get_query_qdsl_list_fragment(self, field_name, filed_value_list):
         """
         获取符合查询条件QDSL，前台获取到是参数list
@@ -896,7 +364,6 @@ class ExtendQdslParser(object):
         elif len(qdsl_fragment_list) > 1:
             return reduce(deep_merge, qdsl_fragment_list)
 
-
     def get_query_qdsl_single_fragment(self, field_name, input_str):
         """
         获取单个查询条件QDSL
@@ -904,10 +371,10 @@ class ExtendQdslParser(object):
         :param input_str:
         :return:
         """
-        temp_name, op_type = unbind_variable(self.regex, 'op_type', input_str)
-        temp_name, field_str = unbind_variable(self.regex, 'field_str', input_str)
+        temp_name, op_type = unbind_variable(self.regex_field_str, 'op_type', input_str)
+        temp_name, field_str = unbind_variable(self.regex_field_str, 'field_str', input_str)
         if field_str is None:
-            query_log.info('Get query qdsl fragment the filed_str is null')
+            query_log.info('Get query qdsl fragment the field_str is null')
             return None
         if op_type not in self.QUERY_QDSL_PARSER_DICT:
             query_log.warning('Get query qdsl fragment has not support op type {0}', op_type)
@@ -921,12 +388,12 @@ class ExtendQdslParser(object):
         :param input_str:
         :return:
         """
-        temp_name, op_type = unbind_variable(self.regex, 'op_type', input_str)
-        temp_name, field_str = unbind_variable(self.regex, 'field_str', input_str)
+        temp_name, op_type = unbind_variable(self.regex_field_str, 'op_type', input_str)
+        temp_name, field_str = unbind_variable(self.regex_field_str, 'field_str', input_str)
         if field_str is None:
             query_log.info('Get filter qdsl fragment the filed_str is null')
             return None
-        if op_type not in self.QUERY_QDSL_PARSER_DICT:
+        if op_type not in self.FILTER_QDSL_PARSER_DICT:
             query_log.warning('Get filter qdsl fragment has not support op type {0}', op_type)
             return None
         return self.FILTER_QDSL_PARSER_DICT[op_type](field_name, field_str)
@@ -938,8 +405,8 @@ class ExtendQdslParser(object):
         :param input_str:
         :return:
         """
-        temp_name, op_type = unbind_variable(self.regex, 'op_type', input_str)
-        temp_name, field_str = unbind_variable(self.regex, 'field_str', input_str)
+        temp_name, op_type = unbind_variable(self.regex_field_str, 'op_type', input_str)
+        temp_name, field_str = unbind_variable(self.regex_field_str, 'field_str', input_str)
         field_str = field_str or ''
         if op_type not in self.AGGS_QDSL_PARSER_DICT:
             query_log.warning('Get agg qdsl fragment has not support op type {0}', op_type)
@@ -992,14 +459,17 @@ class ExtendQdslParser(object):
                     term_values = self.__parse_single_input_str(field_str)
                 elif search_item_key_value[0] == 'size':
                     term_size = int(search_item_key_value[1])
+
         if term_size > list(term_values) or term_size == 0:
             term_size = len(term_values)
+
         return {
             "terms": {
                 field_name: list(term_values),
                 "minimum_should_match": term_size
             }
         }
+
     def __get_query_ids_fragment(self, filed_name, field_str):
         """
         ids查询
@@ -1099,6 +569,7 @@ class ExtendQdslParser(object):
         """
         if not field_str:
             return None
+
         match_dsl = {}
         search_item_str_list = field_str.split(';')
         for search_item_str in search_item_str_list:
@@ -1109,8 +580,11 @@ class ExtendQdslParser(object):
                 else:
                     match_dsl[search_item_key_value[0]] = search_item_key_value[1]
         if 'query' not in match_dsl:
+            # 没有match关键词，抛出异常
             return {}
+
         return {"match": {field_name: match_dsl}}
+
     def __get_query_stock_fragment(self, field_name, field_str):
         """
         获取库存查询接口，库存查询参数为：
@@ -1127,6 +601,7 @@ class ExtendQdslParser(object):
         stock_num_field = 'stock'
         for search_item_str in search_item_str_list:
             search_item_key_value = search_item_str.split(':')
+
             if len(search_item_key_value) > 1:
                 if search_item_key_value[0] == 'range':
                     range_str = search_item_key_value[1]
@@ -1134,17 +609,22 @@ class ExtendQdslParser(object):
                     region = search_item_key_value[1]
                 elif search_item_key_value[0] == 'field':
                     stock_num_field = search_item_key_value[1]
+
         if not range_str:
             return {}
+
         if not region:
+            # 表示是重量库存
             range_dsl = self.__get_query_range_fragment('{0}.{1}'.format(field_name, stock_num_field), range_str)
             return {"nested": {"path": field_name, "query": range_dsl}}
         else:
+            # 表示区域库存
             range_dsl = self.__get_query_range_fragment('{0}.regions.{1}'.format(field_name, stock_num_field),
                                                         range_str)
             return {
                 "nested": {"path": field_name,
                            "query": {"nested": {"path": field_name + '.regions', "query": range_dsl}}}}
+
     def __get_query_nested_fragment(self, field_name, field_str):
         """
         嵌套文档查询
@@ -1155,11 +635,13 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
+
         def parse_query_value(_query_str):
             if not _query_str:
                 return None
             _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
             return _nested_item_query_str
+
         def compute_nested_path_dsl(_path_fields, level, _nested_item_query_dsl):
             """
             计算多层嵌套文档查询DSL
@@ -1171,11 +653,13 @@ class ExtendQdslParser(object):
                                "query": compute_nested_path_dsl(_path_fields, level + 1, _nested_item_query_dsl)}}
             elif level == len(_path_fields):
                 return _nested_item_query_dsl
+
         search_item_str_list = field_str.split(';')
         path_fields = None
         nested_item_query_str = None
         for search_item_str in search_item_str_list:
             search_item_key_value = search_item_str.split(':')
+
             if len(search_item_key_value) > 1:
                 if search_item_key_value[0] == 'field':
                     path_str = search_item_key_value[1]
@@ -1183,11 +667,14 @@ class ExtendQdslParser(object):
                 elif search_item_key_value[0] == 'query':
                     query_str = search_item_key_value[1]
                     nested_item_query_str = parse_query_value(query_str)
+
         if not nested_item_query_str or not path_fields:
             return {}
         path_fields = [field_name] + path_fields
         nested_item_query_dsl = self.get_query_qdsl_single_fragment('.'.join(path_fields), nested_item_query_str)
+
         return compute_nested_path_dsl(path_fields, 1, nested_item_query_dsl)
+
     def __get_query_multi_match_fragment(self, field_name, field_str):
         """
         multi_match match 查询
@@ -1455,6 +942,53 @@ class ExtendQdslParser(object):
                 else:
                     geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
         return {"geo_bounding_box": geo_distance_filter_dsl}
+
+    def __get_query_not_null_fragment(self, field_name, field_str):
+        """
+        not null 查询，格式为：ext_q_kkk=not_null(q:null)
+        根据user字段查询：
+        返回true的情况：{ "user": "jane" }{ "user": "" } { "user": "-" } { "user": ["jane"] } { "user": ["jane", null ] }
+        返回false的情况：{ "user": null }{ "user": [] } { "user": [null] } { "foo":  "bar" }
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        return {"filtered": {"filter": {"exists": {"field": field_name}}}}
+
+    def __get_query_not_fragment(self, field_name, field_str):
+        """
+        not查询
+        ex_q_not=not(query:<>)
+        query：存放not实体查询
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+
+        def parse_query_value(_query_str):
+            if not _query_str:
+                return None
+            _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
+            return _nested_item_query_str
+
+        search_item_str_list = field_str.split(';')
+        item_query_str = None
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':', 1)
+
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'query':
+                    query_str = search_item_key_value[1]
+                    item_query_str = parse_query_value(query_str)
+
+        if not item_query_str:
+            return {}
+
+        field_name, field_str = item_query_str.split('=')
+        field_name = field_name[len('eq_q_'):]
+        item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+
+        return {'bool': {'must_not': [item_query_dsl]}}
 
     def __get_agg_max_fragment(self, field_name, field_str):
         """
@@ -1947,6 +1481,8 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
+        from service.dsl_parser import qdsl_parser
+
         if not field_name:
             return None
         aggs_key = 'ex_agg_' + field_name + '.cats'
@@ -1959,6 +1495,43 @@ class ExtendQdslParser(object):
                     depth = int(search_item_key_value[1])
                     break
         return {aggs_key: qdsl_parser.get_catpath_agg_qdl(depth)['cats']}
+
+    def __get_agg_key_value_fragment(self, field_name, field_str):
+        """
+        key value聚合，聚合的数据格式为：
+        "specs": [
+                    {
+                        "specialPropName": "睡袋类型",
+                        "specialValName": "羽绒睡袋"
+                    }
+                ]
+        ex_agg_specs=key_value(key:specialPropName;value:specialValName)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        if not field_name:
+            return None
+        aggs_key = 'ex_agg_' + field_name + '.key_value'
+        key_field_name, value_field_name = None, None
+        search_item_str_list = field_str.split(';')
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':', 1)
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'key':
+                    key_field_name = search_item_key_value[1]
+                elif search_item_key_value[0] == 'value':
+                    value_field_name = search_item_key_value[1]
+        if not key_field_name or not value_field_name:
+            return {}
+
+        return {aggs_key: {
+            "terms": {
+                "script": "doc['" + field_name + "." + key_field_name + "'].value+'*##*'+doc['" + field_name + "."
+                          + value_field_name + "'].value",
+                "size": 0
+            }}
+        }
 
     def __parse_single_input_str(self, single_query_str):
         """
@@ -2022,5 +1595,4 @@ class ExtendQdslParser(object):
         return script_str.replace('[', '[\'').replace(']', '\']')
 
 
-qdsl_parser = QdslParser()
 extend_parser = ExtendQdslParser()

@@ -14,12 +14,16 @@ from common.connections import EsConnectionFactory
 from common.loggers import debug_log, query_log as app_log
 from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value
 from measure.measure_units import measure_unit_helper
-from qdsl_parseres import qdsl_parser, extend_parser
+from dsl_parser import qdsl_parser, extend_parser
 from search_platform import settings
 from service.search_scenes import spu_search_scene
 
 
 __author__ = 'liuzhaoming'
+BATCH_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/batch_request_timeout') or 30
+BATCH_TIMEOUT = config.get_value('consts/global/es_conn_param/batch_timeout') or 120000
+INDEX_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/index_request_timeout') or 120
+INDEX_TIMEOUT = config.get_value('consts/global/es_conn_param/index_timeout') or 120000
 
 
 class EsModel(object):
@@ -68,14 +72,17 @@ class EsProductManager(object):
                             result['total'] if 'total' in result else 'omitted')
         return result
 
-    def save(self, es_config, index_name, doc_type, product, parse_fields=None):
+    def save(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         保存商品
         :param es_config:
         :param product:
         :return:
         """
-        app_log.info('Product save is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
+        app_log.info(
+            'Product save is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
         if not product:
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
@@ -83,11 +90,85 @@ class EsProductManager(object):
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
-        doc_id = bind_variable(es_config['id'], product)
-        es_connection.index(index=index_name, doc_type=doc_type, body=product, id=doc_id)
-        return product
+        # doc_id = bind_variable(es_config['id'], product)
+        _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, timestamp)
+        if not _bulk_body:
+            return
+        if redo:
+            _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                     timestamp)
+        es_bulk_result = es_connection.bulk(_bulk_body,
+                                            params={'request_timeout': BATCH_REQUEST_TIMEOUT, 'timeout': BATCH_TIMEOUT})
+        return es_adapter.get_es_bulk_result(es_bulk_result)
+    def _filter_has_update_doc(self, es_config, index_name, doc_type, es_connection, _bulk_body, timestamp,
+                               es_op_name='index'):
+        """
+        过滤掉已经被修改的文档记录
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param es_connection:
+        :param _bulk_body:
+        :param timestamp
+        :param es_op_name es bulk操作类型， index, update, delete
+        :return:
+        """
+        doc_id_template = 'generate' if 'id' not in es_config else es_config['id']
+        if doc_id_template == 'generate':
+            return _bulk_body
+        doc_id_list = []
+        es_exist_doc_list = []
+        for bulk_body_item in _bulk_body:
+            if es_op_name in bulk_body_item and isinstance(bulk_body_item[es_op_name], dict) \
+                    and '_id' in bulk_body_item[es_op_name]:
+                doc_id_list.append(bulk_body_item[es_op_name]['_id'])
+        if doc_id_list:
+            ids_query_dsl = {'query':{'ids': {'values': doc_id_list}}}
+            search_result = es_connection.search(index=index_name, doc_type=doc_type, body=ids_query_dsl)
+            es_exist_doc_list = map(lambda search_result_item:
+                                    {'id': search_result_item['_id'],
+                                     '_update_time': search_result_item['_source']['_update_time']
+                                     if '_update_time' in search_result_item['_source'] else 0},
+                                    search_result['hits']['hits'])
+        no_need_operate_doc_ids = map(lambda es_doc: es_doc['id'],
+                                      filter(lambda es_doc: es_doc['_update_time'] >= timestamp, es_exist_doc_list))
+        if no_need_operate_doc_ids:
+            _temp_bulk_item_list = []
+            step = 1 if es_op_name == 'delete' else 2
+            for index in xrange(0, len(_bulk_body), step):
+                bulk_body_item = _bulk_body[index]
+                if es_op_name in bulk_body_item and bulk_body_item[es_op_name]['_id'] not in no_need_operate_doc_ids:
+                    _temp_bulk_item_list.append(bulk_body_item)
+                    if step == 2:
+                        _temp_bulk_item_list.append(_bulk_body[index] + 1)
+            _bulk_body = _temp_bulk_item_list
+        return _bulk_body
 
-    def update(self, es_config, index_name, doc_type, product, parse_fields=None):
+    def _build_index_body(self, es_config, index_name, doc_type, product, timestamp):
+        """
+        创建批量index数据结构
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :return:
+        """
+        _bulk_body = []
+        doc_id_template = 'generate' if 'id' not in es_config else es_config['id']
+        if not isinstance(product, (list, tuple, set)):
+            batch_product_list = [product]
+        else:
+            batch_product_list = product
+        for item_product in batch_product_list:
+            es_index_info = {"index": {"_index": index_name, "_type": doc_type}} if doc_id_template == 'generate' \
+                else {
+                "index": {"_index": index_name, "_type": doc_type,
+                          "_id": bind_variable(es_config['id'], item_product)}}
+            item_product['_update_time'] = timestamp
+            _bulk_body.append(es_index_info)
+            _bulk_body.append(item_product)
+        return _bulk_body
+    def update(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         更新商品数据
         :param es_config:
@@ -96,7 +177,10 @@ class EsProductManager(object):
         :param product:
         :return:
         """
-        app_log.info('Product update is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
+        app_log.info(
+            'Product update is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
         if not product:
             app_log.error('Product update input product is invalid')
             raise InvalidParamError()
@@ -106,21 +190,71 @@ class EsProductManager(object):
             raise EsConnectionError()
         if parse_fields and 'id' in parse_fields and parse_fields['id']:
             doc_id = parse_fields['id']
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, timestamp, doc_id)
         else:
-            doc_id = bind_variable(es_config['id'], product)
-        es_connection.update(index=index_name, doc_type=doc_type, body={'doc': product}, id=doc_id)
-        return product
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, timestamp)
+        if redo:
+            _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                     timestamp, 'update')
+        es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                'timeout': BATCH_TIMEOUT})
+        return es_adapter.get_es_bulk_result(es_bulk_result)
+    def _build_update_body(self, es_config, index_name, doc_type, product, timestamp, doc_id=None):
+        """
+        构造ES 批量update结构
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param timestamp
+        :param doc_id
+        :return:
+        """
+        _bulk_body = []
 
-    def delete(self, es_config, index_name, doc_type, product, parse_fields=None):
+        if not isinstance(product, (list, tuple, set)):
+            batch_product_list = [product]
+        else:
+            batch_product_list = product
+        for item_product in batch_product_list:
+            item_product['_update_time'] = timestamp
+            es_update_info = {
+                "update": {"_index": index_name, "_type": doc_type,
+                           "_id": bind_variable(es_config['id'], item_product) if not doc_id else doc_id}}
+            _bulk_body.append(es_update_info)
+            _bulk_body.append({'doc': item_product})
+        return _bulk_body
+    def delete(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         删除商品数据
         :param es_config:
         :param index_name:
         :param doc_type:
         :param product:
+        :param parse_fields
+        :param timestamp
+        :param redo
         :return:
         """
-        app_log.info('Product delete is called {0} , {1} , {2} , {3}', index_name, doc_type, product, parse_fields)
+        def parse_delete_doc_ids():
+            if parse_fields and 'id' in parse_fields and parse_fields['id']:
+                doc_id = parse_fields['id']
+            elif 'doc_id' in product:
+                doc_id = product['doc_id']
+            else:
+                if isinstance(product, (list, tuple, set)):
+                    doc_id = map(lambda item: bind_variable(es_config['id'], item), product)
+                else:
+                    doc_id = bind_variable(es_config['id'], product)
+            if not isinstance(doc_id, (list, tuple, set)):
+                _doc_id_list = doc_id.split(',')
+            else:
+                _doc_id_list = doc_id
+            return _doc_id_list
+        app_log.info(
+            'Product delete is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
         if product is None:
             app_log.error('Product delete input product is invalid')
             raise InvalidParamError()
@@ -131,13 +265,17 @@ class EsProductManager(object):
             es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
             if not es_connection:
                 raise EsConnectionError()
-            if parse_fields and 'id' in parse_fields and parse_fields['id']:
-                doc_id = parse_fields['id']
-            elif 'doc_id' in product:
-                doc_id = product['doc_id']
-            else:
-                doc_id = bind_variable(es_config['id'], product)
-            es_connection.delete(index=index_name, doc_type=doc_type, id=doc_id)
+
+            doc_id_list = parse_delete_doc_ids()
+            _bulk_body = map(lambda _doc_id: {'delete': {'_index': index_name, '_type': doc_type, '_id': _doc_id}},
+                             doc_id_list)
+
+            if redo:
+                _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                         timestamp, 'delete')
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': BATCH_TIMEOUT})
+            return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def parse_es_result(self, es_result, args):
         """
@@ -310,6 +448,8 @@ class EsAggManager(object):
             elif agg_key.startswith('ex_agg_'):
                 if agg_key.endswith('.cats'):
                     result[agg_key] = self.__parse_cats_agg_result(agg_result, agg_key, is_last_cat)
+                elif agg_key.endswith('.key_value'):
+                    result[agg_key] = self.__parse_key_value_agg_result(agg_result, agg_key)
                 else:
                     result[agg_key] = agg_result[agg_key]
 
@@ -411,6 +551,29 @@ class EsAggManager(object):
 
         prop_field_list = agg_result_dict[field]['name']['buckets']
         return map(lambda item: self.__get_cats_agg_result_item(item), prop_field_list)
+    def __parse_key_value_agg_result(self, agg_result_dict, field):
+        """
+        解析key_vlaue聚合结果，
+        :param agg_result_dict:
+        :param field:
+        :return:
+        """
+        if field not in agg_result_dict:
+            return []
+        key_value_list = agg_result_dict[field]['buckets']
+        agg_result = {}
+        for item in key_value_list:
+            temp_strs = item['key'].split('*##*')
+            if len(temp_strs) < 2:
+                continue
+            value_item = {'key': temp_strs[1], 'doc_count': item['doc_count']}
+            agg_result.setdefault(temp_strs[0], [])
+            agg_result[temp_strs[0]].append(value_item)
+        agg_result_item_list = []
+        for key_str, agg_item_list in agg_result.iteritems():
+            total_doc_count = sum(map(lambda agg_item: agg_item['doc_count'], agg_item_list))
+            agg_result_item_list.append({'key': key_str, 'doc_count': total_doc_count, 'value': agg_item_list})
+        return sorted(agg_result_item_list, key=lambda item: item['doc_count'], reverse=True)
 
     def __get_cats_agg_result_item(self, result_item):
         if 'childs' not in result_item:
