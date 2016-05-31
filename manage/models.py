@@ -1045,7 +1045,7 @@ class ShopProduct(EsDoc):
         return es_adapter.batch_update(es_config, doc_list)
 class VipAdminId(object):
     def __init__(self):
-        self.host = SERVICE_BASE_CONFIG.get('msg_queue')
+        self.host = SERVICE_BASE_CONFIG.get('redis_admin_id_config') or SERVICE_BASE_CONFIG.get('msg_queue')
         self.redis_conn = RedisConnectionFactory.get_redis_connection(self.host)
         self.vip_users_key = config.get_value(
             '/consts/global/admin_id_cfg/vip_id_key') or 'search_platform_vip_admin_id_set'
