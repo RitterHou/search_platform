@@ -8,8 +8,8 @@ from elasticsearch import Elasticsearch
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 from watchdog.observers import Observer
 
-from common.connections import EsConnectionFactory
 from common.registers import register_center
+from common.utils import set_dict_value_by_path
 from search_platform.settings import SERVICE_BASE_CONFIG, BASE_DIR
 from common.msg_bus import message_bus, Event
 from common.loggers import LOGGER_LEVELS, app_log
@@ -76,8 +76,8 @@ class ConfigHolder(object):
     """
 
     def __init__(self):
-        if not self.synchronize_config('es', 'cache', True):
-            self.synchronize_config('file', 'cache', True)
+        # if not self.synchronize_config('es', 'cache', True):
+        self.synchronize_config('file', 'cache', True)
         message_bus.add_event_listener(Event.TYPE_SYNCHRONIZED_CONFIG, self.on_synchronized_config_event)
         message_bus.add_event_listener(Event.TYPE_UPDATE_LOG_LEVEL, self.on_log_level_update_event)
 
@@ -206,6 +206,7 @@ class ConfigHolder(object):
         """
         将配置文件存放到ES中
         """
+        from common.connections import EsConnectionFactory
         try:
             es_host = SERVICE_BASE_CONFIG['elasticsearch']
             es_index = SERVICE_BASE_CONFIG['meta_es_index']
@@ -287,6 +288,10 @@ class Config(object):
         return admin_value if admin_value is not None else self.__get_value_from_dict(self.__cache,
                                                                                       default_key_list)
 
+    def update_value(self, path, value):
+        if not path:
+            return None
+        set_dict_value_by_path('/default/' + path, self.__cache, value)
     def __get_value_from_dict(self, data_dict, key_list):
         """
         递归从字典中获取值

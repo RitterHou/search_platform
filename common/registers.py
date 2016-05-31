@@ -1,5 +1,6 @@
 # coding=utf-8
 import socket
+import ujson as json
 
 import redis
 
