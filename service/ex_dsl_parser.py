@@ -31,6 +31,7 @@ class ExtendQdslParser(object):
         self.highlight_query_tmpl = {"number_of_fragments": 0, "highlight_query": {"bool": {"must": []}}}
         self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment, 'range': self.__get_query_range_fragment,
                                        'terms': self.__get_query_term_fragment,
+                                       'bterms': self.__get_query_bool_term_fragment,
                                        'size_terms': self.__get_query_size_term_fragment,
                                        'ids': self.__get_query_ids_fragment, 'match': self.__get_query_match_fragment,
                                        'query_string': self.__get_query_querystring_fragment,
@@ -425,18 +426,33 @@ class ExtendQdslParser(object):
                      query_params.iterkeys() if
                      query_param_name.startswith(prefix_str)))
 
+    def __get_query_bool_term_fragment(self, field_name, field_str):
+        """
+        针对ES 2.0版本terms不再支持minimum_should_match属性，改用bool查询进行拼接
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        term_values = self.__parse_single_input_str(field_str)
+        term_item_query_dsl_list = map(lambda term_value: {"term": {field_name: term_value}}, term_values)
+        return {
+            "bool": {
+                "should": term_item_query_dsl_list,
+                "minimum_should_match": 1
+            }
+        }
 
-    def __get_query_term_fragment(self, filed_name, field_str):
+    def __get_query_term_fragment(self, field_name, field_str):
         """
         term查询解析
-        :param filed_name:
+        :param field_name:
         :param field_str:
         :return:
         """
         term_values = self.__parse_single_input_str(field_str)
         return {
             "terms": {
-                filed_name: list(term_values),
+                field_name: list(term_values),
                 "minimum_should_match": 1
             }
         }
