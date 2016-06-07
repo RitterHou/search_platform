@@ -333,6 +333,54 @@ def format_dict(_input_dict):
         return str(_input_dict)
 
 
+def upper_admin_id(admin_id):
+    """
+    对admin id 进行大写
+    :param admin_id:
+    :return:
+    """
+    if not admin_id:
+        return admin_id
+    if admin_id.startswith('a'):
+        return admin_id.upper()
+    else:
+        return admin_id
+def lower_admin_id(admin_id):
+    """
+    对admin id 进行小写
+    :param admin_id:
+    :return:
+    """
+    if not admin_id:
+        return admin_id
+    if admin_id.startswith('A'):
+        return admin_id.lower()
+    else:
+        return admin_id
+def get_cats_path(product, tag='b2c', cats_prop_name='cats'):
+    """
+    获取路径的字符串表示形式：'b2c,休闲食品,时尚零食,蜜饯干果'
+    """
+    if cats_prop_name not in product or not product[cats_prop_name]:
+        return ''
+    tag_cat_dict = filter(lambda branch: branch['name'] == tag, product[cats_prop_name])
+    if not tag_cat_dict:
+        return ''
+    iter_cat_dict = tag_cat_dict[0]
+    cat_path = [tag]
+    while isinstance(iter_cat_dict, dict):
+        if iter_cat_dict.get('childs'):
+            iter_cat_dict = iter_cat_dict.get('childs')[0]
+            if isinstance(iter_cat_dict, dict):
+                cur_cat_name = iter_cat_dict.get('name')
+                if cur_cat_name:
+                    cat_path.append(cur_cat_name)
+        else:
+            break
+    filter_cat_path = filter(lambda item: item, cat_path)
+    if len(filter_cat_path) < 3:
+        return ''
+    return ','.join(filter_cat_path)
 if __name__ == '__main__':
     # print to_utf_chars('China u中华人民共和国 ￥$end')
     print 'bind_variable test start........'
@@ -349,3 +397,21 @@ if __name__ == '__main__':
     print merge(dict1, dict2)
 
     print get_function_params(merge)
+    import copy
+    start_time = time.time()
+    for i in xrange(10):
+        copy.deepcopy(dict1)
+        copy.deepcopy(dict2)
+    print 'spend ' + str(time.time() - start_time)
+    start_time = time.time()
+    for i in xrange(10):
+        copy.copy(dict1)
+        copy.copy(dict2)
+    print 'spend ' + str(time.time() - start_time)
+    start_time = time.time()
+    for i in xrange(10):
+        merge(dict1, dict2)
+    print 'spend ' + str(time.time() - start_time)
+    set_dict_value_by_path('/dict1_key2', dict2, 'test2')
+    set_dict_value_by_path('/dict1_key3/2', dict2, 'test3')
+    print dict2

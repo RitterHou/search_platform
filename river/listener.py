@@ -17,15 +17,12 @@ def init_django_env():
 
 
 init_django_env()
-import Queue
 import time
-import threading
 
 import pyactivemq
 from pyactivemq import ActiveMQConnectionFactory
 from pyactivemq import AcknowledgeMode
 from common.msg_bus import message_bus, Event
-from river.rivers import process_message
 from common.configs import config
 from common.loggers import debug_log, listener_log as app_log
 from river import get_river_key
@@ -36,20 +33,8 @@ from common.utils import get_dict_value_by_path
 
 __author__ = 'liuzhaoming'
 
-message_queue = Queue.Queue(0)
 
 
-def process_message_wrapper(_message_dict_list):
-    """
-    消息处理函数包装器
-    :param _message_dict_list:
-    :return:
-    """
-    for _message_dict in _message_dict_list:
-        try:
-            process_message.delay(_message_dict, _message_dict['river_key'])
-        except Exception as e:
-            app_log.error('process message error {0}', e, _message_dict)
 class MQMessageListener(pyactivemq.MessageListener):
     """
     消息监听器，不处理消息，只负责转发消息到celery队列
@@ -108,15 +93,17 @@ class MQMessageListener(pyactivemq.MessageListener):
 
 
 class ExceptionListener(pyactivemq.ExceptionListener):
-    def __init__(self, host):
-        pyactivemq.ExceptionListener.__init__(self)
-        self.host = host
-
     """
     异常消息监听器
     """
+    def __init__(self, host):
+        pyactivemq.ExceptionListener.__init__(self)
+        self.host = host
+        self.error = None
 
     def onException(self, ex):
+        self.error = ex
+        print 'onException is called {0}'.format(ex)
         app_log.exception('Receive Exception MQ message {0} {1}', self.host, ex)
 
 
@@ -133,7 +120,8 @@ class StompMessageListener(object):
             serial_message = self.__convert_message(message)
             app_log.info('Receive MQ message {0}', serial_message)
             if serial_message:
-                message_queue.put({'river_key': self.river_key, 'message': serial_message})
+                pass
+                # message_queue.put({'river_key': self.river_key, 'message': serial_message})
         except Exception as ex:
             app_log.exception(ex)
 
@@ -205,71 +193,72 @@ class ListenerRegister(object):
             except Exception as ex:
                 debug_log.print_log('Reconnect mq has exception {0}', ex.message)
 
+        def __reconnect_default():
+            """
+            重构MQ重连方法，解决单listener MQ重启导致失联问题
+            """
+            copy_mq_conn_host_dic = self.mq_conn_host_dic.copy()
+            for mq_conn_host, mq_conn in copy_mq_conn_host_dic.iteritems():
+                if not self.__check_mq_connect_status(mq_conn):
+                    self.__clear_mq_session_key(mq_conn_host)
+            mq_conn_has_change = len(copy_mq_conn_host_dic) != len(self.mq_conn_host_dic)
+            map(self.__add_mq_listener, self.mq_notification_list)
+            if mq_conn_has_change or len(copy_mq_conn_host_dic) != len(self.mq_conn_host_dic):
+                map(self.__start_mq_conn, self.mq_conn_host_dic.itervalues())
         def __timer():
-            interval = config.get_value('consts/notification/mq_reconnect_time') or 30
+            interval = config.get_value('consts/notification/mq_reconnect_time') or 180
             while True:
-                __reconnect()
+                __reconnect_default()
                 time.sleep(interval)
 
         thread.start_new_thread(__timer, ())
-    def init_msg_handler(self):
+
+    def __check_mq_connect_status(self, mq_conn):
         """
-        初始化MQ消息处理器
+        检查active mq 连接状态，采用create session方式，如果create session失败，则认为连接失败，返回false
+        :param mq_conn:
         :return:
         """
-        import time
-        def handle_msg(is_vip):
-            """
-            处理消息
-            """
-            time_interval = 1
-            while True:
-                _start_time = time.time()
-                msg_sla.process_msg(process_message_wrapper, is_vip)
-                _cost_time = time.time() - _start_time
-                debug_log.print_log('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
-                time_delta = time_interval - _cost_time
-                if time_delta >= 0.01:
-                    time.sleep(time_delta)
-        def handle_redo_msg():
-            """
-            处理重做消息
-            """
-            time_interval = 10
-            while True:
-                _start_time = time.time()
-                msg_sla.process_redo_msg(process_message_wrapper)
-                _cost_time = time.time() - _start_time
-                debug_log.print_log('handle redo msg spends {0}', _cost_time)
-                time_delta = time_interval - _cost_time
-                if time_delta >= 1:
-                    time.sleep(time_delta)
-        def handle_check_msg_num():
-            """
-            """
-            time.sleep(8)
-            time_interval = 60
-            while True:
-                _start_time = time.time()
-                msg_sla.check_msg_num()
-                _cost_time = time.time() - _start_time
-                debug_log.print_log('handle check msg spends {0}', _cost_time)
-                time_delta = time_interval - _cost_time
-                if time_delta >= 1:
-                    time.sleep(time_delta)
-        if len(self.mq_conn_host_dic.values()) > 0:
-            t1 = threading.Thread(target=handle_msg, args=(True,), name='Vip put thread')
-            t1.setDaemon(True)
-            t2 = threading.Thread(target=handle_msg, args=(False,), name='Experience put thread')
-            t2.setDaemon(True)
-            t3 = threading.Thread(target=handle_redo_msg, name='Handle redo msg thread')
-            t3.setDaemon(True)
-            t4 = threading.Thread(target=handle_check_msg_num, name='Handle check msg num thread')
-            t4.setDaemon(True)
-            t1.start()
-            t2.start()
-            t3.start()
-            t4.start()
+        if not mq_conn:
+            return False
+
+        if hasattr(mq_conn, 'clientID') and mq_conn.clientID:
+            return True
+
+        session = None
+        try:
+            session = mq_conn.createSession()
+        except Exception as e:
+            app_log.error('MQ connection is broken', e)
+            return False
+
+        if session:
+            try:
+                session.close()
+            except:
+                pass
+
+        return True
+
+    def __clear_mq_session_key(self, host):
+        """
+        清除host下面的所有session
+        :param host:
+        :return:
+        """
+        if host in self.mq_conn_host_dic:
+            del self.mq_conn_host_dic[host]
+
+        for mq_notification in self.mq_notification_list:
+            mq_host = mq_notification.get('host').format(**config.get_value('consts/custom_variables'))
+            if mq_host != host:
+                continue
+            mq_topic = mq_notification.get('topic')
+            mq_queue = mq_notification.get('queue')
+            notification_type = mq_notification.get('type', 'MQ')
+            session_key = get_river_key({}, notification_type, mq_host, mq_topic, mq_queue)
+
+            del self.mq_consumer_topic_dic[session_key]
 
 
     @staticmethod
@@ -281,7 +270,7 @@ class ListenerRegister(object):
         river_list = config.get_value('data_river/rivers')
         return filter(lambda notification: notification, map(lambda river: river.get('notification'), river_list))
 
-    def __add_mq_listener(self, mq_notification, debug_print=False):
+    def __add_mq_listener(self, mq_notification, debug_print=True):
         """
         增加MQ监听器
         :param mq_notification:
@@ -382,7 +371,6 @@ if __name__ == '__main__':
     register = ListenerRegister()
     register.register_listeners()
     register.auto_reconnect()
-    register.init_msg_handler()
 
     # 注册配置数据变更消息监听器
     message_bus.add_event_listener(Event.TYPE_CONFIG_UPDATE, register.register_listeners)
@@ -392,17 +380,5 @@ if __name__ == '__main__':
     while 1:
         try:
             time.sleep(60)
-            # message_dict = message_queue.get(block=True)
-            # msg_count += 1
-            # delta_time = time.time() - start_time
-            # if delta_time > 5:
-            # msg_count = 0
-            # start_time = time.time()
-            # if msg_count > 10:
-            # msg_count = 0
-            # start_time = time.time()
-            # app_log.info('River receive msg will be limited')
-            # time.sleep(5 - delta_time)
-            # process_message.delay(message_dict['message'], message_dict['river_key'])
-        except Exception as e:
-            app_log.exception(e)
+        except Exception as error:
+            app_log.exception(error)

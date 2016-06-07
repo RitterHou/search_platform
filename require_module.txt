@@ -26,7 +26,7 @@ flup==1.0.2
 futures==2.2.0
 greenlet==0.4.5
 HTMLParser==0.0.2
-kazoo==2.0
+kazoo==2.2.1
 kombu==3.0.24
 lxml==3.4.2
 Markdown==2.6.1
@@ -43,8 +43,6 @@ pytz==2015.2
 PyYAML==3.11
 queuelib==1.2.2
 redis==2.10.3
-Scrapy==0.24.5
-ScrapyElasticSearch==0.6.1
 service-identity==14.0.0
 six==1.9.0
 stomp.py==4.0.16
@@ -57,3 +55,5 @@ xlrd==0.9.3
 XlsxWriter==0.7.2
 zope.interface==4.1.2
 ujson==1.35
+jsonpickle==0.9.3
+pykafka==2.4.0

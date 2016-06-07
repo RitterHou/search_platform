@@ -55,13 +55,15 @@ class ProductSuggests(object):
             try:
                 notification_config = get_dict_value_by_path('notification', suggest_river)
                 trigger_time = notification_config.get('crontab')
+                if not trigger_time:
+                    continue
                 trigger = CronTrigger(**trigger_time)
                 if trigger:
                     app_log.info('Add crontab job : {0}', notification_config)
                     suggest_river_name = suggest_river['name'] if 'name' in suggest_river else str(time.time())
-                    notfification_notify_fun = distributed_lock.lock(suggest_river_name)(
+                    notification_notify_fun = distributed_lock.lock(suggest_river_name)(
                         self.suggest_notification.notify)
-                    self.scheduler.add_job(notfification_notify_fun, args=[notification_config, suggest_river],
+                    self.scheduler.add_job(notification_notify_fun, args=[notification_config, suggest_river],
                                            trigger=trigger, id=('suggest_river_' + str(index)))
                     notification_result = self.suggest_notification.notify(notification_config, suggest_river)
             except Exception as e:

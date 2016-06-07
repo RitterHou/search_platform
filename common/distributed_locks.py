@@ -1,9 +1,10 @@
 # coding=utf-8
-
+from kazoo.recipe.lock import Lock
 import redis
 from redis import RedisError
 
 from common.configs import config
+from common.connections import ZkClientFactory
 from utils import get_client_id
 from common.loggers import app_log
 from search_platform.settings import SERVICE_BASE_CONFIG
@@ -118,6 +119,42 @@ class RedisLockStore(LockStore):
         self.__has_initialized = True
 
         self.__client_id = get_client_id()
+class ZookeeperLockStore(LockStore):
+    """
+    用Zookeeper实现的分布式锁
+    """
+    def __init__(self):
+        self.zk = None
+        self.lock_path = '/app/search_platform/locks'
+    def get_lock_info(self, task_name, timeout=0):
+        """
+        获取分布式锁
+        :param task_name:
+        :return:
+        """
+        try:
+            zk = self._get_zk_client()
+            lock = Lock(zk, '/'.join((self.lock_path, task_name)))
+            return lock.acquire(blocking=False)
+        except Exception as e:
+            app_log.error('ZookeeperLockStore get lock error {0}', e, task_name)
+            return False
+    def release_lock_info(self, task_name):
+        """
+        释放分布式锁
+        """
+        try:
+            zk = self._get_zk_client()
+            lock = Lock(zk, '/'.join(self.lock_path, task_name))
+            return lock.release()
+        except Exception as e:
+            app_log.error('ZookeeperLockStore release lock error {0}', e, task_name)
+            return False
+    def _get_zk_client(self):
+        if self.zk:
+            return self.zk
+        self.zk = ZkClientFactory.get_zk_client()
+        return self.zk
 
 
 LOCK_STORE_DICT = {}
@@ -161,6 +198,7 @@ class DistributedLock(object):
 
 
 distributed_lock = DistributedLock()
+zk_lock_store = ZookeeperLockStore()
 
 if __name__ == '__main__':
     host = config.get_value('consts/global/lock_store') or 'redis://127.0.0.1:6379/1'

@@ -134,8 +134,6 @@ class SuggestValidateFilter(ValidateFilter):
                 raise InvalidParamError("The suggest cannot be null")
             if not data.get('word'):
                 raise InvalidParamError("The word cannot be null")
-            if data.get('product_type') not in ('gonghuo_product', 'product'):
-                raise InvalidParamError("The product type is invalid")
         elif http_method == 'DELETE':
             if not data:
                 raise InvalidParamError("The suggest cannot be null")

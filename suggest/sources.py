@@ -5,9 +5,10 @@ from itertools import chain
 import ujson as json
 from common.configs import config
 from common.connections import EsConnectionFactory
+from common.es_routers import es_router
 from common.utils import get_dict_value_by_path, unbind_variable
 from common.adapter import es_adapter
-from common.loggers import app_log, debug_log
+from common.loggers import app_log
 from service.dsl_parser import qdsl_parser
 
 
@@ -15,12 +16,12 @@ __author__ = 'liuzhaoming'
 
 
 class SuggestSource(object):
-    @debug_log.debug('SuggestSource.pull')
-    def pull(self, suggest_config, request_param):
+    def pull(self, suggest_config, request_param, suggest_term_dict={}):
         """
         从数据源拉出数据
         :param suggest_config:
         :param request_param:
+        :param suggest_term_dict
         :return:
         """
         app_log.info('Pull is called, suggest_config={0} , request_param={1}',
@@ -29,7 +30,7 @@ class SuggestSource(object):
         _data_source = DATA_SOURCE_DICT.get(source_key)
         if not _data_source:
             app_log.warning("cannot find data source with source_config = {0}", suggest_config)
-        data = _data_source.pull(suggest_config, request_param)
+        data = _data_source.pull(suggest_config, request_param, suggest_term_dict)
         # if not isinstance(data, list) and not isinstance(data, tuple) and data:
         # data = [data]
         return data
@@ -44,12 +45,13 @@ class SuggestSource(object):
 
 
 class ElasticsearchDataSource(SuggestSource):
-    def pull(self, suggest_config, request_param):
+    def pull(self, suggest_config, request_param, suggest_term_dict):
         if 'index' not in request_param or 'type' not in request_param:
             app_log.error('request_param is invalid, {0} {1}', suggest_config, request_param)
             return 0, None
 
-        host = get_dict_value_by_path('notification/host', suggest_config)
+        host = get_dict_value_by_path('notification/host', suggest_config) or get_dict_value_by_path(
+            'notification/es_cfg/host', suggest_config)
         source_config = get_dict_value_by_path('source', suggest_config)
         additional_param = self._parse_param(source_config, request_param)
         query_fields = self.__get_es_query_fields(source_config)
@@ -67,6 +69,9 @@ class ElasticsearchDataSource(SuggestSource):
                                          request_param) for source_doc in source_docs['root']]
         keyword_list = chain(*temp_list_list)
         keyword_list = list(set(keyword_list))
+        keyword_list = filter(lambda _keyword: _keyword not in suggest_term_dict, keyword_list)
+        for _keyword in keyword_list:
+            suggest_term_dict[_keyword] = ''
 
         # count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config).values())
         # for keyword in keyword_list]
@@ -75,10 +80,10 @@ class ElasticsearchDataSource(SuggestSource):
         source_type_weight = config.get_value('consts/suggest/source_type/1')
         # keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
         keyword_hits = self._get_keyword_hits_list(keyword_list, request_param, host, suggest_config)
-        source_docs['root'] = [
+        term_list = [
             dict({'word': keyword, 'hits': keyword_hits, 'source_type': '1', 'source_type_weight': source_type_weight},
                  **additional_param) for (keyword, keyword_hits) in zip(keyword_list, keyword_hits) if keyword_hits > 0]
-
+        source_docs['root'] = filter(lambda _term: _term['hits']['default'], term_list)
         return source_docs
 
     def _get_keyword_hits_list(self, keyword_list, request_param, host, suggest_config):
@@ -269,12 +274,11 @@ class SpecifyWordsDataSource(ElasticsearchDataSource):
     添加指定词汇的Suggest
     """
 
-    def pull(self, suggest_config, request_param):
-        if 'index' not in request_param or 'type' not in request_param or 'word' not in request_param:
-            app_log.error('request_param is invalid, {0} {1}', suggest_config, request_param)
-            return 0, None
+    def pull(self, suggest_config, request_param, suggest_term_dict={}):
+        es_cfg = es_router.merge_es_config(get_dict_value_by_path('/notification/es_cfg', suggest_config))
+        request_param['index'], request_param['type'], _id = es_router.get_es_doc_keys(es_cfg, request_param)
 
-        host = get_dict_value_by_path('notification/host', suggest_config)
+        host = es_cfg['host']
         additional_param = {'adminId': request_param['adminId']} if 'adminId' in request_param else {}
 
         if isinstance(request_param['word'], (set, tuple, list)):
@@ -282,16 +286,17 @@ class SpecifyWordsDataSource(ElasticsearchDataSource):
         else:
             keyword_list = [request_param['word']]
         source_docs = {'total': len(keyword_list)}
-        count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config).values())
-                          for keyword in keyword_list]
-        count_body = chain(*count_dsl_list)
-        es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
+        # *[self._get_count_query_dsl(keyword, host, suggest_config).values() for keyword in keyword_list])
+        # count_dsl_list = map(lambda x: ({"search_type": "count"}, x), count_dsl_list)
+        # count_body = list(chain(*count_dsl_list))
+        # es_count_result_list = es_adapter.multi_search(count_body, host, index, doc_type)
         source_type_weight = config.get_value('consts/suggest/source_type/' + request_param['source_type'])
-        keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
-        source_docs['root'] = [
+        keyword_hits = self._get_keyword_hits_list(keyword_list, request_param, host, suggest_config)
+        term_list = [
             dict({'word': keyword, 'hits': keyword_hits, 'source_type': request_param['source_type'],
-                  'source_type_weight': source_type_weight}, **additional_param) for (keyword, keyword_hits) in
-            zip(keyword_list, keyword_hits) if keyword_hits > 0]
+                  'source_type_weight': source_type_weight},
+                 **additional_param) for (keyword, keyword_hits) in zip(keyword_list, keyword_hits) if keyword_hits > 0]
+        source_docs['root'] = filter(lambda _term: _term['hits']['default'], term_list)
 
         return source_docs
 

@@ -6,8 +6,8 @@ from common.adapter import es_adapter
 from common.configs import config
 from common.connections import EsConnectionFactory
 from common.es_routers import es_router
-from common.utils import merge, bind_dict_variable
-from common.loggers import debug_log, app_log
+from common.utils import merge, bind_dict_variable, upper_admin_id
+from common.loggers import app_log
 
 
 __author__ = 'liuzhaoming'
@@ -18,7 +18,6 @@ class SuggestDestination(object):
     将Suggest数据存储起来
     """
 
-    @debug_log.debug('SuggestDestination.push')
     def push(self, destination_config, data):
         """
         将数据推到目的地，数据流的最后一步
@@ -151,6 +150,7 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
         bulk_body_list = []
         for (data, param) in data_list:
             index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs=param)
+            es_type = upper_admin_id(es_type)
             operation = es_config.get('operation', 'create')
             if operation == 'delete':
                 bulk_body_list.append({"delete": {"_index": index, "_type": es_type, "_id": doc_id}})
@@ -179,7 +179,6 @@ DATA_DESTINATION_DICT = {'elasticsearch': ElasticsearchSuggestDestination(),
 class DestinationHelp(object):
     destination = SuggestDestination()
 
-    @debug_log.debug('SuggestDestinationHelp.push')
     def push(self, river_config, data):
         """
         将数据推到目的地

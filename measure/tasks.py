@@ -137,7 +137,7 @@ class MeasureMain(object):
 main_app = MeasureMain()
 
 if __name__ == '__main__':
-    main_app.start()
+    # main_app.start()
 
     while True:
         time.sleep(10)

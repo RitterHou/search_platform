@@ -20,16 +20,6 @@
         "name": "拼写建议",
         "id": 104,
         "type": "category"
-      },
-      {
-        "name": "商店管理",
-        "id": 105,
-        "type": "category"
-      },
-      {
-        "name": "商品管理",
-        "id": 106,
-        "type": "category"
       }
     ],
     "name": "数据设置",

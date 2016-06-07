@@ -829,9 +829,9 @@
     }
   },
   "suggest_vip": {
-    "host": "{experience_es_host}",
-    "index": "suggest-{adminId}-{version}",
-    "type": "ProductSuggest",
+    "host": "{test_es_host}",
+    "index": "suggest-product-{version}",
+    "type": "{adminId}",
     "id": "{id}",
     "mapping": {
       "properties": {
@@ -857,7 +857,13 @@
           "index_analyzer": "standard",
           "search_analyzer": "standard",
           "preserve_position_increments": true,
-          "type": "completion"
+          "type": "completion",
+          "context": {
+            "type": {
+              "path": "_type",
+              "type": "category"
+            }
+          }
         }
       }
     }

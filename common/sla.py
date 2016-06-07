@@ -207,7 +207,7 @@ class MsgSLA(object):
         except Exception as e:
             app_log.error('Send msg admin id to queue fail, admin_ids={0}', e, admin_id_list)
 
-    def process_msg(self, msg_handler_fun, is_vip=False):
+    def process_msg(self, msg_handler_fun, is_vip=True):
         """
         启动消息处理
         :param msg_handler_fun:
@@ -242,24 +242,26 @@ class MsgSLA(object):
 
         self._remove_msg(admin_id, len(cur_msgs))
 
-    def process_redo_msg(self, msg_handler_fun):
+    def process_redo_msg(self, msg_handler_fun, is_vip=True):
         """
         启动消息重做任务
         :param msg_handler_fun
+        :param is_vip
         :return:
         """
         experience_admin_ids, vip_admin_ids = self._query_redo_admin_ids()
-        if self._vip_msg_redo_enable and vip_admin_ids:
-            self._vip_redo_pool.map(lambda vip_admin_id: self.process_admin_redo_msg(vip_admin_id, msg_handler_fun),
-                                    vip_admin_ids)
-
-        if self._experience_msg_redo_enable and experience_admin_ids:
-            self._experience_redo_pool.map(
-                lambda experience_admin_id: self.process_admin_redo_msg(experience_admin_id, msg_handler_fun),
-                experience_admin_ids)
+        if is_vip:
+            if self._vip_msg_redo_enable and vip_admin_ids:
+                self._vip_redo_pool.map(lambda vip_admin_id: self.process_admin_redo_msg(vip_admin_id, msg_handler_fun),
+                                        vip_admin_ids)
+        else:
+            if self._experience_msg_redo_enable and experience_admin_ids:
+                self._experience_redo_pool.map(
+                    lambda experience_admin_id: self.process_admin_redo_msg(experience_admin_id, msg_handler_fun),
+                    experience_admin_ids)
 
         # 检查最终失败消息队列是否超过阈值
-        self._check_final_msg_num()
+        self.check_final_msg_num()
 
     def process_admin_redo_msg(self, admin_id, msg_handler_fun):
         """
@@ -440,7 +442,7 @@ class MsgSLA(object):
         except Exception as e:
             app_log.error('check admin redo msg num error, admin_id={0}', e, admin_id)
 
-    def _check_final_msg_num(self):
+    def check_final_msg_num(self):
         """
         判断最终失败消息队列是否达到阈值，因为最终消息队列需要手工处理，因此一天只报警一次
         :return:

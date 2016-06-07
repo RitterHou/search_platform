@@ -12,7 +12,7 @@ from common.configs import config
 from common.exceptions import InvalidParamError, EsConnectionError
 from common.connections import EsConnectionFactory
 from common.loggers import debug_log, query_log as app_log
-from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value
+from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path
 from measure.measure_units import measure_unit_helper
 from dsl_parser import qdsl_parser, extend_parser
 from search_platform import settings
@@ -606,7 +606,6 @@ class EsAggManager(object):
 class EsSuggestManager(object):
     connection_pool = EsConnectionFactory
 
-    @debug_log.debug('EsSuggestManger.get::')
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
         查询Suggest数据
@@ -615,16 +614,18 @@ class EsSuggestManager(object):
         :param args:
         :return:
         """
-        return []
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args)
         app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
-        es_result = es_connection.suggest(index=index_name, body=qdsl)
+        try:
+            es_result = es_connection.suggest(index=index_name, body=qdsl)
 
-        result = self.parse_es_result(es_result, args)
-        debug_log.print_log('EsSuggestManager get return is {0}', result)
-        return result
+            result = self.parse_es_result(es_result, args)
+            return result
+        except Exception as e:
+            app_log.error('Get suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
+            return []
 
     def parse_es_result(self, es_result, args):
         """
@@ -897,7 +898,7 @@ class ExStatsManager(object):
 
 class ExSuggestManager(object):
     """
-    扩展建议操作接口
+    关键词纠错操作接口
     """
     connection_pool = EsConnectionFactory
 
@@ -937,11 +938,13 @@ class RecommendationManager(object):
         :return:
         """
         if args.get('ids'):
+            tag = args.get('tag') or 'b2c'
             products = self.__query_product_by_ids(es_config, args.get('ids'))
-            product_type_list = list(set(map(lambda product: product['type'], products)))
-            product_type_dict, range_dict = self.__query_product_info_by_type(es_config, product_type_list)
+            product_cat_path_list = list(
+                set(filter(lambda item: item, map(lambda _product: get_cats_path(_product, tag), products))))
+            product_type_dict, range_dict = self.__query_product_info_by_cat_path(es_config, product_cat_path_list)
             recommend_product_list = content_recom.recommend_products_by_cosine(products, product_type_dict, args,
-                                                                                range_dict)
+                                                                                range_dict, tag)
             return recommend_product_list
 
         raise InvalidParamError('The request parameter ids cannot be null')
@@ -958,34 +961,38 @@ class RecommendationManager(object):
                                                  es_config['type'])
         return map(lambda es_result_item: es_result_item['_source'], es_search_result['hits']['hits'])
 
-    def __query_product_info_by_type(self, es_config, type_list):
+    def __query_product_info_by_cat_path(self, es_config, cat_path_list):
         """
-        根据商品type查询商品和统计信息
+        根据商品cat path查询商品和统计信息
         :param es_config:
-        :param type_list:
+        :param cat_path_list:
         :return:
         """
         msearch_body = []
         range_dsl = self.__get_range_dsl()
-        for product_type in type_list:
-            type_query_dsl = {"query": {"term": {"type": product_type}}, "size": config.get_value(
+        for cat_path_str in cat_path_list:
+            cat_path = cat_path_str.split(',')
+            cat_path_item_dsl = qdsl_parser.get_catpath_query_qdl(len(cat_path), cat_path)
+            query_dsl = {"query": {"bool": {"must": [cat_path_item_dsl]}}, "size": config.get_value(
                 '/consts/global/algorithm/content_based_recom/recommend/type_query_size')}
             if range_dsl:
-                type_query_dsl = deep_merge(type_query_dsl, range_dsl)
-            msearch_body.extend(({}, type_query_dsl))
+                query_dsl = deep_merge(query_dsl, range_dsl)
+            msearch_body.extend(({}, query_dsl))
         es_search_result = es_adapter.multi_search(msearch_body, es_config['host'], es_config['index'],
                                                    es_config['type'])
         product_type_dict = {}
         range_dict = {}
+        index = 0
         for response in es_search_result['responses']:
+            type_key = cat_path_list[index]
             if response['hits']['hits']:
-                type_key = response['hits']['hits'][0]['_source']['type']
                 product_type_dict[type_key] = map(lambda es_result_item: es_result_item['_source'],
                                                   response['hits']['hits'])
                 if 'aggregations' in response:
                     range_dict[type_key] = {}
                     for aggs_key in response['aggregations']:
                         range_dict[type_key][aggs_key] = response['aggregations'][aggs_key]
+            index += 1
         return product_type_dict, range_dict
 
     def __get_range_dsl(self):
@@ -1067,27 +1074,56 @@ class Recommendation(EsModel):
 
 
 if __name__ == '__main__':
-    from elasticsearch import Elasticsearch
+    product = {
+        "cats": [
+            {
+                "childs": [
+                    {
+                        "childs": [
+                            {
+                                "childs": [
+                                    {
+                                        "childs": [],
+                                        "id": "102010021003",
+                                        "name": "蜜饯干果"
+                                    }
+                                ],
+                                "id": "10201002",
+                                "name": "时尚零食"
+                            }
+                        ],
+                        "id": "1020",
+                        "name": "休闲食品"
+                    }
+                ],
+                "id": "b2c",
+                "name": "b2c"
+            },
+            {
+                "childs": [
+                    {
+                        "childs": [
+                            {
+                                "childs": [
+                                    {
+                                        "childs": [],
+                                        "id": "102110021003",
+                                        "name": "蜜饯干果"
+                                    }
+                                ],
+                                "id": "10211002",
+                                "name": "时尚零食"
+                            }
+                        ],
+                        "id": "1021",
+                        "name": "休闲食品"
+                    }
+                ],
+                "id": "b2b",
+                "name": "b2b"
+            }
+        ],
+    }
 
-    es = Elasticsearch('http://172.19.65.66:9200')
-    bulk_body = es._bulk_body([{'1': 22, '2': 'value2'}, {
-        "name": "咖啡特浓即饮罐装24*180ML",
-        "url": "http://www.esunny.com/bProductListDetailPreview.do?pid=2397&categoryid=312&brandid=106",
-        "image": "http://www.esunny.com/photo/1393574402654.jpg",
-        "barcode": "6917878028606",
-        "relative_shops": [
-            {
-                "shop": "宇商网",
-                "url": "http://www.esunny.com/bProductListDetailPreview.do?pid=2397&categoryid=312&brandid=106",
-                "price": "￥"
-            }
-        ],
-        "details": [
-            {
-                "商品规格": "24*180ML"
-            }
-        ],
-        "id": "6917878028606"
-    }])
-    print bulk_body
+    print 'result: ' + get_cats_path(product, 'b2c')
 

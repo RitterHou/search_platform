@@ -3,7 +3,10 @@
 from itertools import chain
 import time
 
+from common.adapter import es_adapter
+from common.configs import config
 from common.connections import EsConnectionFactory
+from common.es_routers import es_router
 from filters import notification_filter
 from common.utils import get_dict_value_by_path
 from common.loggers import app_log
@@ -16,12 +19,32 @@ __author__ = 'liuzhaoming'
 
 @app.task(bind=True)
 def process_suggest_notification(self, suggest_config, notification_data_list):
+    """
+    通过celery框架执行suggest任务
+    :param suggest_config:
+    :param notification_data_list:
+    :return:
+    """
     for notification_data in notification_data_list:
         try:
             suggest_processor.process(suggest_config, notification_data)
-        except Exception as e:
+        except Exception as ex:
             app_log.error(
-                'process_message has error, message={0}, river_key={1}', e, suggest_config, notification_data)
+                'process celery suggest message has error, message={0}, river_key={1}', ex, suggest_config,
+                notification_data)
+def process_no_celery_suggest_notification(suggest_config, notification_data_list):
+    """
+    立即执行suggest任务
+    :param suggest_config:
+    :param notification_data_list:
+    :return:
+    """
+    for notification_data in notification_data_list:
+        try:
+            suggest_processor.process(suggest_config, notification_data)
+        except Exception as ex:
+            app_log.error(
+                'process suggest message has error, message={0}, river_key={1}', ex, suggest_config, notification_data)
 
 
 class SuggestNotification(object):
@@ -30,7 +53,7 @@ class SuggestNotification(object):
     """
 
     # @distributed_lock.lock('SuggestNotification.notification')
-    def notify(self, notification_config, suggest_config):
+    def notify(self, notification_config, suggest_config, notify_data=None):
         try:
             app_log.info('Notify is called, notification_config={0}', notification_config)
             notification_type = get_dict_value_by_path('type', notification_config, 'elasticsearch_regularly_scan')
@@ -38,29 +61,50 @@ class SuggestNotification(object):
             if not _suggest_notification:
                 app_log.error('Unsupport suggest notification, the config is {0}', notification_config)
                 return
-            notification_data_list = _suggest_notification.notify(notification_config, suggest_config)
+            notification_data_list = _suggest_notification.notify(notification_config, suggest_config, notify_data)
             app_log.info('Notify data list is {0}', notification_data_list)
+            if notification_type == 'elasticsearch_regularly_scan':
             # process_suggest_notification('', suggest_config, notification_data_list)
-            process_suggest_notification.delay(suggest_config, notification_data_list)
+                process_suggest_notification.delay(suggest_config, notification_data_list)
             # 因为任务是通过celery异步执行，所以延迟10秒，防止结束过快释放锁过快，其它进程上的相同任务得以进行
-            time.sleep(10)
-        except Exception as e:
-            app_log.error('Suggest Notification notify has error ', e)
+                time.sleep(10)
+            else:
+                process_no_celery_suggest_notification(suggest_config, notification_data_list)
+        except Exception as ex:
+            app_log.error('Suggest Notification notify has error ', ex)
 
 
+class AdminSuggestNotification(SuggestNotification):
+    """
+    固定Admin ID suggest初始化
+    """
+    def notify(self, notification_config, suggest_config, notify_data):
+        _es_config = notification_config.get('es_cfg')
+        if not _es_config:
+            app_log.error('notification config is invalid, because the es_cfg is None : {0}', notification_config)
+            return []
+        _es_config = es_router.merge_es_config(_es_config)
+        notification_config['es_cfg'] = _es_config
+        index, doc_type, doc_id = es_adapter.get_es_doc_keys(_es_config, kwargs=notify_data)
+        _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
+        if not _es_connection.indices.exists_type(index, doc_type):
+            return []
+        return [{'index': index, 'type': doc_type}]
 class EsRegularlyScanNotification(SuggestNotification):
     """
     ES全库所有索引扫描触发器
     """
 
-    def notify(self, notification_config, suggest_config):
+    def notify(self, notification_config, suggest_config, notify_data=None):
         _host = notification_config.get('host')
         if not _host:
             app_log.error('notification config is invalid : {0}', notification_config)
             return
 
-        es_connection = EsConnectionFactory.get_es_connection(host=_host)
-        mapping_dict = es_connection.indices.get_mapping()
+        variable_values = config.get_value('consts/custom_variables')
+        _host = _host.format(**variable_values)
+        _es_connection = EsConnectionFactory.get_es_connection(host=_host)
+        mapping_dict = _es_connection.indices.get_mapping()
         index_type_dict_list = list(chain(
             *[self.__parse_index_mapping(index_name, mapping_dict[index_name]) for index_name in mapping_dict]))
         filter_config = notification_config.get('filter', {})
@@ -85,7 +129,8 @@ class EsRegularlyScanNotification(SuggestNotification):
         return [{'index': index_name, 'type': type_name} for type_name in mapping.get('mappings')]
 
 
-NOTIFICATION_DICT = {'elasticsearch_regularly_scan': EsRegularlyScanNotification()}
+NOTIFICATION_DICT = {'elasticsearch_regularly_scan': EsRegularlyScanNotification(),
+                     'elasticsearch_admin': AdminSuggestNotification()}
 
 if __name__ == '__main__':
     suggest_config = {u'notification': {u'filter': {u'conditions': [

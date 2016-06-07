@@ -1102,7 +1102,6 @@ manageControllers.controller('SysParamCtrl', ['$scope', '$state', 'SysParamTempl
             var select_rows = $scope.host_grid.gridApi.selection.getSelectedRows()
             if (!select_rows || select_rows.length == 0) {
                 AlertService.add('danger', '请先选择一行记录')
-                return
             }
             else {
                 delete_array_element(select_rows[0], $scope.host_grid.data)
@@ -1338,7 +1337,6 @@ manageControllers.controller('AnsjCtrl', ['$scope', '$state', 'AnsjTemplate', 'A
             var select_rows = $scope.ambiguity_term_grid.gridApi.selection.getSelectedRows()
             if (!select_rows || select_rows.length == 0) {
                 AlertService.add('danger', '请先选择一行记录')
-                return
             }
             else {
                 delete_array_element(select_rows[0], $scope.ambiguity_term_grid.data)
@@ -1414,13 +1412,6 @@ manageControllers.controller('SuggestListCtrl', ['$scope', '$state', '$modal', '
     function ($scope, $state, $modal, $resource, AlertService) {
         $scope.termTableColumnDefinition = [
             {
-                columnHeaderDisplayName: '关联商品类型',
-                displayProperty: 'product_type',
-                sortKey: 'product_type',
-                columnSearchProperty: 'product_type',
-                visible: true
-            },
-            {
                 columnHeaderTemplate: '建议词来源',
                 sortKey: 'source_type',
                 displayProperty: 'source_type',
@@ -1434,7 +1425,7 @@ manageControllers.controller('SuggestListCtrl', ['$scope', '$state', '$modal', '
                 columnHeaderDisplayName: '操作',
                 template: '</button> <button type="button" class="btn btn-primary btn-xs" ng-click="remove(item)" tooltip="删除行数据" tooltip-append-to-body=true>' +
                 '<span class="glyphicon glyphicon-remove"></span></button>',
-                width: '5em'
+                width: '20em'
             }
         ];
 
@@ -1444,15 +1435,20 @@ manageControllers.controller('SuggestListCtrl', ['$scope', '$state', '$modal', '
                 clear_array($scope.terms);
                 return
             }
-            $scope.Suggest = $resource('suggestterms/:adminID/:word', {adminID: $scope.adminID}, {
-                'query': {method: 'GET', isArray: true},
+            $scope.Suggest = $resource('suggestterms/:adminID/:word', {
+                adminID: $scope.adminID
+            }, {
+                'query': {method: 'GET', isArray: false},
                 'save': {method: 'POST'},
                 'delete': {method: 'DELETE'}
             });
 
-            var curTerms = $scope.Suggest.query({adminID: $scope.adminID}, function () {
+            var curTerms = $scope.Suggest.query({
+                adminID: $scope.adminID, whoami: 'god',
+                size: 5000
+            }, function () {
                 clear_array($scope.terms)
-                extend_array($scope.terms, curTerms)
+                extend_array($scope.terms, curTerms['root'])
             }, function (response) {
                 $scope.show_error(response)
                 return

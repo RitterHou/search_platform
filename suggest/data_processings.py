@@ -1,4 +1,5 @@
 # coding=utf-8
+from math import sqrt
 
 from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable
 from common.pingyin_utils import pingyin_utils
@@ -36,8 +37,7 @@ class BasicElasticsearchDataProcessing(DataProcessing):
         """
         整理数据，生成可以插入到ES数据源中得数据
         :param processing_config:
-        :param data:
-        :param params:
+        :param input_data:
         :param suggest_config:
         :return:
         """
@@ -92,6 +92,8 @@ class BasicElasticsearchDataProcessing(DataProcessing):
         if computer_type == 'regex':
             weight_value = float(bind_variable(weight_config['expression'], data))
             return {'weight': weight_value}
+        elif computer_type == 'hits':
+            return {'weight': int(sqrt(data['hits']['default']) + data['source_type_weight'])}
         elif computer_type == 'script':
             language = weight_config.get('language', 'mvel')
             if language != 'mvel':

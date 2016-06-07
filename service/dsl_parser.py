@@ -25,7 +25,10 @@ class QdslParser(object):
             "text": "",
             "completion": {
                 "field": "suggest",
-                "size": 10
+                "size": 10,
+                "context": {
+                    "type": ""
+                }
             }
         }
     }
@@ -515,8 +518,9 @@ class QdslParser(object):
                                       DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
         cur_suggest_qdl = self.suggest_qdl.copy()
         cur_suggest_qdl['completion_suggest']['text'] = word
-        suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
-        cur_suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size) * suggest_size_multiple
+        # suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
+        cur_suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size)
+        cur_suggest_qdl['completion_suggest']['completion']['context']['type'] = type
         return cur_suggest_qdl
 
 

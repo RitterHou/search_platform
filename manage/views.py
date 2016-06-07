@@ -290,7 +290,7 @@ class SuggestView(APIView):
         return Response(data)
 
     def get(self, request, admin_id, format=None):
-        suggest_terms = suggest.query_suggest_terms(admin_id)
+        suggest_terms = suggest.query_suggest_terms(admin_id, request.QUERY_PARAMS)
         return Response(suggest_terms)
 
 
@@ -496,7 +496,7 @@ class EsDocView(APIView):
 
 class VipAdminIdView(APIView):
     """
-    VIP用户Admin ID 管理
+    VIP用户Admin ID管理
     """
     def get(self, request, admin_ids=None, format=None):
         result = vip_admin_id_model.query(admin_ids)
@@ -514,7 +514,7 @@ class VipAdminIdView(APIView):
         return Response()
 class ClusterView(APIView):
     """
-    集群管理
+    搜索平台集群管理
     """
     def post(self, request, res_type=None, operation=None):
         if res_type == 'es':

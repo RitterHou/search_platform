@@ -574,8 +574,26 @@
         }
       },
       "destination": {
+        "router": {
+          "type": "vip_router",
+          "fields": {
+            "adminId": "{adminId}"
+          },
+          "target": [
+            {
         "destination_type": "elasticsearch",
-        "reference": "product"
+              "reference": "product_vip",
+              "id": "{skuId}",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_experience",
+              "id": "{skuId}",
+              "tag": "default"
+            }
+          ]
+        }
       }
     },
     {

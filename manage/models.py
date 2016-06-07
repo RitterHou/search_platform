@@ -1,6 +1,6 @@
 # coding=utf-8
 import copy
-from itertools import imap, chain, groupby
+from itertools import chain, groupby
 import xmlrpclib
 from collections import OrderedDict
 import ujson as json
@@ -9,6 +9,7 @@ import urllib2
 from re import search
 import redis
 
+from common.admin_config import admin_config
 from common.connections import EsConnectionFactory, RedisConnectionFactory
 from common.es_routers import es_router
 from common.msg_bus import message_bus, Event
@@ -43,8 +44,9 @@ class DataRiver(object):
         :param river_name:
         :return:
         """
-        data_river_cfg = es_adapter.get_config('data_river')
-        cfg_rivers = data_river_cfg['data_river'].get('rivers')
+        # data_river_cfg = es_adapter.get_config('data_river')
+        # cfg_rivers = data_river_cfg['data_river'].get('rivers')
+        cfg_rivers = config.get_value('data_river/rivers')
         if not cfg_rivers:
             return []
         if river_name:
@@ -111,7 +113,8 @@ class EsTmpl(object):
         :param tmpl_name:
         :return:
         """
-        tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
+        # tmpl_cfg = es_adapter.get_config('es_index_setting').get('es_index_setting')
+        tmpl_cfg = config.get_value('es_index_setting')
         if not tmpl_cfg:
             app_log.info("Get EsTmpl cannot find es_index_setting")
             return []
@@ -164,8 +167,9 @@ class QueryChain(object):
         :param handler_name:
         :return:
         """
-        query_chain_cfg = es_adapter.get_config('query')
-        cfg_handlers = query_chain_cfg['query'].get('chain')
+        # query_chain_cfg = es_adapter.get_config('query')
+        # cfg_handlers = query_chain_cfg['query'].get('chain')
+        cfg_handlers = config.get_value('/query/chain')
         if not cfg_handlers:
             app_log.info("Get QueryChain cannot find query")
             return []
@@ -233,7 +237,8 @@ class SystemParam(object):
         获取系统参数
         :return:
         """
-        sys_param_cfg = es_adapter.get_config('consts').get('consts')
+        # sys_param_cfg = es_adapter.get_config('consts').get('consts')
+        sys_param_cfg = config.get_value('consts')
         if not sys_param_cfg:
             app_log.info("Get System Param cannot find consts")
             return {}
@@ -536,58 +541,54 @@ class AnsjSegmentation(object):
 
 class Suggest(object):
     """
-    拼写建议
+    Suggest拼写建议
     """
 
-    def query_suggest_terms(self, adminId):
+    def query_suggest_terms(self, admin_id, params):
         """
         获取用户ID下所有的拼写提示词
-        :param adminId:
+        :param admin_id:
+        :param params
         :return:
         """
-        suggest_rivers = config.get_value('suggest/rivers')
-        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+        if not admin_id:
+            raise InvalidParamError('The adminId cannot be null')
 
-        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        yun_product_suggest_cfg = self._get_admin_suggest_river(admin_id)
+
         if not yun_product_suggest_cfg:
-            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            app_log.error('Cannot find product suggest config, adminId={0}', admin_id)
             return
         destination_config = get_dict_value_by_path('destination', yun_product_suggest_cfg)[0]
-        variable_values = {'version': config.get_value('version'), 'adminId': adminId}
+        variable_values = {'version': config.get_value('version'), 'adminId': admin_id}
         es_config = es_router.merge_es_config(destination_config)
         es_config = es_router.route(es_config, variable_values)
-        index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, variable_values)
+        index, es_type, doc_id = es_adapter.get_es_doc_keys(es_config, kwargs=variable_values)
 
-        size = 200
-        from_size = 0
-        data_list = []
-        while 1:
-            query_result = es_adapter.search(query_body={'from': from_size, 'size': size}, index=index,
-                                             host=es_config['host'], doc_type=es_type)
-            if query_result.get('root'):
-                data_list.extend(query_result['root'])
-            from_size += len(query_result['root'])
-            if from_size >= query_result['total']:
-                break
-        product_type = 'gonghuo_product' if adminId == 'gonghuo' else 'product'
-        return map(lambda es_suggest_doc: self.to_suggestion(es_suggest_doc, product_type), data_list)
+        size = params.get('size') or 100
+        if size > 200 and params.get('whoami') != 'god':
+            size = 200
+        from_size = params.get('from') or 0
+        query_result = es_adapter.search(query_body={'from': from_size, 'size': size}, index=index,
+                                         host=es_config['host'], doc_type=es_type)
+
+        return {'root': map(lambda es_suggest_doc: self.to_suggestion(es_suggest_doc, ''), query_result['root']),
+                'total': query_result['total']}
 
     def add_suggest_term(self, suggestion):
         """
         增加提示词
+        多个提示词写在word中
         :param suggestion:
         :return:
         """
-        suggest_rivers = config.get_value('suggest/rivers')
-        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+        yun_product_suggest_cfg = self._get_admin_suggest_river(suggestion['adminId'])
 
-        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
         if not yun_product_suggest_cfg:
-            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            app_log.error('Cannot find admin suggest config {0}', suggestion)
             return
 
         yun_product_suggest_cfg['source']['type'] = 'specify_words'
-        suggestion['host'], suggestion['index'], suggestion['type'] = self.__get_product_es_setting(suggestion)
         data_processing_config = get_dict_value_by_path('processing', yun_product_suggest_cfg)
         source_docs = suggest_source.pull(yun_product_suggest_cfg, suggestion)
         processed_data = data_processing.process_data(data_processing_config, source_docs, yun_product_suggest_cfg)
@@ -599,19 +600,17 @@ class Suggest(object):
         :param suggestion:
         :return:
         """
-        suggest_rivers = config.get_value('suggest/rivers')
-        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
+        yun_product_suggest_cfg = self._get_admin_suggest_river(suggestion['adminId'])
 
-        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
         if not yun_product_suggest_cfg:
-            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            app_log.error('Cannot find admin suggest config {0}', suggestion)
             return
 
         yun_product_suggest_cfg['source']['type'] = 'specify_words'
         for destination in yun_product_suggest_cfg['destination']:
             # destination['destination_type'] = 'elasticsearch'
             destination['operation'] = 'delete'
-        suggestion['host'], suggestion['index'], suggestion['type'] = self.__get_product_es_setting(suggestion)
+        # suggestion['host'], suggestion['index'], suggestion['type'] = self.__get_product_es_setting(suggestion)
         data_processing_config = get_dict_value_by_path('processing', yun_product_suggest_cfg)
         source_docs = suggest_source.pull(yun_product_suggest_cfg, suggestion)
         processed_data = data_processing.process_data(data_processing_config, source_docs, yun_product_suggest_cfg)
@@ -623,25 +622,16 @@ class Suggest(object):
         :param admin_id:
         :return:
         """
-        suggest_rivers = config.get_value('suggest/rivers')
-        filter_list = filter(lambda river: river.get('name') == 'yun_product_suggest_task', suggest_rivers)
-
-        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        is_vip = admin_config.is_vip(admin_id)
+        yun_product_suggest_cfg = self._get_admin_suggest_river(admin_id)
         if not yun_product_suggest_cfg:
-            app_log.error('Cannot find yun_product_suggest_task suggest config')
+            app_log.error('Cannot find init suggest product suggest config')
             return
         notification_config = get_dict_value_by_path('notification', yun_product_suggest_cfg)
-        notification_config['filter']['conditions'].append({
-            "operator": "is",
-            "type": "regex",
-            "field": "index",
-            "expression": "\\-" + admin_id + "\\-"
-        })
-        # 手工执行的时候设置为先清除掉自动分词生成的提示词
-        imap(lambda destination_cfg: destination_cfg.update({'clear_policy': 'every_msg,auto_term'}),
-             yun_product_suggest_cfg['destination'])
-        SuggestNotification().notify(notification_config, yun_product_suggest_cfg)
 
+        # 手工执行的时候设置为先清除掉自动分词生成的提示词
+        SuggestNotification().notify(notification_config, yun_product_suggest_cfg,
+                                     {'adminId': admin_id, 'isVip': is_vip})
 
     def __get_product_es_setting(self, suggestion):
         """
@@ -669,9 +659,19 @@ class Suggest(object):
         :return:
         """
         suggestion = {'word': es_suggest_doc['name'],
-                      'source_type': es_suggest_doc['suggest']['payload']['source_type'],
-                      'product_type': product_type}
+                      'source_type': u'自动分词' if es_suggest_doc['suggest']['payload']['source_type'] == '1' else u'手工添加',
+                      'hits': es_suggest_doc['suggest']['payload']['hits']}
         return suggestion
+    def _get_admin_suggest_river(self, admin_id):
+        """
+        获取用户的suggest river配置
+        """
+        is_vip = admin_config.is_vip(admin_id)
+        suggest_rivers = config.get_value('suggest/rivers')
+        filter_list = filter(lambda river: river.get('name') == (
+            'vip_admin_suggest_task' if is_vip else 'experience_admin_suggest_task'), suggest_rivers)
+        yun_product_suggest_cfg = copy.deepcopy(filter_list[0]) if len(filter_list) else None
+        return yun_product_suggest_cfg
 
 
 class EsIndex(object):

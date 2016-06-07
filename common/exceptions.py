@@ -111,6 +111,7 @@ class MsgQueueFullError(SearchPlatformException):
         self._admin_id = admin_id
         self._capacity = capacity
         self._is_vip = is_vip
+        self.is_threshold_alarm = True
     @property
     def admin_id(self):
         return self._admin_id
@@ -136,6 +137,7 @@ class RedoMsgQueueFullError(SearchPlatformException):
         self._admin_id = admin_id
         self._capacity = capacity
         self._is_vip = is_vip
+        self.is_threshold_alarm = True
     @property
     def admin_id(self):
         return self._admin_id
@@ -159,6 +161,7 @@ class FinalFailMsgQueueFullError(SearchPlatformException):
         SearchPlatformException.__init__(self, ERROR_INFO['FinalFailMsgQueueFullError']['code'],
                                          ERROR_INFO['FinalFailMsgQueueFullError']['message'])
         self._capacity = capacity
+        self.is_threshold_alarm = True
     @property
     def capacity(self):
         return self._capacity

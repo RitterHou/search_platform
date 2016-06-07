@@ -11,7 +11,7 @@ from elasticsearch import helpers
 from common.admin_config import admin_config
 from common.es_routers import es_router
 from common.exceptions import EsBulkOperationError
-from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, get_default_es_host
+from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable, get_default_es_host, upper_admin_id
 from common.loggers import app_log, debug_log
 from common.configs import config
 from common.connections import EsConnectionFactory
@@ -203,8 +203,10 @@ class EsIndexAdapter(object):
         """
         es_config = es_router.route(es_config, input_param=doc)
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+        doc_type = upper_admin_id(doc_type)
         es_connection = EsConnectionFactory.get_es_connection(
-            es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
+            es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')),
+            create_index=False)
         try:
             body = body if body else {'query': {'match_all': {}}}
             if 'size' in body:

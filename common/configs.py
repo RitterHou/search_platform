@@ -337,3 +337,4 @@ if __name__ == '__main__':
     print config.get_value('/version/', 'a1400000')
     print config.get_value('/version/')
     print config.get_value('/data_fetch_river/product/listen_get/fetcher/source', 'a1400000')
+    print config.get_value('data_river/rivers')

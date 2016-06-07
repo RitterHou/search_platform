@@ -1,15 +1,12 @@
 {
   "rivers": [
     {
-      "name": "yun_product_suggest_task",
+      "name": "vip_product_suggest_task",
       "notification": {
         "type": "elasticsearch_regularly_scan",
         "crontab": {
-          "second": "0",
-          "minute": "53",
-          "hour": "0"
         },
-        "host": "http://172.21.4.201:9200",
+        "host": "{vip_es_host}",
         "filter": {
           "type": "es_regex",
           "union_operator": "and",
@@ -25,20 +22,25 @@
               "type": "regex",
               "field": "type",
               "expression": "^Product$"
+            },
+            {
+              "operator": "not",
+              "type": "regex",
+              "field": "type",
+              "expression": "^qmshop-a000000-[\\d\\D]$"
             }
           ]
         }
       },
       "source": {
         "type": "iterator_es_get",
-        "size": 50,
+        "size": 200,
         "data_parser": {
           "type": "map",
           "keyword_filter_regex": "^[一-龥A-Za-z0-9]{2,}$",
           "fields": {
             "title": "title",
-            "brand": "brand",
-            "category": "type"
+            "brand": "brand"
           }
         },
         "param_parser": {
@@ -52,51 +54,14 @@
           }
         },
         "tags": {
-          "default": "{\"term\": {\"onSale\": true}}",
-          "d2p": {
-            "bool": {
-              "must": [
-                {"term": {"D2POnSale": true}},
-                {"term": {"sys": 2}},
-                {
-                  "nested": {
-                    "path": "cats",
-                    "query": {"term": {"cats.name": "b2b"}}
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "stock",
-                    "query": {"range": {"stock.stock": {"gte": 1}}}
-                  }
-                }
-              ]
-            }
-          },
-          "d2c": {
-            "bool": {
-              "must": [
-                {"term": {"D2COnSale": true}},
-                {"term": {"sys": 2}},
-                {"term": {"productLine": 2}}
-              ]
-            }
-          }
+          "default": []
         }
       },
       "processing": {
         "type": "basic_processing",
         "output": {
           "weight": {
-            "type": "script",
-            "language": "mvel",
-            "script": "ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)",
-            "param": {
-              "type": "math_expression",
-              "fields": {
-                "current_weight": "int((hits['default']*0.25 + source_type_weight)/2)"
-              }
-            }
+            "type": "hits"
           },
           "payloads": {
             "type": "map",
@@ -117,8 +82,219 @@
       "destination": [
         {
           "destination_type": "elasticsearch_processed",
-          "reference": "suggest",
-          "operation": "create"
+          "reference": "suggest_vip",
+          "operation": "create",
+          "clear_policy": "every_msg,auto_term"
+        }
+      ]
+    },
+    {
+      "name": "experience_product_suggest_task",
+      "notification": {
+        "type": "elasticsearch_regularly_scan",
+        "crontab": {
+        },
+        "host": "{experience_es_host}",
+        "filter": {
+          "type": "es_regex",
+          "union_operator": "and",
+          "conditions": [
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "index",
+              "expression": "^qmshop-[\\d\\D]*"
+            },
+            {
+              "operator": "is",
+              "type": "regex",
+              "field": "type",
+              "expression": "^Product-[\\d\\D]*$"
+            }
+          ]
+        }
+      },
+      "source": {
+        "type": "iterator_es_get",
+        "size": 200,
+        "data_parser": {
+          "type": "map",
+          "keyword_filter_regex": "^[一-龥A-Za-z0-9]{2,}$",
+          "fields": {
+            "title": "title",
+            "brand": "brand"
+          }
+        },
+        "param_parser": {
+          "type": "regex",
+          "fields": {
+            "adminId": {
+              "field": "type",
+              "type": "regex",
+              "expression": "^Product-(?P<adminId>[\\d\\D]+)"
+            }
+          }
+        },
+        "tags": {
+          "default": []
+        }
+      },
+      "processing": {
+        "type": "basic_processing",
+        "output": {
+          "weight": {
+            "type": "hits"
+          },
+          "payloads": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "hits": "hits"
+            }
+          },
+          "common_fields": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "id": "id"
+            }
+          }
+        }
+      },
+      "destination": [
+        {
+          "destination_type": "elasticsearch_processed",
+          "reference": "suggest_vip",
+          "operation": "create",
+          "clear_policy": "every_msg,auto_term"
+        }
+      ]
+    },
+    {
+      "name": "vip_admin_suggest_task",
+      "notification": {
+        "type": "elasticsearch_admin",
+        "es_cfg": {
+          "reference": "product_vip"
+        }
+      },
+      "source": {
+        "type": "iterator_es_get",
+        "size": 200,
+        "data_parser": {
+          "type": "map",
+          "keyword_filter_regex": "^[一-龥A-Za-z0-9]{2,}$",
+          "fields": {
+            "title": "title",
+            "brand": "brand"
+          }
+        },
+        "param_parser": {
+          "type": "regex",
+          "fields": {
+            "adminId": {
+              "field": "index",
+              "type": "regex",
+              "expression": "^qmshop-(?P<adminId>[\\d\\D]+?)-"
+            }
+          }
+        },
+        "tags": {
+          "default": []
+        }
+      },
+      "processing": {
+        "type": "basic_processing",
+        "output": {
+          "weight": {
+            "type": "hits"
+          },
+          "payloads": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "hits": "hits"
+            }
+          },
+          "common_fields": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "id": "id"
+            }
+          }
+        }
+      },
+      "destination": [
+        {
+          "destination_type": "elasticsearch_processed",
+          "reference": "suggest_vip",
+          "operation": "create",
+          "clear_policy": "every_msg,auto_term"
+        }
+      ]
+    },
+    {
+      "name": "experience_admin_suggest_task",
+      "notification": {
+        "type": "elasticsearch_admin",
+        "es_cfg": {
+          "reference": "product_experience"
+        }
+      },
+      "source": {
+        "type": "iterator_es_get",
+        "size": 200,
+        "data_parser": {
+          "type": "map",
+          "keyword_filter_regex": "^[一-龥A-Za-z0-9]{2,}$",
+          "fields": {
+            "title": "title",
+            "brand": "brand"
+          }
+        },
+        "param_parser": {
+          "type": "regex",
+          "fields": {
+            "adminId": {
+              "field": "type",
+              "type": "regex",
+              "expression": "^Product-(?P<adminId>[\\d\\D]+)"
+            }
+          }
+        },
+        "tags": {
+          "default": []
+        }
+      },
+      "processing": {
+        "type": "basic_processing",
+        "output": {
+          "weight": {
+            "type": "hits"
+          },
+          "payloads": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "hits": "hits"
+            }
+          },
+          "common_fields": {
+            "type": "map",
+            "fields": {
+              "source_type": "source_type",
+              "id": "id"
+            }
+          }
+        }
+      },
+      "destination": [
+        {
+          "destination_type": "elasticsearch_processed",
+          "reference": "suggest_vip",
+          "operation": "create",
+          "clear_policy": "every_msg,auto_term"
         }
       ]
     }
