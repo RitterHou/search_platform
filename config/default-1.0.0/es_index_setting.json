@@ -829,7 +829,7 @@
     }
   },
   "suggest_vip": {
-    "host": "{test_es_host}",
+    "host": "{experience_es_host}",
     "index": "suggest-product-{version}",
     "type": "{adminId}",
     "id": "{id}",
