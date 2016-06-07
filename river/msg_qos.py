@@ -32,7 +32,8 @@ def process_message_wrapper(_message_dict_list):
     """
     for _message_dict in _message_dict_list:
         try:
-            process_message('', _message_dict, _message_dict['river_key'])
+            process_message.delay(_message_dict, _message_dict['river_key'])
+            # process_message('', _message_dict, _message_dict['river_key'])
         except Exception as e:
             app_log.error('process message error {0}', e, _message_dict)
 class MsgQos(object):
