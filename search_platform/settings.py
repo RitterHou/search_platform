@@ -330,6 +330,6 @@ SERVICE_BASE_CONFIG = {
 # 测量结果ES别名
 MEASUERE_ALIAS = 'sp_measure-alias'
 
-VERSION = '1.2.0'
+VERSION = '1.3.0'
 
 # from river import rivers

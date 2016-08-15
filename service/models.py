@@ -36,7 +36,6 @@ class EsModel(object):
 class EsProductManager(object):
     connection_pool = EsConnectionFactory
 
-    @debug_log.debug('EsProductManger.get::')
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
         通过ES查询产品数据
@@ -48,7 +47,7 @@ class EsProductManager(object):
         if not es_connection:
             raise EsConnectionError()
         start_time = time.time()
-        qdsl = qdsl_parser.get_product_query_qdsl(index_name, doc_type, args, es_connection)
+        qdsl = qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         qdsl_end_time = time.time()
         app_log.info('Get product dsl finish, spend time {4}, index={0} , type={1} , args={2}, dsl={3}', index_name,
                      doc_type, args, qdsl, qdsl_end_time - start_time)
@@ -68,8 +67,7 @@ class EsProductManager(object):
             result = self.parse_es_result(es_result, args)
             app_log.info('Parse elasticsearch search result index={0} , type={1} , spend time {2}', index_name,
                          doc_type, time.time() - es_end_time)
-        debug_log.print_log('EsProductManager get return size is {0}',
-                            result['total'] if 'total' in result else 'omitted')
+
         return result
 
     def save(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
@@ -91,7 +89,7 @@ class EsProductManager(object):
         if not es_connection:
             raise EsConnectionError()
         # doc_id = bind_variable(es_config['id'], product)
-        _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, timestamp)
+        _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
         if not _bulk_body:
             return
         if redo:
@@ -144,13 +142,15 @@ class EsProductManager(object):
             _bulk_body = _temp_bulk_item_list
         return _bulk_body
 
-    def _build_index_body(self, es_config, index_name, doc_type, product, timestamp):
+    def _build_index_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp):
         """
         创建批量index数据结构
         :param es_config:
         :param index_name:
         :param doc_type:
         :param product:
+        :param parse_fields
+        :param timestamp
         :return:
         """
         _bulk_body = []
@@ -159,6 +159,7 @@ class EsProductManager(object):
             batch_product_list = [product]
         else:
             batch_product_list = product
+        self._add_private_field(es_config, batch_product_list, parse_fields)
         for item_product in batch_product_list:
             es_index_info = {"index": {"_index": index_name, "_type": doc_type}} if doc_id_template == 'generate' \
                 else {
@@ -168,6 +169,21 @@ class EsProductManager(object):
             _bulk_body.append(es_index_info)
             _bulk_body.append(item_product)
         return _bulk_body
+    def _add_private_field(self, es_config, data_list, param):
+        """
+        添加搜索平台私有字段，主要是将adminId作为私有字段添加到数据结构中
+        :param es_config
+        :param data_list:
+        :param param:
+        :return:
+        """
+        if not param or not data_list or not es_config.get('add_admin_id_field'):
+            return
+        if 'adminId' not in param or not param['adminId']:
+            return
+        admin_id = param['adminId']
+        for item in data_list:
+            item['_adminId'] = admin_id
     def update(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         更新商品数据
@@ -190,22 +206,24 @@ class EsProductManager(object):
             raise EsConnectionError()
         if parse_fields and 'id' in parse_fields and parse_fields['id']:
             doc_id = parse_fields['id']
-            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, timestamp, doc_id)
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, parse_fields, timestamp,
+                                                 doc_id)
         else:
-            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, timestamp)
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
         if redo:
             _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                      timestamp, 'update')
         es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                 'timeout': BATCH_TIMEOUT})
         return es_adapter.get_es_bulk_result(es_bulk_result)
-    def _build_update_body(self, es_config, index_name, doc_type, product, timestamp, doc_id=None):
+    def _build_update_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp, doc_id=None):
         """
         构造ES 批量update结构
         :param es_config:
         :param index_name:
         :param doc_type:
         :param product:
+        :param parse_fields
         :param timestamp
         :param doc_id
         :return:
@@ -216,6 +234,7 @@ class EsProductManager(object):
             batch_product_list = [product]
         else:
             batch_product_list = product
+        self._add_private_field(es_config, batch_product_list, parse_fields)
         for item_product in batch_product_list:
             item_product['_update_time'] = timestamp
             es_update_info = {
@@ -416,7 +435,7 @@ class EsAggManager(object):
         :return:
         """
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = qdsl_parser.get_agg_qdl(index_name, doc_type, args, es_connection)
+        qdsl = qdsl_parser.get_agg_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         app_log.info('Get agg dsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
         result = self.parse_es_result(es_result)
@@ -665,7 +684,7 @@ class EsSearchManager(object):
         """
         start_time = time.time()
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = qdsl_parser.get_search_qdl(index_name, doc_type, args, es_connection)
+        qdsl = qdsl_parser.get_search_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         qdsl_end_time = time.time()
         app_log.info('Get search dsl finish, spend time {4},  index={0} , type={1} , args={2}, dsl={3}', index_name,
                      doc_type, args, qdsl, qdsl_end_time - start_time)
@@ -722,7 +741,7 @@ class SearchPlatformDocManager(EsProductManager):
         if not es_connection:
             raise EsConnectionError()
 
-        qdsl = qdsl_parser.get_product_query_qdsl(index_name, doc_type, args, es_connection)
+        qdsl = qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
@@ -731,16 +750,17 @@ class SearchPlatformDocManager(EsProductManager):
                             result['total'] if 'total' in result else 'omitted')
         return result
 
-    def get_dsl(self, index_name=None, doc_type=None, args=None, es_connection=None):
+    def get_dsl(self, es_config, index_name=None, doc_type=None, args=None, parse_fields=None, es_connection=None):
         """
         获取查询DSL
+        :param es_config
         :param index_name:
         :param doc_type:
         :param args:
         :param es_connection:
         :return:
         """
-        return qdsl_parser.get_product_query_qdsl(index_name, doc_type, args, es_connection)
+        return qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
 
 
 class StatsManager(object):

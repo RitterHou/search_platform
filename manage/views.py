@@ -10,9 +10,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.admin_config import admin_config
 from common.configs import config
 from common.exceptions import PKIsNullError, InvalidParamError
-from common.utils import merge
+from common.utils import merge, hash_encode
 from search_platform import settings
 from search_platform.responses import ExceptionResponse
 from manage.filters import estmpl_validater, suggest_validater, message_validater, ansj_validater
@@ -552,6 +553,16 @@ class ClusterView(APIView):
             elif metrics == 'final_queue':
                 return Response(cluster.delete_final_msg_queue())
         raise InvalidParamError('Cannot support the request')
+class EsProductView(APIView):
+    """
+    商品ES配置
+    """
+    def get(self, request, admin_id):
+        es_params = {'adminId': admin_id, 'hashcode': hash_encode(admin_id, 50), 'version': '1.0.0'}
+        is_vip = admin_config.is_vip(admin_id)
+        es_template_name = 'product_vip' if is_vip else 'product_experience'
+        es_template = config.get_value('es_index_setting/{0}'.format(es_template_name))
+        return Response({'index': es_template['index'].format(**es_params), 'is_vip': is_vip})
 def supervisor_index(request):
     """
     进程管理主页

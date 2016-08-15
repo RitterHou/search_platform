@@ -1,6 +1,7 @@
 # coding=utf-8
 from math import sqrt
 
+from algorithm.keyword_freq_service import keyword_freq_service
 from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable
 from common.pingyin_utils import pingyin_utils
 from common.loggers import app_log, debug_log
@@ -49,13 +50,21 @@ class BasicElasticsearchDataProcessing(DataProcessing):
             return None
         data_list = input_data['root']
         es_bulk_body_list = []
+        word_list = map(lambda _data: _data['word'], data_list)
+        word_query_freq_list = []
+        if data_list:
+            admin_id = data_list[0]['adminId']
+            word_query_freq_list = keyword_freq_service.get_keyword_freq(admin_id, word_list)
+        index = 0
         for data in data_list:
             data['id'] = self.__to_suggest_doc_id(data['word'])
-            weight_update_body = self.__get_weight_update_body(processing_config, data)
+            weight_update_body = self.__get_weight_update_body(processing_config, data, word_query_freq_list[index])
+            index += 1
             payloads_update_body = self.__get_payload_update_body(processing_config, data)
             common_fields_update_body = self.__get_common_fields_update_body(processing_config, data)
             word = data['word']
-            create_doc = {'name': word, 'suggest': {'payload': {}, 'weight': 0,
+            suggest_field = 'suggest-{0}'.format(data['doc_type'].lower())
+            create_doc = {'name': word, suggest_field: {'payload': {}, 'weight': 0,
                                                     'input': pingyin_utils.get_pingyin_combination(word) + [
                                                         word], 'output': word}}
 
@@ -65,10 +74,10 @@ class BasicElasticsearchDataProcessing(DataProcessing):
                     create_doc[key] = common_fields_update_body[key]
             if payloads_update_body:
                 for key in payloads_update_body:
-                    create_doc['suggest']['payload'][key] = payloads_update_body[key]
+                    create_doc[suggest_field]['payload'][key] = payloads_update_body[key]
             if weight_update_body:
                 if 'weight' in weight_update_body:
-                    create_doc['suggest']['weight'] = weight_update_body['weight']
+                    create_doc[suggest_field]['weight'] = weight_update_body['weight']
                 else:
                     update_doc = weight_update_body
             es_bulk_body_list.append((create_doc, data))
@@ -76,11 +85,12 @@ class BasicElasticsearchDataProcessing(DataProcessing):
                 es_bulk_body_list.append((update_doc, data))
         return es_bulk_body_list
 
-    def __get_weight_update_body(self, processing_config, data):
+    def __get_weight_update_body(self, processing_config, data, word_query_freq=0):
         """
         获取权重更新数据
         :param processing_config:
         :param data:
+        :param word_query_freq: 关键词搜索次数
         :return:
         """
         weight_config = get_dict_value_by_path('/output/weight', processing_config)
@@ -93,7 +103,8 @@ class BasicElasticsearchDataProcessing(DataProcessing):
             weight_value = float(bind_variable(weight_config['expression'], data))
             return {'weight': weight_value}
         elif computer_type == 'hits':
-            return {'weight': int(sqrt(data['hits']['default']) + data['source_type_weight'])}
+            return {
+                'weight': int(sqrt(data['hits']['default']) + int(sqrt(word_query_freq)) + data['source_type_weight'])}
         elif computer_type == 'script':
             language = weight_config.get('language', 'mvel')
             if language != 'mvel':

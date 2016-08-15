@@ -77,6 +77,30 @@ def parse_cateIds_from_standard_cate_update_msg(msg_text):
     return ','.join(json_result['cateIds'])
 
 
+def parse_adminid_from_suggest_url(url):
+    """
+    从url中解析出 adminid
+    url格式: /suggests/a000000 、/suggests/products/a000000、/suggests/spus/a000000
+    adminid: a000000
+    """
+    url_split = url.lstrip('/').split('/')
+    if url_split[0] != 'suggests':
+        return None
+    admin_id = url_split[-1]
+    return admin_id
+def parse_doctype_from_suggest_url(url):
+    """
+    从url中解析出 doctype  供suggest查询使用
+    url格式: /suggests/a000000 、/suggests/products/a000000、/suggests/spus/a000000
+    doctype: product、spu
+    """
+    url_split = url.lstrip('/').split('/')
+    if url_split[0] != 'suggests':
+        return None
+    doc_type = 'product'
+    if len(url_split) > 2 and url_split[1].lower().startswith('spu'):
+        doc_type = 'spu'
+    return doc_type
 if __name__ == '__main__':
     print parse_spuids_from_pc_mq_msg('21182:g4903;21224:g4989;')
     print parse_spuids_from_pc_mq_msg('21182:g4903;')

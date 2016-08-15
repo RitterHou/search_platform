@@ -4,11 +4,12 @@ from itertools import chain
 import time
 
 from common.adapter import es_adapter
+from common.admin_config import admin_config
 from common.configs import config
 from common.connections import EsConnectionFactory
 from common.es_routers import es_router
 from filters import notification_filter
-from common.utils import get_dict_value_by_path
+from common.utils import get_dict_value_by_path, hash_encode
 from common.loggers import app_log
 from search_platform.celery_config import app
 from suggest.processors import suggest_processor
@@ -85,11 +86,13 @@ class AdminSuggestNotification(SuggestNotification):
             return []
         _es_config = es_router.merge_es_config(_es_config)
         notification_config['es_cfg'] = _es_config
+        notify_data['hashcode'] = hash_encode(notify_data.get('adminId'))
+        is_vip = admin_config.is_vip(notify_data.get('adminId'))
         index, doc_type, doc_id = es_adapter.get_es_doc_keys(_es_config, kwargs=notify_data)
         _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
         if not _es_connection.indices.exists_type(index, doc_type):
             return []
-        return [{'index': index, 'type': doc_type}]
+        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip}]
 class EsRegularlyScanNotification(SuggestNotification):
     """
     ES全库所有索引扫描触发器
@@ -127,6 +130,8 @@ class EsRegularlyScanNotification(SuggestNotification):
         if not __mappings:
             return ()
         return [{'index': index_name, 'type': type_name} for type_name in mapping.get('mappings')]
+class EsVipHashScanNotification(SuggestNotification):
+    pass
 
 
 NOTIFICATION_DICT = {'elasticsearch_regularly_scan': EsRegularlyScanNotification(),

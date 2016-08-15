@@ -66,12 +66,12 @@ class LikeQueryString(object):
         suggest_str_list = []
         for pingyin_str in pingyin_str_list:
             suggest_query_params = {'q': pingyin_str, 'suggest_size': suggest_size}
-            suggest_dsl = qdsl_parser.get_suggest_qdl(None, None, suggest_query_params)
+            suggest_dsl = qdsl_parser.get_suggest_qdl(None, suggest_index_cfg['type'], suggest_query_params)
             es_suggest_result = es_adapter.completion_suggest(suggest_dsl, suggest_index_cfg['host'],
                                                               suggest_index_cfg['index'])
             suggest_str_list.extend(self.__parse_completion_suggest_result(es_suggest_result))
 
-        return suggest_str_list
+        return map(lambda x: x[0], sorted(set(suggest_str_list), key=lambda x: x[1], reverse=True))
 
     def __get_fuzzy_query_result(self, origin_query_str, suggest_index_cfg):
         """
@@ -94,7 +94,7 @@ class LikeQueryString(object):
         """
         if 'completion_suggest' not in es_suggest_result:
             return []
-        return map(lambda completion_option: completion_option['text'],
+        return map(lambda completion_option: (completion_option['text'], completion_option['score']),
                    es_suggest_result['completion_suggest'][0]['options'])
 
     def __parse_fuzzy_query_result(self, es_fuzzy_query_result):
@@ -114,12 +114,17 @@ class LikeQueryString(object):
         :return:
         """
         size = suggest_index_cfg.get('size') or config.get_value('/consts/global/query_size/like_str_size/default')
-        like_str_list = list(set(like_str_list))
         if query_str in like_str_list:
             like_str_list.remove(query_str)
-        if len(like_str_list) > size:
-            like_str_list = like_str_list[:size]
-        return like_str_list
+        result_list = []
+        cur_size = 0
+        for like_str in like_str_list:
+            if like_str not in result_list:
+                result_list.append(like_str)
+                cur_size += 1
+                if cur_size >= size:
+                    break
+        return result_list
 
 
 like_str_algorithm = LikeQueryString()

@@ -19,15 +19,13 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_product"
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_product_query",
@@ -50,7 +48,12 @@
         "type": "regex",
         "fields": {
           "adminId": "products/(?P<adminId>[\\d\\D]+)",
-          "ids": "ids=(?P<ids>[\\d\\D]+?);"
+          "ids": "ids=(?P<ids>[\\d\\D]+?);",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -75,8 +78,7 @@
           ]
         }
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "sup_spu_query",
@@ -97,15 +99,13 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_spu"
     },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_spu_query",
@@ -127,7 +127,12 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "adminId": "spus/(?P<adminId>[\\d\\D]+)"
+          "adminId": "spus/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -152,8 +157,7 @@
           ]
         }
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "sup_product_aggregation",
@@ -174,15 +178,13 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_product"
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_product_aggregation",
@@ -205,7 +207,12 @@
         "type": "regex",
         "fields": {
           "adminId": "aggregations/(?P<adminId>[\\d\\D]+)",
-          "ids": "ids=(?P<ids>[\\d\\D]+?);"
+          "ids": "ids=(?P<ids>[\\d\\D]+?);",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -230,8 +237,7 @@
           ]
         }
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_spu_aggregation",
@@ -253,7 +259,12 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "adminId": "spu_aggregations/(?P<adminId>[\\d\\D]+)"
+          "adminId": "spu_aggregations/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -335,15 +346,13 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_product"
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_product_search",
@@ -365,7 +374,12 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "adminId": "search/(?P<adminId>[\\d\\D]+)"
+          "adminId": "search/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -390,8 +404,7 @@
           ]
         }
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "sup_spu_search",
@@ -412,15 +425,13 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_spu"
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "yun_spu_search",
@@ -442,7 +453,12 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "adminId": "spu_search/(?P<adminId>[\\d\\D]+)"
+          "adminId": "spu_search/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -467,8 +483,7 @@
           ]
         }
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "stats_search",
@@ -570,7 +585,12 @@
         "type": "regex",
         "fields": {
           "adminId": "/recommendations/(?P<adminId>[\\d\\D]+?)/scenes",
-          "scene": "/scenes/(?P<scene>[\\d\\D]+)"
+          "scene": "/scenes/(?P<scene>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 50,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
@@ -617,18 +637,23 @@
         "type": "regex",
         "fields": {
           "adminId": "marketings/(?P<adminId>[^/]+)",
-          "id": "marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+          "id": "marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
-        "index": "cloudshop-marketing-{version}",
-        "type": "{adminId}",
-        "id": "{marketingId}"
+        "index": "cloudshop-marketing-{hashcode}-{version}",
+        "type": "Marketing",
+        "id": "{marketingId}",
+        "add_admin_id_field": true
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "billstock_basic_query",
@@ -643,7 +668,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/billstock/[\\d\\D]+?/basic"
+            "expression": "/billstock/[^/]+?/basic"
           }
         ]
       },
@@ -651,25 +676,23 @@
         "type": "regex",
         "fields": {
           "adminId": "billstock/(?P<adminId>[^/]+)/basic",
-          "id": "/basic/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+          "id": "/basic/[^/]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
         "index": "billstock-{version}",
-        "type": "basic-{adminId}",
-        "id": "{billId}"
+        "type": "basic",
+        "id": "{billId}",
+        "add_admin_id_field": true
       },
-      "response": {
-        "json": {
-          "format": "json",
-          "data_parser": {
-            "language": "python",
-            "script": "script.python.data_parser"
-          }
-        }
-      }
+      "response": {}
     },
     {
       "name": "billstock_detail_query",
@@ -692,18 +715,23 @@
         "type": "regex",
         "fields": {
           "adminId": "billstock/(?P<adminId>[^/]+)/detail",
-          "id": "/detail/[\\d\\D]+?/(?P<id>[\\d\\D]+)"
+          "id": "/detail/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
         }
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
         "index": "billstock-{version}",
-        "type": "detail-{adminId}",
-        "id": "{id}"
+        "type": "detail",
+        "id": "{id}",
+        "add_admin_id_field": true
       },
-      "response": {
-      }
+      "response": {}
     },
     {
       "name": "open_api_qmcs_log",
@@ -724,8 +752,7 @@
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
@@ -735,14 +762,13 @@
         "host": "{log_es_host}",
         "id": "generate"
       },
-      "response": {
-      }
+      "response": {}
     },
     {
-      "name": "test",
+      "name": "d2c_service_log",
       "res_type": "default",
-      "http_method": "GET,POST,DELETE,PUT",
-      "url_format": "^test/[\\d\\D]+",
+      "http_method": "GET",
+      "url_format": "^d2c/logs/service$",
       "filter": {
         "type": "regex",
         "union_operator": "and",
@@ -751,24 +777,23 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/test"
+            "expression": "/d2c/logs/service"
           }
         ]
       },
       "data_parser": {
         "type": "regex",
-        "fields": {
-        }
+        "fields": {}
       },
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
-        "index": "test-{version}",
-        "type": "default",
-        "id": "{id}"
+        "index": "d2c-srvlog",
+        "type": "SRV_LOG",
+        "host": "{log_es_host}",
+        "id": "generate"
       },
-      "response": {
-      }
+      "response": {}
     }
   ]
 }

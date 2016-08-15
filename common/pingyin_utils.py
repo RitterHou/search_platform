@@ -21,21 +21,19 @@ class PinyinTools(object):
         :param separator:
         :return:
         """
-        result = []
         if not input_str:
-            return result
-        result.extend(self.combine_element(pinyin(input_str, style=pypinyin.NORMAL, heteronym=True), 0))
+            return []
+        pinyin_list = self.combine_element(pinyin(input_str, style=pypinyin.NORMAL, heteronym=True), 0)
         first_letter_list = pinyin(input_str, style=pypinyin.FIRST_LETTER, heteronym=True)
         initials_letter_list = pinyin(input_str, style=pypinyin.INITIALS, heteronym=True)
         merge_letter_list = map(lambda a_list, b_list: filter(lambda item: item, set(a_list + b_list)),
                                 first_letter_list, initials_letter_list)
-        result.extend(self.combine_element(merge_letter_list, 0))
+        pinyin_list += self.combine_element(merge_letter_list, 0) + self.combine_low_up_chars(input_str)
         # result.extend(self.combine_element(pinyin(input_str, style=pypinyin.FIRST_LETTER, heteronym=True), 0))
-        # result.extend(self.combine_element(pinyin(input_str, style=pypinyin.INITIALS, heteronym=True), 0))
-        result.extend(self.combine_low_up_chars(input_str))
+        pinyin_list += map((lambda element: element.replace(separator, '')), pinyin_list)
+
         # result + [ele.replace(self.separator) for ele in result]
-        result.extend(list(map((lambda ele: ele.replace(separator, '')), result)))
-        return list(set(result))
+        return list(set(pinyin_list))
 
     def get_integrated_pingyin_strs(self, input_str):
         """
@@ -49,17 +47,28 @@ class PinyinTools(object):
 
 
     def combine_element(self, input_list, start, separator=SEPARATOR):
+        """
+        组合各个字的拼音
+        :param input_list:
+        :param start:
+        :param separator:
+        :return:
+        """
         if start == len(input_list) - 1:
             return input_list[start]
-        return [separator.join(ele) for ele in
+        return [separator.join(element) for element in
                 product(input_list[start], self.combine_element(input_list, start + 1, separator))]
 
     def combine_low_up_chars(self, word):
-        result = []
+        """
+        组合大小写字符
+        :param word:
+        :return:
+        """
         if re.search(self.english_filter_regr, word):
-            result.append(word.lower())
-            result.append(word.upper())
-        return result
+            return [word.lower(), word.upper()]
+
+        return []
 
 
 pingyin_utils = PinyinTools()
@@ -69,10 +78,10 @@ if __name__ == '__main__':
     # print pingyin_utils.get_pingyin_combination(u'中重')
     print pingyin_utils.get_pingyin_combination(u'安踏凉鞋测试')
     input_str = u'安踏凉鞋测试'
-    first_letter_list = pinyin(input_str, style=pypinyin.FIRST_LETTER, heteronym=True)
-    initials_letter_list = pinyin(input_str, style=pypinyin.INITIALS, heteronym=True)
-    merge_letter_list = imap(lambda a_list, b_list: filter(lambda item: item, set(a_list + b_list)), first_letter_list,
-                             initials_letter_list)
-    print list(merge_letter_list)
+    _first_letter_list = pinyin(input_str, style=pypinyin.FIRST_LETTER, heteronym=True)
+    _initials_letter_list = pinyin(input_str, style=pypinyin.INITIALS, heteronym=True)
+    _merge_letter_list = imap(lambda a_list, b_list: filter(lambda item: item, set(a_list + b_list)), _first_letter_list,
+                             _initials_letter_list)
+    print list(_merge_letter_list)
     print pingyin_utils.get_integrated_pingyin_strs(u'安踏凉鞋测试')
     print pingyin_utils.get_integrated_pingyin_strs(u'重庆火锅')

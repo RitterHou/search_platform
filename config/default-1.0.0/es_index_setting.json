@@ -4,6 +4,7 @@
     "index": "qmshop-{adminId}-{version}",
     "type": "Product",
     "id": "{skuId}",
+    "add_admin_id_field": true,
     "mapping": {
       "properties": {
         "category": {
@@ -276,9 +277,10 @@
   },
   "product_experience": {
     "host": "{experience_es_host}",
-    "index": "qmshop-experience-total-{version}",
-    "type": "Product-{adminId}",
+    "index": "qmshop-experience-{hashcode}-{version}",
+    "type": "Product",
     "id": "{skuId}",
+    "add_admin_id_field": true,
     "mapping": {
       "properties": {
         "category": {
@@ -1145,9 +1147,10 @@
   },
   "spu_experience": {
     "host": "{experience_es_host}",
-    "index": "qmshop-experience-total-{version}",
-    "type": "Spu-{adminId}",
+    "index": "qmshop-experience-{hashcode}-{version}",
+    "type": "Spu",
     "id": "{spuId}",
+    "add_admin_id_field": true,
     "mapping": {
       "properties": {
         "category": {

@@ -963,7 +963,8 @@ class EsDoc(object):
         if 'host' not in es_cfg:
             es_cfg['host'] = self._get_default_es_host()
         es_connection = EsConnectionFactory.get_es_connection(host=es_cfg['host'])
-        dsl = SearchPlatformDoc.objects.get_dsl(es_cfg['index'], es_cfg['type'], query_param, es_connection)
+        dsl = SearchPlatformDoc.objects.get_dsl(es_cfg, es_cfg['index'], es_cfg['type'], query_param, query_param,
+                                                es_connection)
         return es_adapter.delete_by_query(es_cfg, {}, dsl)
 
     def _get_default_es_host(self):

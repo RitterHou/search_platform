@@ -135,7 +135,7 @@ class MessageProcessor(object):
             if page_from == 0:
                 # 如果是第一次执行，支持清除掉数据目的地中数据
                 destination.clear(river_config, data, pull_request_param)
-            destination.push(river_config, data)
+            destination.push(river_config, data, pull_request_param)
             # pull_parser_values['']
             # cur_size = len(data) if isinstance(data, list) or isinstance(data, tuple) else 1
             page_from += 1
@@ -162,7 +162,8 @@ class MessageProcessor(object):
         pull_parser_fields = get_dict_value_by_path('source/response/fields', river_config)
         destination.push(river_config,
                          pull_parser_values[
-                             'data'] if pull_parser_fields and 'data' in pull_parser_values else pull_parser_values)
+                             'data'] if pull_parser_fields and 'data' in pull_parser_values else pull_parser_values,
+                         pull_request_param)
 
 
 class MessageProcessorChain(object):

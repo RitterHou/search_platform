@@ -99,19 +99,23 @@ def bind_dict_variable(expr_dict, kwargs, is_create=True):
         return expr_dict
 
 
-def unbind_variable(regex, variable_name, text):
+def unbind_variable(regex, variable_name, text, ignore=False):
     """
     字符串中变量解绑定
     :param regex:
     :param variable_name:
     :param text:
+    :param ignore: 是否忽略掉除None以外的情况
     :return:
     """
     m = search(regex, text)
     if not m:
         return variable_name, None
     variable_value = m.group(variable_name)
-    return (variable_name, variable_value) if variable_value else (variable_name, None)
+    if not ignore:
+        return (variable_name, variable_value) if variable_value else (variable_name, None)
+    else:
+        return (variable_name, variable_value) if variable_value is not None else (variable_name, None)
 
 
 def get_dict_value_by_path(path, data_dict, default_value=None):
@@ -381,6 +385,14 @@ def get_cats_path(product, tag='b2c', cats_prop_name='cats'):
     if len(filter_cat_path) < 3:
         return ''
     return ','.join(filter_cat_path)
+def hash_encode(input_str, modulus=1):
+    """
+    hash编码
+    :param input_str:
+    :param modulus:
+    :return:
+    """
+    return abs(hash(input_str)) % modulus
 if __name__ == '__main__':
     # print to_utf_chars('China u中华人民共和国 ￥$end')
     print 'bind_variable test start........'

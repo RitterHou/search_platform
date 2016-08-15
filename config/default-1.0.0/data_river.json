@@ -39,7 +39,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -63,7 +68,8 @@
               "router": {
                 "type": "vip_router",
                 "fields": {
-                  "adminId": "{adminId}"
+                  "adminId": "{adminId}",
+                  "hashcode": {}
                 },
                 "target": [
                   {
@@ -113,7 +119,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -187,7 +198,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -256,7 +272,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -322,7 +343,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -396,7 +422,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -470,7 +501,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -555,6 +591,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -637,6 +678,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -715,6 +761,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -793,6 +844,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -849,7 +905,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -905,6 +966,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -983,6 +1049,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -1061,6 +1132,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -1138,6 +1214,11 @@
                       }
                     }
                   }
+                },
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
                 }
               }
             }
@@ -1190,7 +1271,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -1238,7 +1324,7 @@
                     "reference": "product_experience",
                     "operation": "create",
                     "id": "{skuId}",
-                    "clear_policy": "every_msg,all",
+                    "clear_policy": "every_msg,by_adminId",
                     "tag": "default"
                   }
                 ]
@@ -1264,7 +1350,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -1312,7 +1403,7 @@
                     "reference": "spu_experience",
                     "operation": "create",
                     "id": "{spuId}",
-                    "clear_policy": "every_msg,all",
+                    "clear_policy": "every_msg,by_adminId",
                     "tag": "default"
                   }
                 ]
@@ -2172,7 +2263,12 @@
             "data_parser": {
               "type": "regex",
               "fields": {
-                "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\""
+                "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2219,7 +2315,7 @@
                     "reference": "spu_experience",
                     "operation": "create",
                     "id": "{productId}",
-                    "clear_policy": "every_msg,all",
+                    "clear_policy": "every_msg,by_adminId",
                     "tag": "default"
                   }
                 ]
@@ -2263,7 +2359,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2327,7 +2428,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2391,7 +2497,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2463,7 +2574,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\""
+                "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2495,10 +2611,11 @@
               "destination_type": "elasticsearch",
               "reference": "general_experience",
               "operation": "create",
-              "index": "cloudshop-marketing-{version}",
+              "index": "cloudshop-marketing-{hashcode}-{version}",
               "id": "{marketingId}",
-              "type": "{adminId}",
-              "clear_policy": "every_msg,all"
+              "type": "Marketing",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         }
@@ -2539,7 +2656,12 @@
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\"",
-                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2564,9 +2686,10 @@
               "destination_type": "elasticsearch",
               "reference": "general_experience",
               "operation": "create",
-              "index": "cloudshop-marketing-{version}",
+              "index": "cloudshop-marketing-{hashcode}-{version}",
               "id": "{marketingId}",
-              "type": "{adminId}"
+              "type": "Marketing",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2589,7 +2712,12 @@
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "domain_type": "domainType\":\"(?P<domain_type>[\\d\\D]+?)\"",
-                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2614,9 +2742,10 @@
               "destination_type": "elasticsearch",
               "reference": "general_experience",
               "operation": "create",
-              "index": "cloudshop-marketing-{version}",
+              "index": "cloudshop-marketing-{hashcode}-{version}",
               "id": "{marketingId}",
-              "type": "{adminId}"
+              "type": "Marketing",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2638,7 +2767,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\""
+                "ids": "\"marketingId\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2651,13 +2785,14 @@
               "destination_type": "elasticsearch",
               "reference": "general_experience",
               "operation": "delete",
-              "index": "cloudshop-marketing-{version}",
-              "type": "{adminId}",
+              "index": "cloudshop-marketing-{hashcode}-{version}",
+              "type": "Marketing",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ","
-              }
+              },
+              "add_admin_id_field": true
             }
           ]
         }
@@ -2696,7 +2831,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },
@@ -2752,7 +2892,12 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "fromSys": "sys\":(?P<fromSys>[\\d]+?)"
+                "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
               }
             }
           },

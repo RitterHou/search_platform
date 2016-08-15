@@ -31,20 +31,21 @@ class EsIndexAdapter(object):
     ES索引数据适配器
     """
 
-    def batch_create(self, es_config, doc_list):
+    def batch_create(self, es_config, doc_list, input_param=None):
         """
         批量创建或者更新文档，如果是更新文档，需要带上所有属性，
         :param es_config:
         :param doc_list:
+        :param input_param: 上下文解析出来的参数
         :return:
         """
         if not doc_list:
             return
-        es_config = es_router.route(es_config, input_param=doc_list[0])
-        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc_list[0])
+        es_config = es_router.route(es_config, input_param=input_param or doc_list[0])
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=input_param or doc_list[0])
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
-        bulk_body = self.__build_batch_create_body(es_config, doc_list=doc_list)
+        bulk_body = self.__build_batch_create_body(es_config, doc_list=doc_list, input_index=index, input_type=doc_type)
         try:
             es_start_time = time.time()
             es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
@@ -55,17 +56,18 @@ class EsIndexAdapter(object):
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
             raise e
 
-    def batch_update(self, es_config, doc_list):
+    def batch_update(self, es_config, doc_list, input_param=None):
         """
         批量更新文档，只需要给定要更新的字段即可
         :param es_config:
         :param doc_list:
+        :param input_param: 上下文解析出来的参数
         :return:
         """
         if not doc_list:
             return
-        es_config = es_router.route(es_config, input_param=doc_list[0])
-        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc_list[0])
+        es_config = es_router.route(es_config, input_param=input_param or doc_list[0])
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=input_param or doc_list[0])
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         bulk_body = self.__build_batch_update_body(es_config, doc_list=doc_list)
@@ -77,25 +79,27 @@ class EsIndexAdapter(object):
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
             raise e
 
-    def batch_update_with_props_by_ids(self, es_config, doc_list, id_separater=','):
+    def batch_update_with_props_by_ids(self, es_config, doc_list, input_param=None, id_separator=','):
         """
         根据给定的ID批量更新某个或某几个属性
         doc的格式为：{ids:"1,2,3,4", data:{prop1:value1, prop2:value2}, adminId:a12000}
         :param es_config:
         :param doc_list:
+        :param input_param: 上下文解析出来的参数
+        :param id_separator
         :return:
         """
         if not doc_list:
             return
         bulk_body = []
-        es_config = es_router.route(es_config, input_param=doc_list[0])
+        es_config = es_router.route(es_config, input_param=input_param or doc_list[0])
         for doc in doc_list:
-            index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+            index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=dict(input_param or {}, **doc))
             if 'ids' not in doc or 'data' not in doc:
                 continue
-            id_list = doc['ids'].split(id_separater)
-            map(lambda doc_id: bulk_body.extend(
-                ({"update": {"_index": index, "_type": doc_type, "_id": doc_id}}, {"doc": doc['data']})), id_list)
+            id_list = doc['ids'].split(id_separator)
+            map(lambda _doc_id: bulk_body.extend(
+                ({"update": {"_index": index, "_type": doc_type, "_id": _doc_id}}, {"doc": doc['data']})), id_list)
 
         try:
             es_connection = EsConnectionFactory.get_es_connection(
@@ -107,11 +111,12 @@ class EsIndexAdapter(object):
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
             raise e
 
-    def batch_delete(self, es_config, request_param):
+    def batch_delete(self, es_config, request_param, input_param):
         """
         批量删除文档
         :param es_config:
         :param request_param:
+        :param input_param: 上下文解析出来的参数
         :return:
         """
         if not request_param:
@@ -119,8 +124,8 @@ class EsIndexAdapter(object):
         if isinstance(request_param, tuple) or isinstance(request_param, list):
             request_param = request_param[0]
 
-        es_config = es_router.route(es_config, input_param=request_param)
-        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=request_param)
+        es_config = es_router.route(es_config, input_param=input_param or request_param)
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=input_param or request_param)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
         separator = es_config['id_process']['separator'] if 'id_process' in es_config and 'separator' in es_config[
@@ -219,6 +224,31 @@ class EsIndexAdapter(object):
         except ElasticsearchException as e:
             app_log.error('es delete_by_query input param is {0}, {1}', e, index, doc_type)
 
+    def delete_by_field(self, es_config, doc, field_name, field_value_list):
+        """
+        根据指定的字段值删除符合条件的文档
+        :param es_config:
+        :param doc
+        :param field_name:
+        :param field_value_list:
+        :return:
+        """
+        es_config = es_router.route(es_config, input_param=doc)
+        index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
+        doc_type = upper_admin_id(doc_type)
+        es_connection = EsConnectionFactory.get_es_connection(
+            es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')),
+            create_index=False)
+        try:
+            body = {'query': {'terms': {
+                field_name: field_value_list if isinstance(field_value_list, (set, tuple, list))
+                else [field_value_list]}}}
+            es_connection.delete_by_query(index=index, doc_type=doc_type, body=body,
+                                          params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                  'timeout': BATCH_TIMEOUT})
+        except ElasticsearchException as e:
+            app_log.error('es delete_by_field error input param is {0}, {1}, {2}, {3}', e, index, doc_type, field_name,
+                          field_value_list)
     def get_es_doc_keys(self, es_config, doc_id=None, kwargs=None):
         """
         获取ES 文档的 index，type，id
@@ -460,8 +490,8 @@ class EsIndexAdapter(object):
         scroll_time = scroll_time or config.get_value('/consts/query/scroll_time')
         first_run = True if not scroll_id else False
         search_params = {'index': es_cfg['index'], 'doc_type': es_cfg.get('doc_type') or es_cfg.get('type')}
-        if search_type == 'scan':
-            search_params['search_type'] = 'scan'
+        search_type = search_type or 'scan'
+        search_params['search_type'] = search_type
         if first_run:
             resp = es_connection.search(body=body, scroll=scroll_time, **search_params)
         else:
@@ -523,27 +553,33 @@ class EsIndexAdapter(object):
                 'type': bind_variable(sku_es_setting.get('type'), params),
                 'id': bind_variable(sku_es_setting.get('id'), params)}
 
-    def __build_batch_create_body(self, es_config, doc_list):
+    def __build_batch_create_body(self, es_config, doc_list, input_index=None, input_type=None):
         """
         构造商品列表批量更新的ES数据结构，,此处可以优化，不需要每次都获取index和type
         :param es_config:
         :param doc_list:
+        :param input_index
+        :param input_type
         :return:
         """
         if not doc_list:
             return []
-        return chain(*map(lambda doc: self.__build_doc_create_body(es_config, doc=doc), doc_list))
+        return chain(*map(lambda doc: self.__build_doc_create_body(es_config, doc=doc, input_index=input_index,
+                                                                   input_type=input_type), doc_list))
 
-    def __build_batch_update_body(self, es_config, doc_list):
+    def __build_batch_update_body(self, es_config, doc_list, input_index=None, input_type=None):
         """
         构造商品列表批量更新的ES数据结构，只需要给定要更新的字段即可,此处可以优化，不需要每次都获取index和type
         :param es_config:
         :param doc_list:
+        :param input_index:
+        :param input_type:
         :return:
         """
         if not doc_list:
             return []
-        return chain(*map(lambda doc: self.__build_doc_update_body(es_config, doc=doc), doc_list))
+        return chain(*map(lambda doc: self.__build_doc_update_body(es_config, doc=doc, input_index=input_index,
+                                                                   input_type=input_type), doc_list))
 
     def __build_batch_delete_body(self, es_config, doc_list):
         """
@@ -566,32 +602,36 @@ class EsIndexAdapter(object):
         """
         return [self.__build_doc_delete_body_by_id(es_index, doc_type, doc_id) for doc_id in doc_id_list if doc_id]
 
-    def __build_doc_create_body(self, es_config, doc):
+    def __build_doc_create_body(self, es_config, doc, input_index=None, input_type=None):
         """
         构建单个文档的批量创建数据结构，如果文档已经存在，则为更新操作,无论文档是否存在，都需要提供文档全量数据
         :param es_config:
         :param doc:
+        :param input_index: 如果已经计算好input_index,直接使用
+        :param input_type:
         :return:
         """
         if not doc:
             return ()
         index, es_type, doc_id = self.get_es_doc_keys(es_config, kwargs=doc)
-        return {"index": {"_index": index, "_type": es_type, "_id": doc_id}}, doc
+        return {"index": {"_index": input_index or index, "_type": input_type or es_type, "_id": doc_id}}, doc
 
-    def __build_doc_update_body(self, es_config, doc_id=None, doc=None):
+    def __build_doc_update_body(self, es_config, doc_id=None, doc=None, input_index=None, input_type=None):
         """
         构建单个文档批量更新数据结构,文本必须存在，不需要提供全量数据
         :param es_config:
         :param doc_id:
         :param doc:
+        :param input_index
+        :param input_type
         :return:
         """
         if not doc:
             return ()
         index, es_type, doc_id = self.get_es_doc_keys(es_config, doc_id, kwargs=doc)
-        return {"update": {"_index": index, "_type": es_type, "_id": doc_id}}, {"doc": doc}
+        return {"update": {"_index": input_index or index, "_type": input_type or es_type, "_id": doc_id}}, {"doc": doc}
 
-    def __build_doc_delete_body(self, es_config, doc_id=None, doc=None):
+    def __build_doc_delete_body(self, es_config, doc_id=None, doc=None, input_index=None, input_type=None):
         """
         构建单个文档批量删除数据结构
         :param es_config:
@@ -600,7 +640,7 @@ class EsIndexAdapter(object):
         :return:
         """
         index, es_type, doc_id = self.get_es_doc_keys(es_config, doc_id, kwargs=doc)
-        return {"delete": {"_index": index, "_type": es_type, "_id": doc_id}}
+        return {"delete": {"_index": input_index or index, "_type": input_type or es_type, "_id": doc_id}}
 
     def __build_doc_delete_body_by_id(self, es_index, doc_type, doc_id):
         return {"delete": {"_index": es_index, "_type": doc_type, "_id": doc_id}}

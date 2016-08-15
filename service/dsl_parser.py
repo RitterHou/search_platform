@@ -70,12 +70,15 @@ class QdslParser(object):
         return agg_dsl
 
 
-    @debug_log.debug('get_product_query_qdsl')
-    def get_product_query_qdsl(self, index, type, query_params, es_connection=None):
+    def get_product_query_qdsl(self, es_config, index, type, query_params, parse_fields, es_connection=None):
         """
         获取商品查询DSL
+        :param es_config
         :param index:
+        :param type:
         :param query_params:
+        :param parse_fields
+        :param es_connection
         :return:
         """
         query_string = get_dict_value(query_params, 'q')
@@ -94,8 +97,8 @@ class QdslParser(object):
             chain(self.parse_query_string_condition(query_string, es_connection, query_params),
                   self.parse_cat_condition(category),
                   self.parse_basic_conditions(basic_condition),
-                  self.parse_prop_conditions(prop_condition),
-                  self.parse_catpath_query_condition(cats)))
+                  self.parse_catpath_query_condition(cats),
+                  self.parse_add_field_query_qdsl(es_config, parse_fields)))
 
         product_query_qdsl = reduce(lambda dict_1, dict_2: dict(dict_1, **dict_2),
                                     filter(lambda item: item,
@@ -103,6 +106,17 @@ class QdslParser(object):
                                             self.parse_page_param(from_num, size_num), self.parse_sort_params(sort)]))
         extend_query_qdsl = extend_parser.get_qdsl(query_params)
         return deep_merge(product_query_qdsl, extend_query_qdsl)
+    def parse_add_field_query_qdsl(self, es_config, query_params):
+        """
+        获取附加字段查询DSL，目前主要是用户的AdminId
+        :param es_config:
+        :param query_params:
+        :return:
+        """
+        if not query_params or not query_params.get('adminId') or not es_config.get('add_admin_id_field'):
+            return []
+        admin_id = query_params.get('adminId')
+        return [{'term': {'_adminId': admin_id}}]
 
     def parse_query_string_condition(self, query_string, es_connection, query_params, field=None):
         """
@@ -170,11 +184,11 @@ class QdslParser(object):
             return fields_match_dsl
 
 
-        analyzer = config.get_value('/consts/query/query_string/match_selected_fields/analyzer') or 'standard'
+        _analyzer = config.get_value('/consts/query/query_string/match_selected_fields/analyzer') or 'standard'
         default_index_name = config.get_value('/consts/query/default_index')
         fields_cfg = config.get_value('/consts/query/query_string/match_selected_fields/fields') or {}
         if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
+            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, _analyzer,
                                                                                      query_string,
                                                                                      index=default_index_name)
             if analyze_token_list:
@@ -253,7 +267,7 @@ class QdslParser(object):
         sort=price:1_stock:0
         Sort=price:1;stock:0
         Sort=price:1;stock:order(0)
-        Sort=price:1; script:script(),type(),order() ; geodistance:location(48.8, 2.35),unit(km),order(0)
+        Sort=price:1; script:script(),type(),order();geodistance:location(48.8, 2.35),unit(km),order(0)
         :param sort_item:
         :return:
         """
@@ -447,15 +461,20 @@ class QdslParser(object):
     # 聚合QDSL解析相关函数 start
     ###########################################################################################
     @debug_log.debug('get_agg_qdl::')
-    def get_agg_qdl(self, index, type, query_params, es_connection=None):
-        cats = get_dict_value(query_params, 'cats')
-        catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
+    def get_agg_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None):
+        ignore_default_agg_str = get_dict_value(query_params, 'ignore_default_agg')
+        ignore_default_agg = (ignore_default_agg_str.lower() == 'true')
+        if not ignore_default_agg:
+            cats = get_dict_value(query_params, 'cats')
+            catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
         # cur_agg_qdl = self.agg_dsl.copy().update(catpath_agg_qdl)
-        cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
-        if 'brand' in query_params:
+            cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
+            if 'brand' in query_params:
             # 如果品牌在查询条件中，那么就表示不需要再对品牌做聚合
-            cur_agg_qdl.pop('brand', None)
-        qdsl = self.get_product_query_qdsl(index, type, query_params, es_connection)
+                cur_agg_qdl.pop('brand', None)
+        else:
+            cur_agg_qdl = {}
+        qdsl = self.get_product_query_qdsl(es_config, index, type, query_params, parse_fields, es_connection)
         qdsl['aggs'] = cur_agg_qdl
         qdsl['size'] = 0
         qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
@@ -527,21 +546,25 @@ class QdslParser(object):
     ###########################################################################################
     # Search QDSL解析相关函数 start
     ###########################################################################################
-    @debug_log.debug('get_search_qdl')
-    def get_search_qdl(self, index, type, query_params, es_connection=None):
+    def get_search_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None):
         res_str = get_dict_value(query_params, 'res')
         if not res_str:
             res_str = 'products,aggregations'
         res_list = map(lambda res: res.strip(), res_str.strip().split(','))
 
-        qdsl = self.get_product_query_qdsl(index, type, query_params, es_connection)
+        qdsl = self.get_product_query_qdsl(es_config, index, type, query_params, parse_fields, es_connection)
         if 'aggregations' in res_list:
-            cats = get_dict_value(query_params, 'cats')
-            catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
-            cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
-            if 'brand' in query_params:
+            ignore_default_agg_str = get_dict_value(query_params, 'ignore_default_agg')
+            ignore_default_agg = (ignore_default_agg_str.lower() == 'true')
+            if not ignore_default_agg:
+                cats = get_dict_value(query_params, 'cats')
+                catpath_agg_qdl = self.parse_catpath_agg_condition(cats)
+                cur_agg_qdl = dict(self.get_origin_agg_qdl(), **catpath_agg_qdl)
+                if 'brand' in query_params:
                 # 如果品牌在查询条件中，那么就表示不需要再对品牌做聚合
-                cur_agg_qdl.pop('brand', None)
+                    cur_agg_qdl.pop('brand', None)
+            else:
+                cur_agg_qdl = {}
             qdsl['aggs'] = cur_agg_qdl
         qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
         if 'products' not in res_list:

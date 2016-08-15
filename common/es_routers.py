@@ -108,7 +108,7 @@ class VipDestinationRouter(RandomDestinationRouter):
 
         if 'fields' not in destination_cfg:
             # 没有配置fields字段，默认为adminId
-            admin_id = input_param['adminId'] if 'adminId' in input_param else input_param['adminId']
+            admin_id = input_param['adminId'] if 'adminId' in input_param else input_param['adminID']
         else:
             admin_id_template = destination_cfg['router']['fields']['adminId']
             admin_id = bind_variable(admin_id_template, input_param)

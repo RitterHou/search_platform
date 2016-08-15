@@ -51,5 +51,6 @@ urlpatterns = patterns('',
                            views.ClusterView.as_view()),
                        url('^clusters/(?P<res_type>[^/]+)/metrics/(?P<metrics>[^/]+)$',
                            views.ClusterView.as_view()),
+                       url('^es/product/index/(?P<admin_id>[^/]+)$', views.EsProductView.as_view()),
                        url(r'^$', 'manage.views.manage'),
 )

@@ -222,10 +222,13 @@ class RequestHandler(object):
 
         parser_type = data_parser_config.get('type', 'regex')
         fields_config = data_parser_config.get('fields')
-        field_key_value_list = [
-            item_parser.parse_item(__get_field_parser_input_data(item_config), item_config, field_name, parser_type) for
-            field_name, item_config in fields_config.iteritems()]
-        parse_result = dict(filter(lambda (key, value): value, field_key_value_list))
+        parse_result = {}
+        for field_name, item_config in fields_config.iteritems():
+            _key, _value = item_parser.parse_item(__get_field_parser_input_data(item_config), item_config, field_name,
+                                                  parse_result, parser_type)
+            if _value is not None:
+                parse_result[_key] = _value
+
         return parse_result
 
     def __get_support_http_methods(self):
