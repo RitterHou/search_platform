@@ -4,7 +4,6 @@
     "index": "qmshop-{adminId}-{version}",
     "type": "Product",
     "id": "{skuId}",
-    "add_admin_id_field": true,
     "mapping": {
       "properties": {
         "category": {
