@@ -97,6 +97,7 @@ class QdslParser(object):
             chain(self.parse_query_string_condition(query_string, es_connection, query_params),
                   self.parse_cat_condition(category),
                   self.parse_basic_conditions(basic_condition),
+                  self.parse_prop_conditions(prop_condition),
                   self.parse_catpath_query_condition(cats),
                   self.parse_add_field_query_qdsl(es_config, parse_fields)))
 
