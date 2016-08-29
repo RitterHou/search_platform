@@ -988,23 +988,29 @@ class ExtendQdslParser(object):
             return _nested_item_query_str
 
         search_item_str_list = field_str.split(';')
-        item_query_str = None
+        item_query_str_list = []
         for search_item_str in search_item_str_list:
             search_item_key_value = search_item_str.split(':', 1)
 
             if len(search_item_key_value) > 1:
                 if search_item_key_value[0] == 'query':
-                    query_str = search_item_key_value[1]
-                    item_query_str = parse_query_value(query_str)
+                    query_str_list = search_item_key_value[1].split('|')
+                    for query_str in query_str_list:
+                        cur_item_query_str = parse_query_value(query_str)
+                        if cur_item_query_str:
+                            item_query_str_list.append(cur_item_query_str)
 
-        if not item_query_str:
+        if not item_query_str_list:
             return {}
 
-        field_name, field_str = item_query_str.split('=')
-        field_name = field_name[len('eq_q_'):]
-        item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+        item_query_dsl_list = []
+        for item_query_str in item_query_str_list:
+            field_name, field_str = item_query_str.split('=')
+            field_name = field_name[len('eq_q_'):]
+            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+            item_query_dsl_list.append(item_query_dsl)
 
-        return {'bool': {'must_not': [item_query_dsl]}}
+        return {'bool': {'must_not': item_query_dsl_list}}
 
     def __get_agg_max_fragment(self, field_name, field_str):
         """
