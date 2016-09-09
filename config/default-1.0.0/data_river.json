@@ -2306,7 +2306,7 @@
                     "destination_type": "elasticsearch",
                     "reference": "spu_vip",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "clear_policy": "every_msg,all",
                     "tag": "vip"
                   },
@@ -2314,7 +2314,7 @@
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "clear_policy": "every_msg,by_adminId",
                     "tag": "default"
                   }
@@ -2395,14 +2395,14 @@
                     "destination_type": "elasticsearch",
                     "reference": "spu_vip",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "tag": "vip"
                   },
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "tag": "default"
                   }
                 ]
@@ -2464,14 +2464,14 @@
                     "destination_type": "elasticsearch",
                     "reference": "spu_vip",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "tag": "vip"
                   },
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
                     "operation": "create",
-                    "id": "{productId}",
+                    "id": "{ssmItemId}",
                     "tag": "default"
                   }
                 ]
