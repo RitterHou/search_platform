@@ -256,7 +256,7 @@ class ListenerRegister(object):
             mq_topic = mq_notification.get('topic')
             mq_queue = mq_notification.get('queue')
             notification_type = mq_notification.get('type', 'MQ')
-            session_key = get_river_key({}, notification_type, mq_host, mq_topic, mq_queue) + '11'
+            session_key = get_river_key({}, notification_type, mq_host, mq_topic, mq_queue)
 
             del self.mq_consumer_topic_dic[session_key]
 
@@ -287,7 +287,7 @@ class ListenerRegister(object):
             mq_topic = mq_notification.get('topic')
             mq_queue = mq_notification.get('queue')
             notification_type = mq_notification.get('type', 'MQ')
-            session_key = get_river_key({}, notification_type, mq_host, mq_topic, mq_queue) + "11"
+            session_key = get_river_key({}, notification_type, mq_host, mq_topic, mq_queue)
             if mq_host in self.mq_conn_host_dic:
                 conn = self.mq_conn_host_dic[mq_host]
             else:
