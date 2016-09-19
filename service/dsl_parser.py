@@ -300,8 +300,9 @@ class QdslParser(object):
         :param basic_condition:
         :return:
         """
+        basic_condition_items = basic_conditions.split(';') if ';' in basic_conditions else basic_conditions.split('_')
         return chain(*map(lambda condition_item: self.parse_basic_condition_item(condition_item),
-                          basic_conditions.split('_'))) if basic_conditions else []
+                          basic_condition_items)) if basic_conditions else []
 
     def parse_basic_condition_item(self, basic_condition_item):
         """
@@ -328,8 +329,9 @@ class QdslParser(object):
         :param prop_conditions:
         :return:
         """
+        prop_condition_items = prop_conditions.split(';') if ';' in prop_conditions else prop_conditions.split('_')
         return chain(*map(lambda condition_item: self.parse_prop_condition_item(condition_item),
-                          prop_conditions.split('_'))) if prop_conditions else []
+                          prop_condition_items)) if prop_conditions else []
 
     def parse_prop_condition_item(self, prop_condition_item):
         """
