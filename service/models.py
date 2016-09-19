@@ -438,17 +438,18 @@ class EsAggManager(object):
         qdsl = qdsl_parser.get_agg_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         app_log.info('Get agg dsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
         es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
-        result = self.parse_es_result(es_result)
+        result = self.parse_es_result(es_result, args)
         range_result = self.get_agg_range_result(es_config, index_name, doc_type, args, es_result, qdsl)
         if range_result:
             result = deep_merge(result, range_result)
         app_log.info('EsAggManager get return is {0}', result)
         return result
 
-    def parse_es_result(self, es_result):
+    def parse_es_result(self, es_result, args=None):
         """
         解析ES返回结果
         :param es_result:
+        :param args
         :return:
         """
         result = {}
@@ -457,13 +458,14 @@ class EsAggManager(object):
 
         agg_result = es_result['aggregations']
         is_last_cat = self.__is_last_cat(agg_result)
+        is_ignore_cat = self.__is_ignore_cat(args)
         for agg_key in agg_result:
             if agg_key == 'brand':
                 result['brand'] = self.__parse_nomal_agg_result(agg_result, 'brand')
             elif agg_key == 'cats':
                 result['cats'] = self.__parse_cats_agg_result(agg_result, 'cats', is_last_cat)
             elif agg_key == 'props':
-                result['props'] = self.__parse_prop_agg_result(agg_result, 'props', is_last_cat)
+                result['props'] = self.__parse_prop_agg_result(agg_result, 'props', is_last_cat, is_ignore_cat)
             elif agg_key.startswith('ex_agg_'):
                 if agg_key.endswith('.cats'):
                     result[agg_key] = self.__parse_cats_agg_result(agg_result, agg_key, is_last_cat)
@@ -541,15 +543,18 @@ class EsAggManager(object):
         """
         return agg_result_dict[field]['buckets'] if field in agg_result_dict else []
 
-    def __parse_prop_agg_result(self, agg_result_dict, field, is_last_cat=False):
+    def __parse_prop_agg_result(self, agg_result_dict, field, is_last_cat=False, ignore_cat=False):
         """
         解析扩展属性聚合结果
         :param agg_result_dict:
         :param field:
         :param is_last_cat:
+        :param ignore_cat 是否忽略cat,即不管是否是叶子类目都返回props聚合
         :return:
         """
-        if field not in agg_result_dict or not is_last_cat:
+        if field not in agg_result_dict :
+            return []
+        if not ignore_cat and not is_last_cat:
             return []
 
         prop_field_list = agg_result_dict[field]['name']['buckets']
@@ -610,6 +615,15 @@ class EsAggManager(object):
         cats_agg_result = agg_result_dict['cats']['name']['buckets']
         wheel_cats_agg_result = agg_result_dict['wheel_cats']['name']['buckets']
         return self.__get_cats_level(cats_agg_result) == self.__get_cats_level(wheel_cats_agg_result)
+    def __is_ignore_cat(self, args):
+        """
+        判断是否需要忽略类目层次
+        :param args:
+        :return:
+        """
+        if not args or 'props_agg_ignore_cat' not in args:
+            return False
+        return args.get('props_agg_ignore_cat').lower().strip() == 'true'
 
     def __get_cats_level(self, cats_agg_list):
         """
@@ -713,7 +727,7 @@ class EsSearchManager(object):
         :return:
         """
         product_result = Product.objects.parse_es_result(es_result, args)
-        agg_result = Aggregation.objects.parse_es_result(es_result)
+        agg_result = Aggregation.objects.parse_es_result(es_result, args)
         search_result = {}
         if product_result:
             search_result['products'] = product_result
