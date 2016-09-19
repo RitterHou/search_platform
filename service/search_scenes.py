@@ -124,7 +124,7 @@ class SpuSearchBySku(object):
         product_dict = {'root': spu_list, 'total': total_size}
         if 'aggs' in sku_dsl:
             aggs_search_response = multi_search_results['responses'][2]
-            aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response)
+            aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
             query_log.info('get_spu_by_sku spends {0}', time.time() - start_time)
             return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
         query_log.info('get_spu_by_sku spends {0}', time.time() - start_time)
