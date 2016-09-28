@@ -45,11 +45,11 @@ class ExtendQdslParser(object):
                                        'stock': self.__get_query_stock_fragment,
                                        'nested': self.__get_query_nested_fragment,
                                        'ematch': self.__get_query_ematch_fragment,
-                                       'not_null': self.__get_query_not_null_fragment,
                                        'not': self.__get_query_not_fragment}
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
-                                        'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment}
+                                        'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
+                                        'null': self.__get_filter_null_fragment,}
         self.AGGS_QDSL_PARSER_DICT = {'max': self.__get_agg_max_fragment,
                                       'min': self.__get_agg_min_fragment,
                                       'sum': self.__get_agg_sum_fragment,
@@ -282,7 +282,8 @@ class ExtendQdslParser(object):
         qdsl_must_list = filter(lambda item: item, map(
             lambda (field_name, filed_value_list): self.get_filter_qdsl_list_fragment(field_name, filed_value_list),
             ex_query_params_dict.iteritems()))
-        return {'query': {'filter': {'bool': {'must': qdsl_must_list}}}} if qdsl_must_list else {}
+        return {'query': {
+            'bool': {'must': [{'filtered': {'filter': {'bool': {'must': qdsl_must_list}}}}]}}} if qdsl_must_list else {}
 
     def get_request_dsl_qdsl(self, query_params):
         """
@@ -391,9 +392,7 @@ class ExtendQdslParser(object):
         """
         temp_name, op_type = unbind_variable(self.regex_field_str, 'op_type', input_str)
         temp_name, field_str = unbind_variable(self.regex_field_str, 'field_str', input_str)
-        if field_str is None:
-            query_log.info('Get filter qdsl fragment the filed_str is null')
-            return None
+        field_str = field_str or ''
         if op_type not in self.FILTER_QDSL_PARSER_DICT:
             query_log.warning('Get filter qdsl fragment has not support op type {0}', op_type)
             return None
@@ -959,9 +958,10 @@ class ExtendQdslParser(object):
                     geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
         return {"geo_bounding_box": geo_distance_filter_dsl}
 
-    def __get_query_not_null_fragment(self, field_name, field_str):
+    def __get_filter_null_fragment(self, field_name, field_str):
         """
-        not null 查询，格式为：ext_q_kkk=not_null(q:null)
+        null 过滤，格式为：ex_f_属性名=null(flag:false),
+        false主要是决定是null还是not null， true表示是null查询；false表示not null查询。默认为false
         根据user字段查询：
         返回true的情况：{ "user": "jane" }{ "user": "" } { "user": "-" } { "user": ["jane"] } { "user": ["jane", null ] }
         返回false的情况：{ "user": null }{ "user": [] } { "user": [null] } { "foo":  "bar" }
@@ -969,7 +969,20 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
-        return {"filtered": {"filter": {"exists": {"field": field_name}}}}
+        if not field_name:
+            return None
+        flag = False
+        if field_str:
+            search_item_str_list = field_str.split(';')
+            for search_item_str in search_item_str_list:
+                search_item_key_value = search_item_str.split(':')
+                if len(search_item_key_value) > 1 and search_item_key_value[0] == 'flag':
+                    flag = search_item_key_value[1].lower() == 'true'
+        if flag:
+            return {"missing": {"field": field_name}}
+        else:
+            # return {field_name + "_null": {"filter": {"exists": {"field": field_name}}}}
+            return {"exists": {"field": field_name}}
 
     def __get_query_not_fragment(self, field_name, field_str):
         """

@@ -129,7 +129,7 @@ class RestQos(object):
                 message = self._consumer.consume(block=True)
                 if message is None:
                     continue
-                app_log.info('Consume kafka message offset {}', message.offset)
+                app_log.info('Consume kafka message offset {0}', message.offset)
                 self.process_kafka_message(message.value)
             except Exception as e:
                 app_log.error('RestQos run has error ', e)
