@@ -53,7 +53,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
               "timeout": 30,
@@ -132,7 +132,7 @@
             "type": "get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
@@ -211,7 +211,7 @@
             "type": "get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
@@ -357,7 +357,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "request": {
               "method": "listByIdString",
               "timeout": 30,
@@ -435,7 +435,7 @@
             "type": "get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
@@ -514,7 +514,7 @@
             "type": "get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
@@ -1284,7 +1284,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "query",
@@ -1363,7 +1363,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "query",
@@ -2844,7 +2844,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsGoodsQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "query",
@@ -2905,7 +2905,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.pc.api.es.item.EsProductQueryProvider",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "query",
