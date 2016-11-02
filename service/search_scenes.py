@@ -1,7 +1,7 @@
 # coding=utf-8
+import time
 from collections import OrderedDict
 from itertools import chain
-import time
 
 from common.adapter import es_adapter
 from common.loggers import query_log
@@ -49,6 +49,8 @@ class SpuAndSkuDict(object):
     def get_spu_ids(self):
         return self.__ordered_dict.iterkeys()
 
+    def get_sku_ids_by_spu(self, spu_id):
+        return self.__ordered_dict.get(spu_id)
     def get_sku_ids(self):
         return chain(*self.__ordered_dict.itervalues())
 
@@ -119,7 +121,7 @@ class SpuSearchBySku(object):
         spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
                                                 delete_goods_field=aggs_sku_size > 0)
 
-        self.parse_sku_search_result(spu_list, args, multi_search_results)
+        self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
 
         product_dict = {'root': spu_list, 'total': total_size}
         if 'aggs' in sku_dsl:
@@ -147,22 +149,29 @@ class SpuSearchBySku(object):
         sku_dsl['query']['bool']['must'].append({'ids': {'values': sku_id_list}})
         return sku_dsl
 
-    def parse_sku_search_result(self, spu_list, args, multi_search_results):
+    def parse_sku_search_result(self, spu_list, args, multi_search_results, page_spu_sku_dict):
         """
         解析SKU查询结果
         :param spu_list:
         :param args:
         :param multi_search_results:
+        :param page_spu_sku_dict
         :return:
         """
         from service.models import Product
 
         sku_search_response = multi_search_results['responses'][1]
         sku_parse_result = Product.objects.parse_es_result(sku_search_response, args)
+        sku_dict = {}
+        for sku_item in sku_parse_result['root']:
+            sku_dict[sku_item['skuId']] = sku_item
         for spu_item in spu_list:
-            for sku_item in sku_parse_result['root']:
-                if spu_item['spuId'] == sku_item['spuId']:
-                    spu_item['skuList'].append(sku_item)
+            sku_ids = page_spu_sku_dict.get_sku_ids_by_spu(spu_item['spuId'])
+            if not sku_ids:
+                continue
+            for sku_id in sku_ids:
+                sku_item = sku_dict.get(sku_id)
+                spu_item['skuList'].append(sku_item)
 
     def parse_spu_search_result(self, multi_search_results, page_spu_sku_dict, delete_goods_field=False):
         """
@@ -177,7 +186,7 @@ class SpuSearchBySku(object):
             for spu_item in spu_search_response['hits']['hits']:
                 if spu_id == spu_item['_id']:
                     spu_item['_source']['skuList'] = []
-                    if delete_goods_field:
+                    if delete_goods_field and 'goods' in spu_item['_source']:
                         del spu_item['_source']['goods']
                     spu_list.append(spu_item['_source'])
                     break

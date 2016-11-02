@@ -29,7 +29,9 @@ class ExtendQdslParser(object):
         self.section_regex_optimize = 'optimize:(?P<optimize>[\\w]+)'
         self.section_regex_size = 'size:(?P<size>[\\d]+)'
         self.highlight_query_tmpl = {"number_of_fragments": 0, "highlight_query": {"bool": {"must": []}}}
-        self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment, 'range': self.__get_query_range_fragment,
+        self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment,
+                                       'range': self.__get_query_range_fragment,
+                                       'date_range': self.__get_query_date_range_fragment,
                                        'terms': self.__get_query_term_fragment,
                                        'bterms': self.__get_query_bool_term_fragment,
                                        'size_terms': self.__get_query_size_term_fragment,
@@ -485,10 +487,10 @@ class ExtendQdslParser(object):
             }
         }
 
-    def __get_query_ids_fragment(self, filed_name, field_str):
+    def __get_query_ids_fragment(self, field_name, field_str):
         """
         ids查询
-        :param filed_name:
+        :param field_name:
         :param field_str:
         :return:
         """
@@ -499,27 +501,41 @@ class ExtendQdslParser(object):
             }
         }
 
-    def __get_query_range_fragment(self, filed_name, field_str):
+    def __get_query_range_fragment(self, field_name, field_str):
         """
         范围查询
-        :param filed_name:
+        :param field_name:
         :param field_str:
         :return:
         """
 
-        def __range_value_to_qdsl(floor_value, ceiling_vlaue):
-            range_qsdl_item = {}
-            if floor_value is not None:
-                range_qsdl_item['gte'] = floor_value
-            if ceiling_vlaue is not None:
-                range_qsdl_item['lt'] = ceiling_vlaue
-            return range_qsdl_item
 
         range_values = self.__parse_range_input_str(field_str)
-        range_qdsl_list = map(lambda (floor_value, ceiling_vlaue): {
-            "range": {filed_name: __range_value_to_qdsl(floor_value, ceiling_vlaue)}}, range_values)
+        range_qdsl_list = map(lambda (floor_value, ceiling_value): {
+            "range": {field_name: self.__range_value_to_qdsl(floor_value, ceiling_value)}}, range_values)
 
         return {'bool': {'should': range_qdsl_list, 'minimum_should_match': 1}}
+    def __get_query_date_range_fragment(self, field_name, field_str):
+        """
+        时间范围查询,时间格式:"2012-01-01" "2012-01-01T00:00:00+01:00" "2011-12-31T23:00:00" "now"
+        为了和时间的"-"区分,区间的分隔符为"--"
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        range_values = self.__parse_range_input_str(field_str, split_char='--')
+        range_qdsl_list = map(lambda (floor_value, ceiling_value): {
+            "range": {field_name: self.__range_value_to_qdsl(floor_value, ceiling_value)}}, range_values)
+        if range_qdsl_list:
+            return {'bool': {'should': range_qdsl_list, 'minimum_should_match': 1}}
+        return None
+    def __range_value_to_qdsl(self, floor_value, ceiling_value):
+        range_qsdl_item = {}
+        if floor_value is not None:
+            range_qsdl_item['gte'] = floor_value
+        if ceiling_value is not None:
+            range_qsdl_item['lt'] = ceiling_value
+        return range_qsdl_item
 
     def __get_query_querystring_fragment(self, field_name, field_str):
         """
@@ -1591,20 +1607,24 @@ class ExtendQdslParser(object):
             if '-' not in range_single_input_str:
                 return None, None
             temps = range_single_input_str.split(split_char)
-            return self.__get_obj_by_desc(temps[0]), self.__get_obj_by_desc(temps[1])
+            return self.__get_obj_by_desc(temps[0], split_char == '-') \
+                , self.__get_obj_by_desc(temps[1], split_char == '-')
 
         term_value_strs = range_query_str.split(',')
-        return filter(lambda (floor_value, ceiling_vlaue): floor_value is not None or ceiling_vlaue is not None,
+        return filter(lambda (floor_value, ceiling_value): floor_value is not None or ceiling_value is not None,
                       map(__parse_single_range_str, term_value_strs))
 
-    def __get_obj_by_desc(self, desc_str):
+    def __get_obj_by_desc(self, desc_str, with_type=True):
         """
         根据对象描述字符串生成对象，格式为: 'num:122.5', 'bool:false', 'str:kkwq'
         :param desc_str:
+        :param with_type:
         :return:
         """
         if not desc_str:
             return None
+        if not with_type:
+            return desc_str
 
         if ':' in desc_str:
             temp_strs = desc_str.split(':')
