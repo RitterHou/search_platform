@@ -794,6 +794,123 @@
         "id": "generate"
       },
       "response": {}
+    },
+    {
+      "name": "marketing_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "(?!cloudshop)/marketings/(?!(items|trades))"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketings/(?P<adminId>[^/]+)",
+          "id": "marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "marketing-{hashcode}-{version}",
+        "type": "Marketing",
+        "id": "{id}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "marketing_item_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/items/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/marketings/items/"
+      }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketings/items/(?P<adminId>[^/]+)",
+          "id": "marketings/items/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "marketing-item-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{id}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "marketing_trade_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/trades/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/marketings/trades/"
+      }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketings/trades/(?P<adminId>[^/]+)",
+          "id": "marketings/trades/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "marketing-trade-{hashcode}-{version}",
+        "type": "Trade",
+        "id": "{tid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }

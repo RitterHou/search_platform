@@ -307,7 +307,7 @@ def get_time_by_mill_str(format="%Y-%m-%dT%H:%M:%S."):
     return ''.join((str_time, str(mills), 'Z'))
 
 
-def format_time(time_stamp, format='%Y-%m-%dT%H:%M:%S.%f'):
+def format_time(time_stamp, format='%Y-%m-%d %H:%M:%S.%f'):
     """
     格式化时间
     :param time_stamp:
@@ -315,7 +315,7 @@ def format_time(time_stamp, format='%Y-%m-%dT%H:%M:%S.%f'):
     :return:
     """
     date = datetime.fromtimestamp(time_stamp)
-    return date.strftime(format)
+    return date.strftime(format)[:23]
 
 
 def format_dict(_input_dict):
