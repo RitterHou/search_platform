@@ -101,7 +101,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -180,7 +180,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -330,7 +330,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -404,7 +404,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -483,7 +483,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -649,7 +649,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -726,7 +726,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -809,7 +809,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -937,7 +937,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -1014,7 +1014,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -1097,7 +1097,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"update\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
