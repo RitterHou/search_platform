@@ -808,7 +808,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "(?!cloudshop)/marketings/(?!(items|trades))"
+            "expression": "(?!cloudshop)/marketings/(?!(items|trades|usercoupons))"
           }
         ]
       },
@@ -908,6 +908,45 @@
         "index": "marketing-trade-{hashcode}-{version}",
         "type": "Trade",
         "id": "{tid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "marketing_usercoupon_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/usercoupons/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/marketings/usercoupons/"
+      }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketings/usercoupons/(?P<adminId>[^/]+)",
+          "id": "marketings/usercoupons/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "marketing-usercoupon-{hashcode}-{version}",
+        "type": "Coupon",
+        "id": "{couponId}",
         "add_admin_id_field": true
       },
       "response": {}
