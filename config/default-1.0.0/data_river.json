@@ -562,7 +562,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression": "\"deleteSkuIds\":\""
+                  "expression": "\"type\":\"delete\""
                 },
                 {
                   "operator": "is",
