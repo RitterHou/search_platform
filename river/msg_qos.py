@@ -32,6 +32,7 @@ def process_message_wrapper(_message_dict_list):
     """
     for _message_dict in _message_dict_list:
         try:
+            app_log.info('begin send msg to celery {0}', _message_dict)
             process_message.delay(_message_dict, _message_dict['river_key'])
             # process_message('', _message_dict, _message_dict['river_key'])
         except Exception as e:
@@ -102,7 +103,7 @@ class MsgQos(object):
             try:
                 msg_sla.process_msg(process_message_wrapper, is_vip)
                 _cost_time = time.time() - _start_time
-                debug_log.print_log('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
+                app_log.info('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
             except Exception as e:
                 app_log.error('handle vip({0}) msg has error, {0}', is_vip, e)
             finally:
