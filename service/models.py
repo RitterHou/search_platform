@@ -12,7 +12,7 @@ from common.configs import config
 from common.exceptions import InvalidParamError, EsConnectionError
 from common.connections import EsConnectionFactory
 from common.loggers import debug_log, query_log as app_log
-from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path
+from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path, get_day_and_hour
 from measure.measure_units import measure_unit_helper
 from dsl_parser import qdsl_parser, extend_parser
 from search_platform import settings
@@ -26,6 +26,27 @@ INDEX_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/index_requ
 INDEX_TIMEOUT = config.get_value('consts/global/es_conn_param/index_timeout') or 120000
 
 
+def get_es_search_params(es_config, index_name, doc_type, args, parse_fields=None):
+    """
+    获取ES search参数
+    :param es_config:
+    :param index_name:
+    :param doc_type:
+    :param args:
+    :param parse_fields:
+    :return:
+    """
+    params = {}
+    if not args:
+        return params
+    "处理preference, restful入参为：search_preference=kk"
+    preference = args.get("search_preference")
+    if preference in ['_primary', '_primary_first', '_local', '_only_nodes']:
+        params['preference'] = preference
+    elif preference == '_auto' and parse_fields and parse_fields.get('adminId'):
+        cur_time_str = get_day_and_hour()
+        params['preference'] = '-'.join((parse_fields.get('adminId'), cur_time_str))
+    return params
 class EsModel(object):
     field_config = {}
 
@@ -53,14 +74,18 @@ class EsProductManager(object):
                      doc_type, args, qdsl, qdsl_end_time - start_time)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
-            result, es_agg_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields)
+            es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
+            result, es_agg_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields,
+                                                                    es_search_params)
         else:
             if args.get('ex_body_type') == 'scroll':
                 es_result = self.__scroll_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
             elif args.get('ex_body_type') == 'scan':
                 es_result = self.__scan_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
             else:
-                es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+                es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
+                es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
+                                                 **es_search_params)
             es_end_time = time.time()
             app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
                          es_end_time - qdsl_end_time)
@@ -702,11 +727,13 @@ class EsSearchManager(object):
         qdsl_end_time = time.time()
         app_log.info('Get search dsl finish, spend time {4},  index={0} , type={1} , args={2}, dsl={3}', index_name,
                      doc_type, args, qdsl, qdsl_end_time - start_time)
+        es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
         if args.get('scene') == 'spu_aggs':
             # 根据sku聚合搜索spu场景
-            result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields)
+            result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields, es_search_params)
         else:
-            es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+            es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
+                                             **es_search_params)
             es_end_time = time.time()
             app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
                          es_end_time - qdsl_end_time)
@@ -758,7 +785,9 @@ class SearchPlatformDocManager(EsProductManager):
         qdsl = qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
-        es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+        es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
+        es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
+                                         **es_search_params)
         result = self.parse_es_result(es_result, args)
         debug_log.print_log('SearchPlatformDocManager get return size is {0}',
                             result['total'] if 'total' in result else 'omitted')

@@ -316,6 +316,12 @@ def format_time(time_stamp, format='%Y-%m-%d %H:%M:%S.%f'):
     """
     date = datetime.fromtimestamp(time_stamp)
     return date.strftime(format)[:23]
+def get_day_and_hour():
+    """
+    获取一年中的第多少天和一天中的第多少小时， 格式为：00102 表示一年中的第一天第二个小时
+    :return:
+    """
+    return datetime.now().strftime('%j%H')
 
 
 def format_dict(_input_dict):

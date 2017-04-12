@@ -498,7 +498,7 @@ class EsIndexAdapter(object):
             resp = es_connection.scroll(scroll_id, scroll=scroll_time)
         return resp
 
-    def scan(self, scroll_time=None, body=None, preserve_order=False, **es_cfg):
+    def scan(self, scroll_time=None, body=None, preserve_order=False, es_search_params=None, **es_cfg):
         """
         scan查询，会查询出所有符合查询条件的数据，默认不进行排序
         :param scroll_time:
@@ -509,8 +509,9 @@ class EsIndexAdapter(object):
         doc_type = es_cfg.get('doc_type') or es_cfg.get('type')
         host = es_cfg.get('host') or get_default_es_host()
         es_connection = EsConnectionFactory.get_es_connection(host=host)
+        es_search_params = es_search_params or {}
         return helpers.scan(es_connection, body, scroll_time, preserve_order, index=es_cfg['index'],
-                            doc_type=doc_type)
+                            doc_type=doc_type, **es_search_params)
 
     def delete_scroll(self, scroll_ids, **es_cfg):
         """

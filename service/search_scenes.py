@@ -85,12 +85,13 @@ class SpuSearchBySku(object):
     """
 
 
-    def get_spu_by_sku(self, sku_dsl, es_cfg, args, parse_fields):
+    def get_spu_by_sku(self, sku_dsl, es_cfg, args, parse_fields, es_search_params=None):
         from service.models import Aggregation
 
         start_time = time.time()
         spu_dsl = self.get_spu_sku_id_query_dsl(sku_dsl)
-        es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, **es_cfg)
+        es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, es_search_params=es_search_params,
+                                         **es_cfg)
         es_scan_result = tuple(es_scan_result)
         # 限制SPU中聚合的SKU数目
         aggs_sku_size = int(args['aggs_sku_size']) if 'aggs_sku_size' in args and int(args['aggs_sku_size']) > 0 else 0
