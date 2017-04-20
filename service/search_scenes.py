@@ -96,6 +96,7 @@ class SpuSearchBySku(object):
         es_scan_result = tuple(es_scan_result)
         app_log.info("spu by sku scan id spends {0}  {1}", time.time()-start_time, parse_fields)
         start_time = time.time()
+        build_start_time = time.time()
         # 限制SPU中聚合的SKU数目
         aggs_sku_size = int(args['aggs_sku_size']) if 'aggs_sku_size' in args and int(args['aggs_sku_size']) > 0 else 0
         if aggs_sku_size > 0:
@@ -107,11 +108,20 @@ class SpuSearchBySku(object):
                 spu_id = item['fields'].get('spuId')[0]
                 sku_id = item['fields'].get('skuId')[0]
                 spu_sku_dict.put(spu_id, sku_id)
+        app_log.info("spu by sku add sku dict spends {0}  {1}", time.time() - start_time, parse_fields)
+        start_time = time.time()
         total_size = spu_sku_dict.get_spu_size()
+        app_log.info("spu by sku get spu size spends {0}  {1}", time.time() - start_time, parse_fields)
+        start_time = time.time()
         page_spu_sku_dict = spu_sku_dict.get_paged_dict(sku_dsl.get('from') or 0, sku_dsl.get('size'))
+        app_log.info("spu by sku get page spu spends {0}  {1}", time.time() - start_time, parse_fields)
+        start_time = time.time()
         sku_id_list = list(page_spu_sku_dict.get_sku_ids())
+        app_log.info("spu by sku get sku id list spends {0}  {1}", time.time() - start_time, parse_fields)
+        start_time = time.time()
         spu_id_list = list(page_spu_sku_dict.get_spu_ids())
-        app_log.info("spu by sku build ids spends {0}  {1}", time.time() - start_time, parse_fields)
+        app_log.info("spu by sku get spu id list spends {0}  {1}", time.time() - start_time, parse_fields)
+        app_log.info("spu by sku build ids spends {0}  {1}", time.time() - build_start_time, parse_fields)
         start_time = time.time()
 
         multi_search_body = [
@@ -210,7 +220,7 @@ class SpuSearchBySku(object):
         :param sku_dsl:
         :return:
         """
-        spu_dsl = {'fields': ['skuId', 'spuId'], 'size': 1000}
+        spu_dsl = {'fields': ['skuId', 'spuId'], 'size': 10000}
         for key in sku_dsl:
             if key in ('aggs', 'from', 'size'):
                 continue
