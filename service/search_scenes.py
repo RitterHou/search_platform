@@ -109,18 +109,18 @@ class SpuSearchBySku(object):
                 sku_id = item['fields'].get('skuId')[0]
                 spu_sku_dict.put(spu_id, sku_id)
         app_log.info("spu by sku add sku dict spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
+        # start_time = time.time()
         total_size = spu_sku_dict.get_spu_size()
-        app_log.info("spu by sku get spu size spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
+        # app_log.info("spu by sku get spu size spends {0}  {1}", time.time() - start_time, parse_fields)
+        # start_time = time.time()
         page_spu_sku_dict = spu_sku_dict.get_paged_dict(sku_dsl.get('from') or 0, sku_dsl.get('size'))
-        app_log.info("spu by sku get page spu spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
+        # app_log.info("spu by sku get page spu spends {0}  {1}", time.time() - start_time, parse_fields)
+        # start_time = time.time()
         sku_id_list = list(page_spu_sku_dict.get_sku_ids())
-        app_log.info("spu by sku get sku id list spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
+        # app_log.info("spu by sku get sku id list spends {0}  {1}", time.time() - start_time, parse_fields)
+        # start_time = time.time()
         spu_id_list = list(page_spu_sku_dict.get_spu_ids())
-        app_log.info("spu by sku get spu id list spends {0}  {1}", time.time() - start_time, parse_fields)
+        # app_log.info("spu by sku get spu id list spends {0}  {1}", time.time() - start_time, parse_fields)
         app_log.info("spu by sku build ids spends {0}  {1}", time.time() - build_start_time, parse_fields)
         start_time = time.time()
 
@@ -135,15 +135,10 @@ class SpuSearchBySku(object):
             multi_search_body.extend(({'index': es_cfg['index'], 'type': es_cfg['type']}, sku_dsl))
         multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
         app_log.info("spu by sku multi search spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
         spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
                                                 delete_goods_field=aggs_sku_size > 0)
-        app_log.info("spu by sku parse spu spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
 
         self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
-        app_log.info("spu by sku parse sku spends {0}  {1}", time.time() - start_time, parse_fields)
-        start_time = time.time()
 
         product_dict = {'root': spu_list, 'total': total_size}
         if 'aggs' in sku_dsl:
