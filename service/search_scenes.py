@@ -88,12 +88,13 @@ class SpuSearchBySku(object):
     def get_spu_by_sku(self, sku_dsl, es_cfg, args, parse_fields, es_search_params=None):
         from service.models import Aggregation
 
+        total_start_time = time.time()
         start_time = time.time()
         spu_dsl = self.get_spu_sku_id_query_dsl(sku_dsl)
         es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, es_search_params=es_search_params,
                                          **es_cfg)
         es_scan_result = tuple(es_scan_result)
-        app_log.info("spu by sku scan id spends {0}", time.time()-start_time)
+        app_log.info("spu by sku scan id spends {0}  {1}", time.time()-start_time, parse_fields)
         start_time = time.time()
         # 限制SPU中聚合的SKU数目
         aggs_sku_size = int(args['aggs_sku_size']) if 'aggs_sku_size' in args and int(args['aggs_sku_size']) > 0 else 0
@@ -110,7 +111,7 @@ class SpuSearchBySku(object):
         page_spu_sku_dict = spu_sku_dict.get_paged_dict(sku_dsl.get('from') or 0, sku_dsl.get('size'))
         sku_id_list = list(page_spu_sku_dict.get_sku_ids())
         spu_id_list = list(page_spu_sku_dict.get_spu_ids())
-        app_log.info("spu by sku build ids spends {0}", time.time() - start_time)
+        app_log.info("spu by sku build ids spends {0}  {1}", time.time() - start_time, parse_fields)
         start_time = time.time()
 
         multi_search_body = [
@@ -123,24 +124,24 @@ class SpuSearchBySku(object):
             sku_dsl['size'] = 0
             multi_search_body.extend(({'index': es_cfg['index'], 'type': es_cfg['type']}, sku_dsl))
         multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
-        app_log.info("spu by sku multi search spends {0}", time.time() - start_time)
+        app_log.info("spu by sku multi search spends {0}  {1}", time.time() - start_time, parse_fields)
         start_time = time.time()
         spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
                                                 delete_goods_field=aggs_sku_size > 0)
-        app_log.info("spu by sku parse spu spends {0}", time.time() - start_time)
+        app_log.info("spu by sku parse spu spends {0}  {1}", time.time() - start_time, parse_fields)
         start_time = time.time()
 
         self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
-        app_log.info("spu by sku parse sku spends {0}", time.time() - start_time)
+        app_log.info("spu by sku parse sku spends {0}  {1}", time.time() - start_time, parse_fields)
         start_time = time.time()
 
         product_dict = {'root': spu_list, 'total': total_size}
         if 'aggs' in sku_dsl:
             aggs_search_response = multi_search_results['responses'][2]
             aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
-            query_log.info('get_spu_by_sku spends {0}', time.time() - start_time)
+            query_log.info('get_spu_by_sku spends {0}  {1}', time.time() - total_start_time, parse_fields)
             return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
-        query_log.info('spu by sku total spends {0}', time.time() - total_start_time)
+        query_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
         return product_dict, None
 
     def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg):
