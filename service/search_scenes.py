@@ -139,9 +139,9 @@ class SpuSearchBySku(object):
         if 'aggs' in sku_dsl:
             aggs_search_response = multi_search_results['responses'][2]
             aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
-            query_log.info('get_spu_by_sku spends {0}  {1}', time.time() - total_start_time, parse_fields)
+            app_log.info('spu by sku spends {0}  {1}', time.time() - total_start_time, parse_fields)
             return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
-        query_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
+        app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
         return product_dict, None
 
     def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg):
