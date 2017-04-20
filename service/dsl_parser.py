@@ -291,7 +291,7 @@ class QdslParser(object):
             return {'_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type,
                                       'mode': mode}} if mode else {
                 '_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type}}
-        return {self.global_id_to_field(sort_field_id): order}
+        return {self.global_id_to_field(sort_field_id): {"order": order, "unmapped_type": "long"}}
 
 
     def parse_basic_conditions(self, basic_conditions):
