@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from itertools import *
 
-from common.configs import config
-from common.utils import singleton, get_dict_value, unbind_variable, deep_merge
-from common.loggers import debug_log
 from common.adapter import es_adapter
+from common.configs import config
+from common.loggers import debug_log
+from common.utils import singleton, get_dict_value, unbind_variable, deep_merge
 from service.ex_dsl_parser import extend_parser
 
 
@@ -412,6 +412,8 @@ class QdslParser(object):
     def field_to_es_field(field_name):
         if field_name == 'price':
             return 'salePrice'
+        elif field_name == '\price':
+            return 'price'
         return field_name
 
     @staticmethod
