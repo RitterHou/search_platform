@@ -214,7 +214,7 @@
   },
   "notification": {
     "mq_reconnect_time": 180,
-    "mq_client_id": "search_platform1111"
+    "mq_client_id": "search_platform"
   },
   "filter": {
     "default_match_result": "true"
