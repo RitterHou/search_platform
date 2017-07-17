@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from common.adapter import es_adapter
 from common.es_routers import es_router
+from common.loggers import app_log
 from river import do_msg_process_error
 
-from common.adapter import es_adapter
-from common.loggers import app_log
 __author__ = 'liuzhaoming'
 
 
@@ -73,9 +73,12 @@ class ElasticSearchDestination(DataDestination):
         :param data:
         :return:
         """
-        if not data:
+        if data is None:
             app_log.warning('destination clear fail, because data is null, {0}', destination_config)
             return
+        if data == {} or data == [] or data == ():
+            app_log.warning('destination clear maybe fail, because data is empty, {0}', destination_config)
+            data = [{}]
         es_config = es_router.merge_es_config(destination_config)
 
         if not isinstance(data, (list, tuple)):

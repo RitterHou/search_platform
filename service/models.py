@@ -637,6 +637,8 @@ class EsAggManager(object):
         :param field:
         :return:
         """
+        if 'cats' not in agg_result_dict:
+            return False
         cats_agg_result = agg_result_dict['cats']['name']['buckets']
         wheel_cats_agg_result = agg_result_dict['wheel_cats']['name']['buckets']
         return self.__get_cats_level(cats_agg_result) == self.__get_cats_level(wheel_cats_agg_result)
@@ -711,7 +713,6 @@ class EsSuggestManager(object):
 class EsSearchManager(object):
     connection_pool = EsConnectionFactory
 
-    @debug_log.debug('EsSearchManager.get::')
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
         查询聚合数据
@@ -763,12 +764,11 @@ class EsSearchManager(object):
         return search_result
 
 
-class SearchPlatformDocManager(EsProductManager):
+class SearchPlatformDocManager(EsSearchManager):
     """
     搜索平台文档管理接口
     """
 
-    @debug_log.debug('SearchPlatformDocManager.get::')
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
         通过ES查询文档数据
@@ -782,7 +782,8 @@ class SearchPlatformDocManager(EsProductManager):
         if not es_connection:
             raise EsConnectionError()
 
-        qdsl = qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
+        qdsl = qdsl_parser.get_search_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection,
+                                          ignore_default_agg=True)
         app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
         es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
@@ -804,6 +805,20 @@ class SearchPlatformDocManager(EsProductManager):
         :return:
         """
         return qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
+    def parse_es_result(self, es_result, args):
+        """
+        解析ES返回结果
+        :param es_result:
+        :return:
+        """
+        product_result = Product.objects.parse_es_result(es_result, args)
+        agg_result = Aggregation.objects.parse_es_result(es_result, args)
+        search_result = {}
+        if product_result:
+            search_result = product_result
+        if agg_result:
+            search_result['aggregations'] = agg_result
+        return search_result
 
 
 class StatsManager(object):

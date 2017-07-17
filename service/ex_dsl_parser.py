@@ -73,7 +73,6 @@ class ExtendQdslParser(object):
                                       'cats': self.__get_agg_cats_fragment,
                                       'key_value': self.__get_agg_key_value_fragment}
 
-    @debug_log.debug('get_qdsl')
     def get_qdsl(self, query_params):
         """
         获取自定义查询的QDSL
@@ -260,7 +259,6 @@ class ExtendQdslParser(object):
                 return field_name
         query_log.error('Fail to get highlight field to origin : {0}', highlight_field_name)
 
-    @debug_log.debug('get_query_qdsl')
     def get_query_qdsl(self, query_params):
         """
         获取所有额外查询的qdsl
@@ -273,7 +271,6 @@ class ExtendQdslParser(object):
             ex_query_params_dict.iteritems()))
         return {'query': {'bool': {'must': qdsl_must_list}}} if qdsl_must_list else {}
 
-    @debug_log.debug('get_filter_qdsl')
     def get_filter_qdsl(self, query_params):
         """
         获取所有filter查询的dsl

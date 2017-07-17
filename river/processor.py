@@ -1,14 +1,14 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-from common.utils import get_dict_value_by_path
-from common.loggers import debug_log, app_log
 from common.configs import config
 from common.data_parsers import data_parser
+from common.loggers import debug_log, app_log
+from common.utils import get_dict_value_by_path
+from river import get_river_key, do_msg_process_error
 from river.destination import destination
 from river.msg_filter import MessageFilter
 from river.source import source
-from river import get_river_key, do_msg_process_error
 
 __author__ = 'liuzhaoming'
 
@@ -30,7 +30,7 @@ class MessageProcessor(object):
             return None
         message_parse_result = self.parse_message(message)
         app_log.info('Message_parse_result finish message={0} result={1}', message, message_parse_result)
-        if None == message_parse_result:
+        if message_parse_result is None:
             app_log.error(
                 "The message parse result is None, there may be something wrong with message = {0}",
                 message)

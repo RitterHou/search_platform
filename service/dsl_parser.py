@@ -4,7 +4,7 @@ from itertools import *
 from common.adapter import es_adapter
 from common.configs import config
 from common.loggers import debug_log
-from common.utils import singleton, get_dict_value, unbind_variable, deep_merge
+from common.utils import get_dict_value, unbind_variable, deep_merge
 from service.ex_dsl_parser import extend_parser
 
 
@@ -13,7 +13,6 @@ __author__ = 'liuzhaoming'
 DEFAULT_VALUE = config.get_value('/consts/global/query_size')
 
 
-@singleton
 class QdslParser(object):
     """
     搜索平台DSL解析
@@ -551,7 +550,8 @@ class QdslParser(object):
     ###########################################################################################
     # Search QDSL解析相关函数 start
     ###########################################################################################
-    def get_search_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None):
+    def get_search_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None,
+                       ignore_default_agg=False):
         res_str = get_dict_value(query_params, 'res')
         if not res_str:
             res_str = 'products,aggregations'
@@ -560,7 +560,7 @@ class QdslParser(object):
         qdsl = self.get_product_query_qdsl(es_config, index, type, query_params, parse_fields, es_connection)
         if 'aggregations' in res_list:
             ignore_default_agg_str = get_dict_value(query_params, 'ignore_default_agg')
-            ignore_default_agg = (ignore_default_agg_str.lower() == 'true')
+            ignore_default_agg = ignore_default_agg or (ignore_default_agg_str.lower() == 'true')
             if not ignore_default_agg:
                 cats = get_dict_value(query_params, 'cats')
                 catpath_agg_qdl = self.parse_catpath_agg_condition(cats)

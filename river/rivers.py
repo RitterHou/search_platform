@@ -2,14 +2,14 @@
 
 import time
 
+from common.configs import config
 from common.exceptions import MsgHandlingFailError
+from common.loggers import app_log
+from common.msg_bus import message_bus, Event
 from common.sla import msg_sla
 from common.utils import COMBINE_SIGN
-from common.loggers import app_log
-from common.configs import config
-from common.msg_bus import message_bus, Event
-from river.processor import MessageProcessorChain
 from river import get_river_key
+from river.processor import MessageProcessorChain
 from search_platform.celery_config import app
 
 
