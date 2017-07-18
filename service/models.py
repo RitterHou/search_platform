@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 # Create your models here.
+import time
 from collections import OrderedDict
 from itertools import chain
-import time
 
 from algorithm.content_based_recom import content_recom
 from algorithm.like_query_string import like_str_algorithm
 from algorithm.section_partitions import equal_section_partitions
 from common.adapter import es_adapter
 from common.configs import config
-from common.exceptions import InvalidParamError, EsConnectionError
 from common.connections import EsConnectionFactory
+from common.exceptions import InvalidParamError, EsConnectionError
 from common.loggers import debug_log, query_log as app_log
-from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path, get_day_and_hour
-from measure.measure_units import measure_unit_helper
+from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path, \
+    get_day_and_hour
 from dsl_parser import qdsl_parser, extend_parser
+from measure.measure_units import measure_unit_helper
 from search_platform import settings
 from service.search_scenes import spu_search_scene
-
 
 __author__ = 'liuzhaoming'
 BATCH_REQUEST_TIMEOUT = config.get_value('consts/global/es_conn_param/batch_request_timeout') or 30
@@ -47,6 +47,8 @@ def get_es_search_params(es_config, index_name, doc_type, args, parse_fields=Non
         cur_time_str = get_day_and_hour()
         params['preference'] = '-'.join((parse_fields.get('adminId'), cur_time_str))
     return params
+
+
 class EsModel(object):
     field_config = {}
 
@@ -123,6 +125,7 @@ class EsProductManager(object):
         es_bulk_result = es_connection.bulk(_bulk_body,
                                             params={'request_timeout': BATCH_REQUEST_TIMEOUT, 'timeout': BATCH_TIMEOUT})
         return es_adapter.get_es_bulk_result(es_bulk_result)
+
     def _filter_has_update_doc(self, es_config, index_name, doc_type, es_connection, _bulk_body, timestamp,
                                es_op_name='index'):
         """
@@ -146,7 +149,7 @@ class EsProductManager(object):
                     and '_id' in bulk_body_item[es_op_name]:
                 doc_id_list.append(bulk_body_item[es_op_name]['_id'])
         if doc_id_list:
-            ids_query_dsl = {'query':{'ids': {'values': doc_id_list}}}
+            ids_query_dsl = {'query': {'ids': {'values': doc_id_list}}}
             search_result = es_connection.search(index=index_name, doc_type=doc_type, body=ids_query_dsl)
             es_exist_doc_list = map(lambda search_result_item:
                                     {'id': search_result_item['_id'],
@@ -194,6 +197,7 @@ class EsProductManager(object):
             _bulk_body.append(es_index_info)
             _bulk_body.append(item_product)
         return _bulk_body
+
     def _add_private_field(self, es_config, data_list, param):
         """
         添加搜索平台私有字段，主要是将adminId作为私有字段添加到数据结构中
@@ -209,6 +213,7 @@ class EsProductManager(object):
         admin_id = param['adminId']
         for item in data_list:
             item['_adminId'] = admin_id
+
     def update(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         更新商品数据
@@ -241,6 +246,7 @@ class EsProductManager(object):
         es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                 'timeout': BATCH_TIMEOUT})
         return es_adapter.get_es_bulk_result(es_bulk_result)
+
     def _build_update_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp, doc_id=None):
         """
         构造ES 批量update结构
@@ -268,6 +274,7 @@ class EsProductManager(object):
             _bulk_body.append(es_update_info)
             _bulk_body.append({'doc': item_product})
         return _bulk_body
+
     def delete(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
         """
         删除商品数据
@@ -280,6 +287,7 @@ class EsProductManager(object):
         :param redo
         :return:
         """
+
         def parse_delete_doc_ids():
             if parse_fields and 'id' in parse_fields and parse_fields['id']:
                 doc_id = parse_fields['id']
@@ -295,6 +303,7 @@ class EsProductManager(object):
             else:
                 _doc_id_list = doc_id
             return _doc_id_list
+
         app_log.info(
             'Product delete is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
             'timestamp={4} , redo={5}',
@@ -558,7 +567,6 @@ class EsAggManager(object):
         debug_log.print_log('parse_es_agg_range_result spends {0}', (time.time() - start_time))
         return agg_range_result
 
-
     def __parse_nomal_agg_result(self, agg_result_dict, field):
         """
         解析普通的字段聚合结果
@@ -577,7 +585,7 @@ class EsAggManager(object):
         :param ignore_cat 是否忽略cat,即不管是否是叶子类目都返回props聚合
         :return:
         """
-        if field not in agg_result_dict :
+        if field not in agg_result_dict:
             return []
         if not ignore_cat and not is_last_cat:
             return []
@@ -600,6 +608,7 @@ class EsAggManager(object):
 
         prop_field_list = agg_result_dict[field]['name']['buckets']
         return map(lambda item: self.__get_cats_agg_result_item(item), prop_field_list)
+
     def __parse_key_value_agg_result(self, agg_result_dict, field):
         """
         解析key_vlaue聚合结果，
@@ -642,6 +651,7 @@ class EsAggManager(object):
         cats_agg_result = agg_result_dict['cats']['name']['buckets']
         wheel_cats_agg_result = agg_result_dict['wheel_cats']['name']['buckets']
         return self.__get_cats_level(cats_agg_result) == self.__get_cats_level(wheel_cats_agg_result)
+
     def __is_ignore_cat(self, args):
         """
         判断是否需要忽略类目层次
@@ -805,6 +815,7 @@ class SearchPlatformDocManager(EsSearchManager):
         :return:
         """
         return qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
+
     def parse_es_result(self, es_result, args):
         """
         解析ES返回结果
@@ -819,6 +830,295 @@ class SearchPlatformDocManager(EsSearchManager):
         if agg_result:
             search_result['aggregations'] = agg_result
         return search_result
+
+    def save(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
+        """
+        保存商品
+        :param es_config:
+        :param product:
+        :return:
+        """
+        app_log.info(
+            'Product save is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
+        if not product:
+            app_log.error('Product save input product is invalid')
+            raise InvalidParamError()
+
+        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        if not es_connection:
+            raise EsConnectionError()
+        # doc_id = bind_variable(es_config['id'], product)
+        _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
+        if not _bulk_body:
+            return
+        if redo:
+            _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                     timestamp)
+        es_bulk_result = es_connection.bulk(_bulk_body,
+                                            params={'request_timeout': BATCH_REQUEST_TIMEOUT, 'timeout': BATCH_TIMEOUT})
+        return es_adapter.get_es_bulk_result(es_bulk_result)
+
+    def _filter_has_update_doc(self, es_config, index_name, doc_type, es_connection, _bulk_body, timestamp,
+                               es_op_name='index'):
+        """
+        过滤掉已经被修改的文档记录
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param es_connection:
+        :param _bulk_body:
+        :param timestamp
+        :param es_op_name es bulk操作类型， index, update, delete
+        :return:
+        """
+        doc_id_template = 'generate' if 'id' not in es_config else es_config['id']
+        if doc_id_template == 'generate':
+            return _bulk_body
+        doc_id_list = []
+        es_exist_doc_list = []
+        for bulk_body_item in _bulk_body:
+            if es_op_name in bulk_body_item and isinstance(bulk_body_item[es_op_name], dict) \
+                    and '_id' in bulk_body_item[es_op_name]:
+                doc_id_list.append(bulk_body_item[es_op_name]['_id'])
+        if doc_id_list:
+            ids_query_dsl = {'query': {'ids': {'values': doc_id_list}}}
+            search_result = es_connection.search(index=index_name, doc_type=doc_type, body=ids_query_dsl)
+            es_exist_doc_list = map(lambda search_result_item:
+                                    {'id': search_result_item['_id'],
+                                     '_update_time': search_result_item['_source']['_update_time']
+                                     if '_update_time' in search_result_item['_source'] else 0},
+                                    search_result['hits']['hits'])
+        no_need_operate_doc_ids = map(lambda es_doc: es_doc['id'],
+                                      filter(lambda es_doc: es_doc['_update_time'] >= timestamp, es_exist_doc_list))
+        if no_need_operate_doc_ids:
+            _temp_bulk_item_list = []
+            step = 1 if es_op_name == 'delete' else 2
+            for index in xrange(0, len(_bulk_body), step):
+                bulk_body_item = _bulk_body[index]
+                if es_op_name in bulk_body_item and bulk_body_item[es_op_name]['_id'] not in no_need_operate_doc_ids:
+                    _temp_bulk_item_list.append(bulk_body_item)
+                    if step == 2:
+                        _temp_bulk_item_list.append(_bulk_body[index] + 1)
+            _bulk_body = _temp_bulk_item_list
+        return _bulk_body
+
+    def _build_index_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp):
+        """
+        创建批量index数据结构
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields
+        :param timestamp
+        :return:
+        """
+        _bulk_body = []
+        doc_id_template = 'generate' if 'id' not in es_config else es_config['id']
+        if not isinstance(product, (list, tuple, set)):
+            batch_product_list = [product]
+        else:
+            batch_product_list = product
+        self._add_private_field(es_config, batch_product_list, parse_fields)
+        for item_product in batch_product_list:
+            es_index_info = {"index": {"_index": index_name, "_type": doc_type}} if doc_id_template == 'generate' \
+                else {
+                "index": {"_index": index_name, "_type": doc_type,
+                          "_id": bind_variable(es_config['id'], item_product)}}
+            item_product['_update_time'] = timestamp
+            _bulk_body.append(es_index_info)
+            _bulk_body.append(item_product)
+        return _bulk_body
+
+    def _add_private_field(self, es_config, data_list, param):
+        """
+        添加搜索平台私有字段，主要是将adminId作为私有字段添加到数据结构中
+        :param es_config
+        :param data_list:
+        :param param:
+        :return:
+        """
+        if not param or not data_list or not es_config.get('add_admin_id_field'):
+            return
+        if 'adminId' not in param or not param['adminId']:
+            return
+        admin_id = param['adminId']
+        for item in data_list:
+            item['_adminId'] = admin_id
+
+    def update(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
+        """
+        更新商品数据
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :return:
+        """
+        app_log.info(
+            'Search update is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
+        if not product:
+            app_log.error('Search update input product is invalid')
+            raise InvalidParamError()
+
+        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        if not es_connection:
+            raise EsConnectionError()
+        if parse_fields and 'id' in parse_fields and parse_fields['id']:
+            doc_id = parse_fields['id']
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, parse_fields, timestamp,
+                                                 doc_id)
+        else:
+            _bulk_body = self._build_update_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
+        if redo:
+            _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                     timestamp, 'update')
+        es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                'timeout': BATCH_TIMEOUT})
+        return es_adapter.get_es_bulk_result(es_bulk_result)
+
+    def _build_update_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp, doc_id=None):
+        """
+        构造ES 批量update结构
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields
+        :param timestamp
+        :param doc_id
+        :return:
+        """
+        _bulk_body = []
+
+        if not isinstance(product, (list, tuple, set)):
+            batch_product_list = [product]
+        else:
+            batch_product_list = product
+        self._add_private_field(es_config, batch_product_list, parse_fields)
+        for item_product in batch_product_list:
+            item_product['_update_time'] = timestamp
+            es_update_info = {
+                "update": {"_index": index_name, "_type": doc_type,
+                           "_id": bind_variable(es_config['id'], item_product) if not doc_id else doc_id}}
+            _bulk_body.append(es_update_info)
+            _bulk_body.append({'doc': item_product})
+        return _bulk_body
+
+    def delete(self, es_config, index_name, doc_type, product, parse_fields=None, timestamp=None, redo=False):
+        """
+        删除商品数据
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields
+        :param timestamp
+        :param redo
+        :return:
+        """
+
+        def parse_delete_doc_ids():
+            if parse_fields and 'id' in parse_fields and parse_fields['id']:
+                doc_id = parse_fields['id']
+            elif 'doc_id' in product:
+                doc_id = product['doc_id']
+            else:
+                if isinstance(product, (list, tuple, set)):
+                    doc_id = map(lambda item: bind_variable(es_config['id'], item), product)
+                else:
+                    doc_id = bind_variable(es_config['id'], product)
+            if not isinstance(doc_id, (list, tuple, set)):
+                _doc_id_list = doc_id.split(',')
+            else:
+                _doc_id_list = doc_id
+            return _doc_id_list
+
+        app_log.info(
+            'Search delete is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+            'timestamp={4} , redo={5}',
+            index_name, doc_type, product, parse_fields, timestamp, redo)
+        if product is None:
+            app_log.error('Search delete input product is invalid')
+            raise InvalidParamError()
+        if product.get('ex_body_type') == 'scroll':
+            # 表示是删除scroll缓存
+            return self.__delete_scroll_cache(es_config, index_name, doc_type, product, parse_fields)
+        else:
+            es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+            if not es_connection:
+                raise EsConnectionError()
+
+            doc_id_list = parse_delete_doc_ids()
+            _bulk_body = map(lambda _doc_id: {'delete': {'_index': index_name, '_type': doc_type, '_id': _doc_id}},
+                             doc_id_list)
+
+            if redo:
+                _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
+                                                         timestamp, 'delete')
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': BATCH_TIMEOUT})
+            return es_adapter.get_es_bulk_result(es_bulk_result)
+
+    def __scroll_search(self, qdsl, es_config, index_name, doc_type, args, parse_fields=None):
+        """
+        scroll查询
+        第一次执行参数：ex_body_type=scroll&scroll_time=1m&search_type=scan
+        ex_body_type参数 scroll值表示使能scroll搜索，必填
+        scroll_time表示缓存保存时间，可以不填，默认为系统参数/consts/query/scroll_time
+        search_type 为scan，如果配置了该参数，搜索时不会进行排序，会大大加快执行速度
+        返回结果会带有"_scroll_id"字段，下一次请求是需要带上该字段
+        后续执行参数 ex_body_type=scroll &_scroll_id=wierowirowirowiroiwr & scroll_time=1m
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param args:
+        :param parse_fields:
+        :return:
+        """
+        scroll_time = args.get('scroll_time') or config.get_value('/consts/query/scroll_time')
+        return es_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
+                                 scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                 host=es_config.get('host'))
+
+    def __scan_search(self, qdsl, es_config, index_name, doc_type, args, parse_fields=None):
+        """
+        scan查询，查询所有符合条件的数据，不进行排序
+        :param qdsl:
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param args:
+        :param parse_fields:
+        :return:
+        """
+        scroll_time = args.get('scroll_time') or config.get_value('/consts/query/scroll_time')
+        iter_es_scan_result = es_adapter.scan(scroll_time, qdsl, index=index_name, doc_type=doc_type,
+                                              host=es_config.get('host'))
+        es_result = {'hits': {'hits': []}}
+        iter_es_scan_result = list(iter_es_scan_result)
+        for item_scan_result in iter_es_scan_result:
+            if item_scan_result:
+                es_result['hits']['hits'].append(item_scan_result)
+        es_result['hits']['total'] = len(iter_es_scan_result)
+        return es_result
+
+    def __delete_scroll_cache(self, es_config, index_name, doc_type, product, parse_fields):
+        """
+        删除scroll缓存
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields:
+        :return:
+        """
+        return es_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                        host=es_config.get('host'))
 
 
 class StatsManager(object):
@@ -966,12 +1266,12 @@ class ExStatsManager(object):
         :return:
         """
         return {}, {
-                       "query": {"term": {"@obj_key": measure_obj_key}},
-                       "aggs": {"start_end_date": {
-                           "filter": {"range": {"@collect_time": {"gte": start_date, "lte": end_date}}},
-                           "aggs": {"interval": {"date_histogram": {"field": "@collect_time", "interval": interval},
-                                                 "aggs": {"ex_stats": {"extended_stats": {"field": metric}}}}}}},
-                       "size": 0}
+            "query": {"term": {"@obj_key": measure_obj_key}},
+            "aggs": {"start_end_date": {
+                "filter": {"range": {"@collect_time": {"gte": start_date, "lte": end_date}}},
+                "aggs": {"interval": {"date_histogram": {"field": "@collect_time", "interval": interval},
+                                      "aggs": {"ex_stats": {"extended_stats": {"field": metric}}}}}}},
+            "size": 0}
 
 
 class ExSuggestManager(object):
@@ -1204,4 +1504,3 @@ if __name__ == '__main__':
     }
 
     print 'result: ' + get_cats_path(product, 'b2c')
-
