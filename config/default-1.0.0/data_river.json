@@ -3904,7 +3904,7 @@
             "type": "regex",
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
-    }
+            }
           },
           "redo": true
         }
@@ -3922,7 +3922,7 @@
                   "type": "regex",
                   "expression": "\"operation\":\"delete\""
                 }
-  ]
+              ]
             },
             "data_parser": {
               "type": "regex",
@@ -3959,7 +3959,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-{hashcode}-{version}",
               "type": "Trade",
               "id": "{tid}",
@@ -4001,7 +4001,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-{hashcode}-{version}",
               "type": "Trade",
@@ -4081,7 +4081,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-item-{hashcode}-{version}",
               "type": "Item",
               "id": "{oid}",
@@ -4123,7 +4123,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-item-{hashcode}-{version}",
               "type": "Item",
@@ -4203,7 +4203,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-application-{hashcode}-{version}",
               "type": "Application",
               "id": "{applyId}",
@@ -4245,7 +4245,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-application-{hashcode}-{version}",
               "type": "Application",
@@ -4325,7 +4325,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-refunded-{hashcode}-{version}",
               "type": "Receipt",
               "id": "{receiptId}",
@@ -4367,7 +4367,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-refunded-{hashcode}-{version}",
               "type": "Receipt",
@@ -4447,7 +4447,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-returned-{hashcode}-{version}",
               "type": "Receipt",
               "id": "{receiptId}",
@@ -4489,7 +4489,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-returned-{hashcode}-{version}",
               "type": "Receipt",
@@ -4569,7 +4569,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-ship-{hashcode}-{version}",
               "type": "Receipt",
               "id": "{receiptId}",
@@ -4611,7 +4611,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-ship-{hashcode}-{version}",
               "type": "Receipt",
@@ -4691,7 +4691,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-trade-receive-{hashcode}-{version}",
               "type": "Receipt",
               "id": "{receiptId}",
@@ -4733,7 +4733,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-receive-{hashcode}-{version}",
               "type": "Receipt",
@@ -4818,7 +4818,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-{hashcode}-{version}",
               "type": "Trade",
@@ -4883,7 +4883,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-item-{hashcode}-{version}",
               "type": "Item",
@@ -4948,7 +4948,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-application-{hashcode}-{version}",
               "type": "Application",
@@ -5013,7 +5013,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-refunded-{hashcode}-{version}",
               "type": "Receipt",
@@ -5078,7 +5078,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-returned-{hashcode}-{version}",
               "type": "Receipt",
@@ -5143,7 +5143,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-receive-{hashcode}-{version}",
               "type": "Receipt",
@@ -5208,201 +5208,12 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-trade-ship-{hashcode}-{version}",
               "type": "Receipt",
               "id": "{receiptId}",
               "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "notification": {
-        "type": "MQ",
-        "host": "{mq_host}",
-        "queue": "q.searchPlatform.d2p.tradeInit",
-        "sla": {
-          "data_parser": {
-            "type": "regex",
-            "fields": {
-              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
-            }
-          }
-        }
-      },
-      "branches": [
-        {
-          "name": "d2p_trade_init",
-          "notification": {
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": []
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "hashcode": {
-                  "type": "hash_modulus",
-                  "modulus": 1,
-                  "origin_filed": "adminId"
-                }
-              }
-            }
-          },
-          "source": {
-            "type": "iterator_get",
-            "protocol": "dubbo",
-            "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.d2p.order.api.TradeQueryProvider",
-            "version": "1.0.0",
-            "request": {
-              "method": "findByAdminId",
-              "timeout": 10,
-              "body": {
-                "adminId": "{adminId}",
-                "pageNum": "{page_from}",
-                "pageSize": "{page_size}"
-              }
-            },
-            "response": {
-              "fields": {
-                "total": "totalCount",
-                "data": "dataList"
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "notification": {
-        "type": "MQ",
-        "host": "{mq_host}",
-        "topic": "t.d2p.order.change",
-        "sla": {
-          "data_parser": {
-            "type": "regex",
-            "fields": {
-              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
-            }
-          },
-          "redo": true
-        }
-      },
-      "branches": [
-        {
-          "name": "d2p_trade_update",
-          "notification": {
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "operator": "not",
-                  "type": "regex",
-                  "expression": "\"operation\":\"delete\""
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
-                "hashcode": {
-                  "type": "hash_modulus",
-                  "modulus": 1,
-                  "origin_filed": "adminId"
-                }
-              }
-            }
-          },
-          "source": {
-            "type": "get",
-            "protocol": "dubbo",
-            "host": "{zookeeper_host}",
-            "version": "1.0.0",
-            "service_interface": "com.qianmi.d2p.order.api.TradeQueryProvider",
-            "request": {
-              "method": "findByIds",
-              "timeout": 30,
-              "body": {
-                "ids": "{ids}"
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "add_admin_id_field": true
-            }
-          ]
-        },
-        {
-          "name": "d2p_trade_delete",
-          "notification": {
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": [
-                {
-                  "operator": "is",
-                  "type": "regex",
-                  "expression": "\"operation\":\"delete\""
-                }
-              ]
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
-                "hashcode": {
-                  "type": "hash_modulus",
-                  "modulus": 1,
-                  "origin_filed": "adminId"
-                }
-              }
-            }
-          },
-          "source": {
-            "type": "passthrough",
-            "fields_reference": "fields"
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
               "add_admin_id_field": true
             }
           ]
@@ -5474,7 +5285,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-cash-trade-{hashcode}-{version}",
               "type": "Trade",
               "id": "{tid}",
@@ -5516,7 +5327,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-cash-trade-{hashcode}-{version}",
               "type": "Trade",
@@ -5596,7 +5407,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2c-cash-trade-item-{hashcode}-{version}",
               "type": "Item",
               "id": "{oid}",
@@ -5638,7 +5449,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-cash-trade-item-{hashcode}-{version}",
               "type": "Item",
@@ -5723,7 +5534,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-cash-trade-{hashcode}-{version}",
               "type": "Trade",
@@ -5788,83 +5599,11 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "d2c-cash-trade-item-{hashcode}-{version}",
               "type": "Item",
               "id": "{oid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "notification": {
-        "type": "MQ",
-        "host": "{mq_host}",
-        "queue": "q.searchPlatform.d2p.tradeInit",
-        "sla": {
-          "data_parser": {
-            "type": "regex",
-            "fields": {
-              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
-            }
-          }
-        }
-      },
-      "branches": [
-        {
-          "name": "d2p_trade_init",
-          "notification": {
-            "filter": {
-              "union_operator": "and",
-              "msg_type": "TextMessage",
-              "conditions": []
-            },
-            "data_parser": {
-              "type": "regex",
-              "fields": {
-                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "hashcode": {
-                  "type": "hash_modulus",
-                  "modulus": 1,
-                  "origin_filed": "adminId"
-                }
-              }
-            }
-          },
-          "source": {
-            "type": "iterator_get",
-            "protocol": "dubbo",
-            "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.d2p.order.api.TradeQueryProvider",
-            "version": "1.0.0",
-            "request": {
-              "method": "findByAdminId",
-              "timeout": 10,
-              "body": {
-                "adminId": "{adminId}",
-                "pageNum": "{page_from}",
-                "pageSize": "{page_size}"
-              }
-            },
-            "response": {
-              "fields": {
-                "total": "totalCount",
-                "data": "dataList"
-              }
-            }
-          },
-          "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
             }
@@ -5932,7 +5671,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "index": "d2p-trade-{hashcode}-{version}",
               "type": "Trade",
               "id": "{id}",
@@ -5974,7 +5713,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "delete",
               "index": "d2p-trade-{hashcode}-{version}",
               "type": "Trade",
@@ -5983,6 +5722,267 @@
                 "type": "seperate",
                 "separator": ";"
               },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.searchPlatform.d2p.returnInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2p_trade_return_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": []
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "findByAdminId",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2p-trade-returned-{hashcode}-{version}",
+              "type": "Receipt",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.d2p.order.return.change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "d2p_trade_return_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
+            "request": {
+              "method": "findByIds",
+              "timeout": 30,
+              "body": {
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2p-trade-returned-{hashcode}-{version}",
+              "type": "Receipt",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2p_trade_return_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2p-trade-returned-{hashcode}-{version}",
+              "type": "Receipt",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.searchPlatform.d2p.tradeInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2p_trade_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": []
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2p.order.api.TradeQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "findByAdminId",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2p-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
             }
           ]

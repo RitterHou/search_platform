@@ -2,12 +2,12 @@
 """
 SLA等级服务策略
 """
-from itertools import groupby
-from multiprocessing.dummy import Pool
 import threading
 import time
-from datetime import date
 import ujson as json
+from datetime import date
+from itertools import groupby
+from multiprocessing.dummy import Pool
 
 import jsonpickle
 from common.admin_config import admin_config
@@ -66,6 +66,9 @@ class MsgSLA(object):
         # 消息队列key
         self._msg_queue_key = config.get_value(
             '/consts/global/admin_id_cfg/msg_queue_key') or "sp_msg_queue_{0}"
+        self._msg_queue_key_prefix = config.get_value(
+            '/consts/global/admin_id_cfg/msg_queue_key_prefix') or "sp_msg_queue_*"
+        self._msg_queue_key_pos = len(self._msg_queue_key_prefix) - 1
         # 有消息的用户admin ID队列key
         self._msg_admin_queue_key = config.get_value(
             '/consts/global/admin_id_cfg/msg_admin_queue_key') or "sp_msg_admin_queue"
@@ -232,15 +235,19 @@ class MsgSLA(object):
         :param admin_id:
         :return:
         """
-        cur_msgs = self._fetch_msg(admin_id)
-        if not cur_msgs:
-            return
+        try:
+            cur_msgs = self._fetch_msg(admin_id)
+            if not cur_msgs:
+                return
 
-        msg_handler_fun(cur_msgs)
+            msg_handler_fun(cur_msgs)
 
-        self._update_msg_process_status(admin_id, cur_msgs)
+            self._update_msg_process_status(admin_id, cur_msgs)
 
-        self._remove_msg(admin_id, len(cur_msgs))
+            self._remove_msg(admin_id, len(cur_msgs))
+        except Exception as e:
+            app_log.error("process admin {0} msg fail ".format(admin_id))
+            app_log.exception(e)
 
     def process_redo_msg(self, msg_handler_fun, is_vip=True):
         """
@@ -296,12 +303,27 @@ class MsgSLA(object):
         finally:
             self._remove_redo_msg(admin_id, len(cur_redo_msgs))
 
-    def _query_msg_admin_ids(self):
+    def _query_msg_admin_ids_by_set(self):
         """
-        查询需要处理消息的Admin用户ID
+        查询需要处理消息的Admin用户ID，已经废弃，现在直接通过keys * 来查询adminId
         :return:
         """
         admin_ids = self._redis_conn.smembers(self._msg_admin_queue_key)
+        vip_admin_ids = []
+        experience_admin_ids = []
+        for admin_id in admin_ids:
+            if admin_config.is_vip(admin_id):
+                vip_admin_ids.append(admin_id)
+            else:
+                experience_admin_ids.append(admin_id)
+        return experience_admin_ids, vip_admin_ids
+    def _query_msg_admin_ids(self):
+        """
+        查询需要处理消息的Admin用户ID，通过keys * 来查询adminId
+        :return:
+        """
+        admin_msg_keys = self._redis_conn.keys(self._msg_queue_key_prefix)
+        admin_ids = map(lambda msg_key: msg_key[self._msg_queue_key_pos:], admin_msg_keys)
         vip_admin_ids = []
         experience_admin_ids = []
         for admin_id in admin_ids:
@@ -342,6 +364,12 @@ class MsgSLA(object):
         :param admin_id:
         :return:
         """
+        def __convert_msg(_msg_str):
+            try:
+                return json.loads(_msg_str)
+            except Exception as e:
+                app_log.error("Admin {0} has invalid message {1}".format(admin_id, _msg_str))
+                return None
         try:
             str_key = self._msg_queue_key.format(admin_id)
             iter_size, is_vip = self._get_msg_iter_size(admin_id)
@@ -352,7 +380,7 @@ class MsgSLA(object):
 
             self._set_need_check_msg_num(admin_id, is_vip, iter_size, str_msgs)
 
-            return map(lambda msg_str: json.loads(msg_str), str_msgs)
+            return filter(lambda _: _, map(__convert_msg, str_msgs))
         except Exception as e:
             app_log.error('fetch msg error, admin_id={0}', e, admin_id)
 

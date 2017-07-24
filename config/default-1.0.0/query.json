@@ -104,7 +104,7 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "gonghuo_spu"
-    },
+      },
       "response": {}
     },
     {
@@ -601,7 +601,7 @@
           },
           "target": [
             {
-        "destination_type": "elasticsearch",
+              "destination_type": "elasticsearch",
               "reference": "product_vip",
               "id": "{skuId}",
               "tag": "vip"
@@ -848,7 +848,7 @@
             "type": "regex",
             "field": "url",
             "expression": "/marketings/items/"
-      }
+          }
         ]
       },
       "data_parser": {
@@ -887,7 +887,7 @@
             "type": "regex",
             "field": "url",
             "expression": "/marketings/trades/"
-      }
+          }
         ]
       },
       "data_parser": {
@@ -926,7 +926,7 @@
             "type": "regex",
             "field": "url",
             "expression": "/marketings/usercoupons/"
-      }
+          }
         ]
       },
       "data_parser": {
@@ -1021,7 +1021,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-{hashcode}-{version}",
         "type": "Trade",
         "id": "{tid}",
@@ -1060,7 +1060,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-item-{hashcode}-{version}",
         "type": "Item",
         "id": "{oid}",
@@ -1099,7 +1099,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-application-{hashcode}-{version}",
         "type": "Application",
         "id": "{applyId}",
@@ -1138,7 +1138,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-refunded-{hashcode}-{version}",
         "type": "Receipt",
         "id": "{receiptId}",
@@ -1177,7 +1177,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-returned-{hashcode}-{version}",
         "type": "Receipt",
         "id": "{receiptId}",
@@ -1216,7 +1216,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-ship-{hashcode}-{version}",
         "type": "Receipt",
         "id": "{receiptId}",
@@ -1255,7 +1255,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-trade-receive-{hashcode}-{version}",
         "type": "Receipt",
         "id": "{receiptId}",
@@ -1276,7 +1276,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
+            "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))[\\w]+"
           }
         ]
       },
@@ -1294,9 +1294,48 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2p-trade-{hashcode}-{version}",
         "type": "Trade",
+        "id": "{id}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2p_trade_returned_receipts_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/d2p/trades/returned_receipts/[\\w]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "scene/d2p/trades/returned_receipts/[\\w]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "trades/returned_receipts/(?P<adminId>[^/]+)",
+          "id": "trades/returned_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-trade-returned-{hashcode}-{version}",
+        "type": "Receipt",
         "id": "{id}",
         "add_admin_id_field": true
       },
@@ -1333,7 +1372,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-cash-trade-{hashcode}-{version}",
         "type": "Trade",
         "id": "{tid}",
@@ -1372,7 +1411,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "d2c-cash-trade-item-{hashcode}-{version}",
         "type": "Item",
         "id": "{oid}",

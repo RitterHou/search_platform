@@ -15,13 +15,15 @@ def init_django_env():
     import django
     django.setup()
 init_django_env()
+import sys
 import threading
 import time
-import sys
+
+from common.distributed_locks import zk_lock_store
 from common.loggers import app_log, debug_log
 from common.sla import msg_sla
 from river.rivers import process_message
-from common.distributed_locks import zk_lock_store
+
 __author__ = 'liuzhaoming'
 
 def process_message_wrapper(_message_dict_list):
@@ -32,7 +34,6 @@ def process_message_wrapper(_message_dict_list):
     """
     for _message_dict in _message_dict_list:
         try:
-            app_log.info('begin send msg to celery {0}', _message_dict)
             process_message.delay(_message_dict, _message_dict['river_key'])
             # process_message('', _message_dict, _message_dict['river_key'])
         except Exception as e:
@@ -97,15 +98,15 @@ class MsgQos(object):
         处理消息
         :param is_vip
         """
-        time_interval = 1
+        time_interval = 0.1
         while True:
             _start_time = time.time()
             try:
                 msg_sla.process_msg(process_message_wrapper, is_vip)
                 _cost_time = time.time() - _start_time
-                app_log.info('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
+                debug_log.print_log('handle admin vip({0}) msg spends {1}', is_vip, _cost_time)
             except Exception as e:
-                app_log.error('handle vip({0}) msg has error, {0}', is_vip, e)
+                app_log.error('handle vip({0}) msg has error, {1}', is_vip, e)
             finally:
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 0.01:
@@ -114,7 +115,7 @@ class MsgQos(object):
         """
         处理重做消息
         """
-        time_interval = 10
+        time_interval = 60
         while True:
             _start_time = time.time()
             try:
@@ -122,7 +123,7 @@ class MsgQos(object):
                 _cost_time = time.time() - _start_time
                 debug_log.print_log('handle vip({0}) redo msg spends {1}', is_vip, _cost_time)
             except Exception as e:
-                app_log.error('handle vip({0}) redo msg has error, {0}', is_vip, e)
+                app_log.error('handle vip({0}) redo msg has error, {1}', is_vip, e)
             finally:
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 1:
@@ -132,7 +133,7 @@ class MsgQos(object):
         检查消息队列消息数目
         """
         time.sleep(8)
-        time_interval = 60
+        time_interval = 600
         while True:
             _start_time = time.time()
             try:
@@ -151,7 +152,7 @@ class MsgQos(object):
         :return:
         """
         time.sleep(25)
-        time_interval = 60
+        time_interval = 600
         while True:
             _start_time = time.time()
             try:

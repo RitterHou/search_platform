@@ -181,8 +181,8 @@ class DubboDataSource(DataSource):
             # 如果返回code，抛出异常
         if response is None:
             app_log.error(
-                'can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3}',
-                source_config, version, _request_param, response)
+                'can not pull, service_interface is {0}, version is {1}, request_param is {2}, response is {3}',
+                service_interface, version, body, response)
             return None
 
         return response['root'] if 'root' in response else response
@@ -202,17 +202,17 @@ class DubboDataSource(DataSource):
             'version={4}, timeout={5}',
             host, service_interface, method, body, version, timeout)
         start_time = time.time()
-        dubbo_client = DubboRegistryFactory.get_dubbo_client(host, service_interface, body, version)
         result = None
         # reflect_method = getattr(dubbo_client, method)
         try:
+            dubbo_client = DubboRegistryFactory.get_dubbo_client(host, service_interface, body, version)
             if body:
                 result = dubbo_client(method, body)
             else:
                 result = dubbo_client(method)
             app_log.info(
-                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}', host,
-                service_interface, method)
+                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}', host,
+                service_interface, method, body)
 
             cost_time = int((time.time() - start_time) * 1000)
             json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',

@@ -10,7 +10,7 @@
       },
       "size": {
         "min": 0,
-        "max": 200,
+        "max": 600,
         "default": 10
       },
       "suggest_size": {
@@ -84,16 +84,16 @@
     "admin_id_cfg": {
        "vip_id_key": "search_platform_vip_admin_id_set",
       "admin_id_params_key": "search_platform_admin_id_params",
-      "vip_max_msg": 5,
+      "vip_max_msg": 100,
       "vip_time_interval": 5,
-      "experience_max_msg": 5,
+      "experience_max_msg": 100,
       "experience_time_interval": 5,
       "vip_msg_redo_enable": true,
       "experience_msg_redo_enable": true,
-      "vip_msg_iter_capacity": 5,
-      "experience_msg_iter_capacity": 5,
-      "vip_msg_thread_num": 5,
-      "experience_msg_thread_num": 15,
+      "vip_msg_iter_capacity": 50,
+      "experience_msg_iter_capacity": 50,
+      "vip_msg_thread_num": 10,
+      "experience_msg_thread_num": 10,
       "vip_redo_iter_capacity": 50,
       "experience_redo_iter_capacity": 5,
       "vip_redo_thread_num": 2,
@@ -143,6 +143,7 @@
       "msg_redo_queue_key": "sp_msg_redo_queue_{0}",
       "msg_redo_admin_queue_key": "sp_msg_redo_admin_queue",
       "msg_queue_key": "sp_msg_queue_{0}",
+      "msg_queue_key_prefix": "sp_msg_queue_*",
       "msg_admin_queue_key": "sp_msg_admin_queue"
     }
   },

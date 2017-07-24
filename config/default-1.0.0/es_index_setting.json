@@ -1720,6 +1720,40 @@
             "match_mapping_type": "string",
             "match": "*"
           }
+        },
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "long",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "long",
+            "match": "*"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "double",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "double",
+            "match": "*"
+          }
         }
       ]
     }
@@ -1747,6 +1781,40 @@
               }
             },
             "match_mapping_type": "string",
+            "match": "*"
+          }
+        },
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "long",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "long",
+            "match": "*"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "double",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "double",
             "match": "*"
           }
         }

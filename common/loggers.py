@@ -1,11 +1,11 @@
 # coding=utf-8
-from itertools import chain
 import logging
 import sys
-import os
 
 import ujson as json
+from itertools import chain
 
+import os
 
 __author__ = 'liuzhaoming'
 
@@ -63,7 +63,7 @@ class AppLog(object):
             if not message:
                 return
             if error and not isinstance(error, Exception):
-                args = chain((error), args)
+                args = chain([error], args)
             if args:
                 message = message.format(*args)
             message = ' '.join((get_caller_info(), message))
@@ -264,6 +264,7 @@ if __name__ == '__main__':
 
     start_time = time.time()
     test1()
+    app_log.error("a {0} b {1}", 'aaaaaa', 'bbbbbbb')
     print("spend {0}".format(time.time() - start_time))
 
 

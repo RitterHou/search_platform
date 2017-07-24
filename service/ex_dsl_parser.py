@@ -47,7 +47,8 @@ class ExtendQdslParser(object):
                                        'stock': self.__get_query_stock_fragment,
                                        'nested': self.__get_query_nested_fragment,
                                        'ematch': self.__get_query_ematch_fragment,
-                                       'not': self.__get_query_not_fragment}
+                                       'not': self.__get_query_not_fragment,
+                                       'or': self.__get_query_or_fragment}
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
                                         'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
@@ -1038,6 +1039,40 @@ class ExtendQdslParser(object):
 
         return {'bool': {'must_not': item_query_dsl_list}}
 
+    def __get_query_or_fragment(self, field_name, field_str):
+        """
+        or查询
+        ex_q_or=or(query:<>)
+        query：存放or实体查询
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        def parse_query_value(_query_str):
+            if not _query_str:
+                return None
+            _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
+            return _nested_item_query_str
+        search_item_str_list = field_str.split(';')
+        item_query_str_list = []
+        for search_item_str in search_item_str_list:
+            search_item_key_value = search_item_str.split(':', 1)
+            if len(search_item_key_value) > 1:
+                if search_item_key_value[0] == 'query':
+                    query_str_list = search_item_key_value[1].split('|')
+                    for query_str in query_str_list:
+                        cur_item_query_str = parse_query_value(query_str)
+                        if cur_item_query_str:
+                            item_query_str_list.append(cur_item_query_str)
+        if not item_query_str_list:
+            return {}
+        item_query_dsl_list = []
+        for item_query_str in item_query_str_list:
+            field_name, field_str = item_query_str.split('=')
+            field_name = field_name[len('eq_q_'):]
+            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+            item_query_dsl_list.append(item_query_dsl)
+        return {'bool': {'should': item_query_dsl_list}}
     def __get_agg_max_fragment(self, field_name, field_str):
         """
         agg max聚合
