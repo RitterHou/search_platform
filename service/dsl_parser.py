@@ -208,21 +208,21 @@ class QdslParser(object):
         boost = config.get_value('/consts/query/query_string/score/boost') or 1.0
         return [{'bool': {'minimum_should_match': 0, 'boost': boost, 'should': [{'match': {'_all': query_string}}]}}]
 
-    def _get_nest_dsl(self, path, level, root_field, item_dsl):
+    def _get_nest_dsl(self, path, level, cur_path, item_dsl):
         """
         获取嵌套查询的DSL
         :param path:
         :param level:
-        :param root_field:
+        :param cur_path:
         :param item_dsl:
         :return:
         """
         if level == 0:
-            return {'nested': {'path': root_field, 'query': item_dsl}}
+            return {'nested': {'path': cur_path, 'query': item_dsl}}
         else:
-            complete_path_list = [root_field] + list(repeat(path, level))
-            return {'nested': {'path': '.'.join(complete_path_list),
-                               'query': self._get_nest_dsl(path, level - 1, root_field, item_dsl)}}
+            next_path = cur_path + '.' + path
+            return {'nested': {'path': cur_path,
+                               'query': self._get_nest_dsl(path, level - 1, next_path, item_dsl)}}
 
     def parse_cat_condition(self, category):
         """
@@ -254,7 +254,7 @@ class QdslParser(object):
             sort_item_list = sort.split(';')
         elif ';' in sort:
             sort_item_list = sort.split(';')
-        elif '_' in sort:
+        elif '_' in sort and '_' != sort[0:1]:
             sort_item_list = sort.split('_')
         else:
             sort_item_list = sort.split(';')
