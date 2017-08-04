@@ -5646,6 +5646,7 @@
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 1,
@@ -5664,7 +5665,9 @@
               "method": "findByIds",
               "timeout": 30,
               "body": {
-                "ids": "{ids}"
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
               }
             }
           },
@@ -5755,6 +5758,7 @@
               "type": "regex",
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 1,
@@ -5775,7 +5779,8 @@
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
-                "pageSize": "{page_size}"
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
               }
             },
             "response": {
@@ -5835,6 +5840,7 @@
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 1,
@@ -5853,6 +5859,8 @@
               "method": "findByIds",
               "timeout": 30,
               "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
                 "ids": "{ids}"
               }
             }
@@ -5887,6 +5895,7 @@
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 1,
@@ -5944,6 +5953,7 @@
               "type": "regex",
               "fields": {
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 1,
@@ -5963,6 +5973,7 @@
               "timeout": 10,
               "body": {
                 "adminId": "{adminId}",
+                "msgId": "{msgId}",
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}"
               }

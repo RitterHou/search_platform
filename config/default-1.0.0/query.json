@@ -1276,7 +1276,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))[\\w]+"
+                        "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
           }
         ]
       },
@@ -1315,7 +1315,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "scene/d2p/trades/returned_receipts/[\\w]+"
+                        "expression": "scene/d2p/trades/returned_receipts"
           }
         ]
       },
