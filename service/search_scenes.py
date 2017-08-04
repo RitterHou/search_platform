@@ -108,7 +108,6 @@ class SpuSearchBySku(object):
                 spu_id = item['fields'].get('spuId')[0]
                 sku_id = item['fields'].get('skuId')[0]
                 spu_sku_dict.put(spu_id, sku_id)
-        app_log.info("spu by sku add sku dict spends {0}  {1}", time.time() - start_time, parse_fields)
         # start_time = time.time()
         total_size = spu_sku_dict.get_spu_size()
         # app_log.info("spu by sku get spu size spends {0}  {1}", time.time() - start_time, parse_fields)

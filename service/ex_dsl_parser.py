@@ -428,12 +428,26 @@ class ExtendQdslParser(object):
     def __get_query_bool_term_fragment(self, field_name, field_str):
         """
         针对ES 2.0版本terms不再支持minimum_should_match属性，改用bool查询进行拼接
+        支持字段null查询，null用'\null\'表示
         :param field_name:
         :param field_str:
         :return:
         """
+        def parse_bool_term_item_query(_term_value):
+            if _term_value == '\\null\\':
+                return {
+                    "filtered": {
+                        "filter": {
+                            "missing": {
+                                "field": field_name
+                            }
+                        }
+                    }
+                }
+            else:
+                return {"term": {field_name: _term_value}}
         term_values = self.__parse_single_input_str(field_str)
-        term_item_query_dsl_list = map(lambda term_value: {"term": {field_name: term_value}}, term_values)
+        term_item_query_dsl_list = map(parse_bool_term_item_query, term_values)
         return {
             "bool": {
                 "should": term_item_query_dsl_list,
