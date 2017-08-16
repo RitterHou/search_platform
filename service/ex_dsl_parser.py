@@ -7,11 +7,10 @@ from algorithm.section_partitions import equal_section_partitions
 from common.configs import config
 from common.connections import EsConnectionFactory
 from common.exceptions import InvalidParamError
-from common.loggers import debug_log, query_log
+from common.loggers import query_log
 from common.scripts import python_invoker
 from common.utils import deep_merge, unbind_variable, get_dict_value
 from search_platform import settings
-
 
 __author__ = 'liuzhaoming'
 
@@ -52,7 +51,7 @@ class ExtendQdslParser(object):
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
                                         'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
-                                        'null': self.__get_filter_null_fragment,}
+                                        'null': self.__get_filter_null_fragment, }
         self.AGGS_QDSL_PARSER_DICT = {'max': self.__get_agg_max_fragment,
                                       'min': self.__get_agg_min_fragment,
                                       'sum': self.__get_agg_sum_fragment,
@@ -72,7 +71,8 @@ class ExtendQdslParser(object):
                                       'date_histogram': self.__get_agg_date_histogram_fragment,
                                       'geo_distance': self.__get_agg_geo_distance_fragment,
                                       'cats': self.__get_agg_cats_fragment,
-                                      'key_value': self.__get_agg_key_value_fragment}
+                                      'key_value': self.__get_agg_key_value_fragment,
+                                      'sub': self.__get_agg_sub_fragment}
 
     def get_qdsl(self, query_params):
         """
@@ -413,7 +413,6 @@ class ExtendQdslParser(object):
             return None
         return self.AGGS_QDSL_PARSER_DICT[op_type](field_name, field_str)
 
-
     def get_query_params_by_prefix(self, query_params, prefix_str):
         """
         根据前缀过滤http request请求的参数名称
@@ -433,6 +432,7 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
+
         def parse_bool_term_item_query(_term_value):
             if _term_value == '\\null\\':
                 return {
@@ -446,6 +446,7 @@ class ExtendQdslParser(object):
                 }
             else:
                 return {"term": {field_name: _term_value}}
+
         term_values = self.__parse_single_input_str(field_str)
         term_item_query_dsl_list = map(parse_bool_term_item_query, term_values)
         return {
@@ -521,12 +522,12 @@ class ExtendQdslParser(object):
         :return:
         """
 
-
         range_values = self.__parse_range_input_str(field_str)
         range_qdsl_list = map(lambda (floor_value, ceiling_value): {
             "range": {field_name: self.__range_value_to_qdsl(floor_value, ceiling_value)}}, range_values)
 
         return {'bool': {'should': range_qdsl_list, 'minimum_should_match': 1}}
+
     def __get_query_date_range_fragment(self, field_name, field_str):
         """
         时间范围查询,时间格式:"2012-01-01" "2012-01-01T00:00:00+01:00" "2011-12-31T23:00:00" "now"
@@ -541,6 +542,7 @@ class ExtendQdslParser(object):
         if range_qdsl_list:
             return {'bool': {'should': range_qdsl_list, 'minimum_should_match': 1}}
         return None
+
     def __range_value_to_qdsl(self, floor_value, ceiling_value):
         range_qsdl_item = {}
         if floor_value is not None:
@@ -1062,11 +1064,13 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
+
         def parse_query_value(_query_str):
             if not _query_str:
                 return None
             _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
             return _nested_item_query_str
+
         search_item_str_list = field_str.split(';')
         item_query_str_list = []
         for search_item_str in search_item_str_list:
@@ -1087,6 +1091,7 @@ class ExtendQdslParser(object):
             item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
             item_query_dsl_list.append(item_query_dsl)
         return {'bool': {'should': item_query_dsl_list}}
+
     def __get_agg_max_fragment(self, field_name, field_str):
         """
         agg max聚合
@@ -1538,15 +1543,15 @@ class ExtendQdslParser(object):
         :return:
         """
 
-        def get_ranges_dict(floor_value, ceiling_vlaue):
+        def get_ranges_dict(floor_value, ceiling_value):
             """
             获取from to的dict
             """
             result = {}
             if floor_value is not None:
                 result['from'] = floor_value
-            if ceiling_vlaue is not None:
-                result['to'] = ceiling_vlaue
+            if ceiling_value is not None:
+                result['to'] = ceiling_value
             return result
 
         if not field_name:
@@ -1562,7 +1567,7 @@ class ExtendQdslParser(object):
                 elif search_item_key_value[0] == 'ranges':
                     range_list = self.__parse_range_input_str(search_item_key_value[1])
                     range_item_list = map(
-                        lambda (floor_value, ceiling_vlaue): get_ranges_dict(floor_value, ceiling_vlaue), range_list)
+                        lambda (floor_value, ceiling_value): get_ranges_dict(floor_value, ceiling_value), range_list)
                     if range_item_list:
                         agg_date_range_dsl['geo_distance']['ranges'] = range_item_list
                 else:
@@ -1629,6 +1634,56 @@ class ExtendQdslParser(object):
                 "size": 0
             }}
         }
+
+    def __get_agg_sub_fragment(self, field_name, field_str):
+        """
+        sub Aggregation，多层子聚合
+        ex_q_sub=sub(aggs:<ex_agg_spuId=terms()>|<ex_agg_skuId=terms()>)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+
+        def parse_aggs_value(_agg_str):
+            if not _agg_str:
+                return None
+            _, _nested_item_agg_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _agg_str)
+            return _nested_item_agg_str
+
+        if not field_name:
+            return None
+
+        agg_item_str_list = field_str.split(';')
+        item_agg_str_list = []
+        for agg_item_str in agg_item_str_list:
+            agg_item_key_value = agg_item_str.split(':', 1)
+            if len(agg_item_key_value) > 1:
+                if agg_item_key_value[0] == 'aggs':
+                    agg_str_list = agg_item_key_value[1].split('|')
+                    for agg_str in agg_str_list:
+                        cur_item_agg_str = parse_aggs_value(agg_str)
+                        if cur_item_agg_str:
+                            item_agg_str_list.append(cur_item_agg_str)
+        if not item_agg_str_list:
+            return {}
+
+        item_agg_dsl_list = []
+        for item_agg_str in item_agg_str_list:
+            field_name, field_str = item_agg_str.split('=')
+            field_name = field_name[len('eq_agg_'):]
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(field_name, field_str)
+            item_agg_dsl_list.append(item_agg_dsl)
+
+        cur_agg_dsl = None
+        item_agg_dsl_list.reverse()
+        for item_agg_dsl in item_agg_dsl_list:
+            if not cur_agg_dsl:
+                cur_agg_dsl = item_agg_dsl
+            else:
+                item_agg_dsl.values()[0]['aggs'] = cur_agg_dsl
+                cur_agg_dsl = item_agg_dsl
+
+        return cur_agg_dsl
 
     def __parse_single_input_str(self, single_query_str):
         """
