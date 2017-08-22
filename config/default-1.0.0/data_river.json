@@ -39,7 +39,7 @@
               "type": "regex",
               "fields": {
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
-                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
                   "modulus": 50,
