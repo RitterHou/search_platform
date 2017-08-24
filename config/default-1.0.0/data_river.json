@@ -17,7 +17,7 @@
       },
       "branches": [
         {
-          "name": "yun_not_edit",
+          "name": "yun_not_edit_add",
           "notification": {
             "filter": {
               "union_operator": "and",
@@ -32,6 +32,91 @@
                   "operator": "not",
                   "type": "regex",
                   "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"addSkuIds\":\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 50,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
+            "request": {
+              "method": "listByIdString",
+              "timeout": 30,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}",
+                  "hashcode": {}
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch",
+                    "reference": "product_vip",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch",
+                    "reference": "product_experience",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "yun_not_edit_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                },
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"edit\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"updateSkuIds\":\""
                 }
               ]
             },
