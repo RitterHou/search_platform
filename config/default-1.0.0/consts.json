@@ -166,7 +166,6 @@
         "fields": {
           "normal": [
             "tags",
-            "type.standard",
             "salePoint",
             "title.standard",
             "brand.standard",
