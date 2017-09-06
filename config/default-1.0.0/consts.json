@@ -170,7 +170,9 @@
             "salePoint",
             "title.standard",
             "brand.standard",
-            "specs.svs.svname.analyzed"
+            "specs.svs.svname.analyzed",
+            "bn",
+            "skuBn"
           ],
           "nest": {
             "props.value.standard": {
