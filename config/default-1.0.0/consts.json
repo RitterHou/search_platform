@@ -170,8 +170,8 @@
             "title.standard",
             "brand.standard",
             "specs.svs.svname.analyzed",
-            "bn",
-            "skuBn"
+            "bn.analyzed",
+            "skuBn.analyzed"
           ],
           "nest": {
             "props.value.standard": {
