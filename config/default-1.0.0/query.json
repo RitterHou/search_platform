@@ -505,8 +505,10 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "index": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
-          "task_name": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+          "index":
+            "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name":
+            "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
         }
       }
     },
@@ -530,8 +532,10 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "index": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
-          "task_name": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+          "index":
+            "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name":
+            "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
         }
       }
     },
@@ -808,7 +812,8 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "(?!cloudshop)/marketings/(?!(items|trades|usercoupons|fans))"
+            "expression":
+              "(?!cloudshop)/marketings/(?!(items|trades|usercoupons|fans))"
           }
         ]
       },
@@ -1003,7 +1008,8 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "scene/d2c/trades/(?!(items|applies|refund_receipts|return_receipts|cash|ship_receipts|receive_receipts))"
+            "expression":
+              "scene/d2c/trades/(?!(items|applies|refund_receipts|return_receipts|cash|ship_receipts|receive_receipts))"
           }
         ]
       },
@@ -1245,7 +1251,8 @@
         "type": "regex",
         "fields": {
           "adminId": "scene/d2c/trades/receive_receipts/(?P<adminId>[^/]+)",
-          "id": "scene/d2c/trades/receive_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "id":
+            "scene/d2c/trades/receive_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
             "modulus": 1,
@@ -1276,7 +1283,8 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-                        "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
+            "expression":
+              "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
           }
         ]
       },
@@ -1315,7 +1323,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-                        "expression": "scene/d2p/trades/returned_receipts"
+            "expression": "scene/d2p/trades/returned_receipts"
           }
         ]
       },
@@ -1354,7 +1362,8 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "scene/d2c/cash/trades/(?!(items))"
+            "expression":
+              "scene/d2c/cash/trades/(?!(items|refund_receipts|return_receipts))"
           }
         ]
       },
@@ -1415,6 +1424,86 @@
         "index": "d2c-cash-trade-item-{hashcode}-{version}",
         "type": "Item",
         "id": "{oid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2c_cash_trade_return_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/d2c/cash/trades/return_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/d2c/cash/trades/return_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/d2c/cash/trades/return_receipts/(?P<adminId>[^/]+)",
+          "id":
+            "scene/d2c/cash/trades/return_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-cash-trade-returned-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{retTid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2c_cash_trade_refund_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/d2c/cash/trades/refund_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/d2c/cash/trades/refund_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/d2c/cash/trades/refund_receipts/(?P<adminId>[^/]+)",
+          "id":
+            "scene/d2c/cash/trades/refund_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-cash-trade-refunded-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{receiptId}",
         "add_admin_id_field": true
       },
       "response": {}
