@@ -761,7 +761,7 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
-        "index": "openapi-srvlog",
+        "index": "openapi-srvlog-*",
         "type": "SRV_LOG",
         "host": "{log_es_host}",
         "id": "generate"
