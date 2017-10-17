@@ -47,7 +47,8 @@ class ExtendQdslParser(object):
                                        'nested': self.__get_query_nested_fragment,
                                        'ematch': self.__get_query_ematch_fragment,
                                        'not': self.__get_query_not_fragment,
-                                       'or': self.__get_query_or_fragment}
+                                       'or': self.__get_query_or_fragment,
+                                       'null': self.__get_query_null_fragment}
         self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
                                         'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
                                         'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
@@ -1092,6 +1093,31 @@ class ExtendQdslParser(object):
             item_query_dsl_list.append(item_query_dsl)
         return {'bool': {'should': item_query_dsl_list}}
 
+    def __get_query_null_fragment(self, field_name, field_str):
+        """
+        null 查询，使用filtered query实现, 功能同 __get_filter_null_fragment
+        格式为：ex_q_属性名=null(flag:false),
+        false主要是决定是null还是not null， true表示是null查询；false表示not null查询。默认为false
+        根据user字段查询：
+        返回true的情况：{ "user": "jane" }{ "user": "" } { "user": "-" } { "user": ["jane"] } { "user": ["jane", null ] }
+        返回false的情况：{ "user": null }{ "user": [] } { "user": [null] } { "foo":  "bar" }
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+        if not field_name:
+            return None
+        flag = False
+        if field_str:
+            search_item_str_list = field_str.split(';')
+            for search_item_str in search_item_str_list:
+                search_item_key_value = search_item_str.split(':')
+                if len(search_item_key_value) > 1 and search_item_key_value[0] == 'flag':
+                    flag = search_item_key_value[1].lower() == 'true'
+        if flag:
+            return {"filtered": {"filter": {"missing": {"field": field_name}}}}
+        else:
+            return {"filtered": {"filter": {"exists": {"field": field_name}}}}
     def __get_agg_max_fragment(self, field_name, field_str):
         """
         agg max聚合
