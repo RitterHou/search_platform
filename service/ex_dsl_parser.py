@@ -1526,7 +1526,7 @@ class ExtendQdslParser(object):
                     if len(order_item_list) == 2:
                         agg_date_histogram_dsl['date_histogram']['order'] = {order_item_list[0]: order_item_list[1]}
                 elif search_item_key_value[0] == 'keyed':
-                    agg_date_histogram_dsl['histogram']['keyed'] = bool(search_item_key_value[1])
+                    agg_date_histogram_dsl['date_histogram']['keyed'] = bool(search_item_key_value[1])
                 else:
                     agg_date_histogram_dsl['date_histogram'][search_item_key_value[0]] = search_item_key_value[1]
 
