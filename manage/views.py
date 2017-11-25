@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-from collections import OrderedDict
 import datetime
+from collections import OrderedDict
 
 from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
@@ -14,11 +14,11 @@ from common.admin_config import admin_config
 from common.configs import config
 from common.exceptions import PKIsNullError, InvalidParamError
 from common.utils import merge, hash_encode
-from search_platform import settings
-from search_platform.responses import ExceptionResponse
 from manage.filters import estmpl_validater, suggest_validater, message_validater, ansj_validater
 from models import supervisor, data_river, es_tmpl, query_chain, sys_param, message, ansjSegmentation, suggest, \
     es_index, shop, shop_product, es_doc, vip_admin_id_model, cluster
+from search_platform import settings
+from search_platform.responses import ExceptionResponse
 
 
 class DataRiverView(APIView):
@@ -268,7 +268,6 @@ class AnsjSegmentationView(APIView):
         ansjSegmentation.set_segmentation(data)
         return Response(data)
 
-
     def delete(self, request, format=None):
         data = OrderedDict(request.DATA)
         # data['operate'] = 'delete'
@@ -293,7 +292,6 @@ class SuggestView(APIView):
     def get(self, request, admin_id, format=None):
         suggest_terms = suggest.query_suggest_terms(admin_id, request.QUERY_PARAMS)
         return Response(suggest_terms)
-
 
     def delete(self, request, admin_id, word, format=None):
         data = OrderedDict(request.QUERY_PARAMS)
@@ -499,9 +497,11 @@ class VipAdminIdView(APIView):
     """
     VIP用户Admin ID管理
     """
+
     def get(self, request, admin_ids=None, format=None):
         result = vip_admin_id_model.query(admin_ids)
         return Response(result) if result is not None else Response(status=status.HTTP_404_NOT_FOUND)
+
     def post(self, request, admin_ids=None, operation=None, admin_id=None):
         if admin_ids:
             vip_admin_id_model.add(admin_ids)
@@ -510,13 +510,17 @@ class VipAdminIdView(APIView):
         elif admin_id and operation == 'upgrade':
             vip_admin_id_model.upgrade_vip(admin_id)
         return Response()
+
     def delete(self, request, admin_ids):
         vip_admin_id_model.delete(admin_ids)
         return Response()
+
+
 class ClusterView(APIView):
     """
     搜索平台集群管理
     """
+
     def post(self, request, res_type=None, operation=None):
         if res_type == 'es':
             if operation == 'failover':
@@ -528,6 +532,7 @@ class ClusterView(APIView):
                 cluster.operate_rest_qos_processor(operation)
         elif res_type == 'msg_qos':
             pass
+
     def get(self, request, res_type=None, admin_id=None, metrics=None):
         if res_type == 'msg_qos':
             start_str = request.QUERY_PARAMS.get('start')
@@ -544,6 +549,7 @@ class ClusterView(APIView):
             if metrics == 'redo_queue':
                 return Response(cluster.get_rest_request_queue())
         raise InvalidParamError('Cannot support the request')
+
     def delete(self, request, res_type=None, admin_id=None, metrics=None):
         if res_type == 'msg_qos':
             if metrics == 'queue':
@@ -553,16 +559,21 @@ class ClusterView(APIView):
             elif metrics == 'final_queue':
                 return Response(cluster.delete_final_msg_queue())
         raise InvalidParamError('Cannot support the request')
+
+
 class EsProductView(APIView):
     """
     商品ES配置
     """
+
     def get(self, request, admin_id):
         es_params = {'adminId': admin_id, 'hashcode': hash_encode(admin_id, 50), 'version': '1.0.0'}
         is_vip = admin_config.is_vip(admin_id)
         es_template_name = 'product_vip' if is_vip else 'product_experience'
         es_template = config.get_value('es_index_setting/{0}'.format(es_template_name))
         return Response({'index': es_template['index'].format(**es_params), 'is_vip': is_vip})
+
+
 def supervisor_index(request):
     """
     进程管理主页

@@ -82,7 +82,7 @@
       "index_timeout": 120000
     },
     "admin_id_cfg": {
-       "vip_id_key": "search_platform_vip_admin_id_set",
+      "vip_id_key": "search_platform_vip_admin_id_set",
       "admin_id_params_key": "search_platform_admin_id_params",
       "vip_max_msg": 100,
       "vip_time_interval": 5,
