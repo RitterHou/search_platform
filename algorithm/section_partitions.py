@@ -187,10 +187,12 @@ class EqualSectionPartitions(object):
         for index in xrange(filter_section_list_length):
             if index == 0:
                 # 第一个区间
-                self.__delete_prop(filter_section_list[index], 'from')
+                if filter_section_list[index].get('to'):
+                    self.__delete_prop(filter_section_list[index], 'from')
             elif index == filter_section_list_length - 1:
                 # 最后一个区间
-                self.__delete_prop(filter_section_list[index], 'to')
+                if filter_section_list[index].get('from'):
+                    self.__delete_prop(filter_section_list[index], 'to')
             else:
                 self.__set_prop(filter_section_list[index], 'from', filter_section_list[index - 1]['to']) \
                     if filter_section_list[index]['from'] != filter_section_list[index - 1]['to'] else ''

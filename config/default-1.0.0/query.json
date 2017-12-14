@@ -1576,6 +1576,279 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "consignment_trade_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "scene/consignment/trades/(?!(items|applies|refund_receipts|return_receipts|cash|ship_receipts|receive_receipts))"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "trades/(?P<adminId>[^/]+)",
+          "id": "trades/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-{hashcode}-{version}",
+        "type": "Trade",
+        "id": "{tid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_item_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/items/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/items/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/items/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/items/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-item-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{oid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_application_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/applies/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/applies/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/applies/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/applies/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-application-{hashcode}-{version}",
+        "type": "Application",
+        "id": "{applyId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_refunded_receipts_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/refund_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/refund_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/refund_receipts/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/refund_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-refunded-{hashcode}-{version}",
+        "type": "Receipt",
+        "id": "{receiptId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_returned_receipts_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/return_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/return_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/return_receipts/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/return_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-returned-{hashcode}-{version}",
+        "type": "Receipt",
+        "id": "{receiptId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_ship_receipts_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/ship_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/ship_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/ship_receipts/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/ship_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-ship-{hashcode}-{version}",
+        "type": "Receipt",
+        "id": "{receiptId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "consignment_trade_receive_receipts_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^scene/consignment/trades/receive_receipts/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/consignment/trades/receive_receipts/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/consignment/trades/receive_receipts/(?P<adminId>[^/]+)",
+          "id": "scene/consignment/trades/receive_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "consignment-trade-receive-{hashcode}-{version}",
+        "type": "Receipt",
+        "id": "{receiptId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
