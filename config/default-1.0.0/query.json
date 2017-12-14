@@ -1,6 +1,36 @@
 {
   "chain": [
     {
+      "name": "trades_bills_query",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "^scene/acct/trades/bills$",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/scene/acct/trades/bills"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "acct-trades-bills",
+        "type": "bills",
+        "id": "{fundsId}"
+      },
+      "response": {}
+    },
+    {
       "name": "sup_product_query",
       "res_type": "product",
       "http_method": "GET,PUT,POST,DELETE",
