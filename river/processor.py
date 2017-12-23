@@ -24,7 +24,7 @@ class MessageProcessor(object):
 
     def process(self, message):
         """
-        处理消息
+        处理消息d
         """
         if not self.__match(message):
             return None
