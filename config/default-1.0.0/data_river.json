@@ -8077,9 +8077,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.uc.quser.api.ticket.TicketQueryProvider",
+            "service_interface": "com.qianmi.uc.quser.api.ticket.search.TicketQuery4SearchProvider",
             "request": {
-              "method": "getTicketVOById",
+              "method": "getById4Search",
               "timeout": 30,
               "body": {
                 "ticketId": "{ticketId}"
@@ -8179,9 +8179,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.uc.qstore.api.store.StoreQueryProvider",
+            "service_interface": "com.qianmi.uc.qstore.api.store.search.StoreQuery4SearchProvider",
             "request": {
-              "method": "getStoreVOById",
+              "method": "getById4Search",
               "timeout": 30,
               "body": {
                 "adminId": "{adminId}"
@@ -8272,10 +8272,10 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.uc.query.api.ticket.QueryTicketProvider",
+            "service_interface": "com.qianmi.uc.query.api.ticket.search.QueryTicket4SearchProvider",
             "version": "1.0.0",
             "request": {
-              "method": "queryAllTickets",
+              "method": "queryAllTickets4Search",
               "timeout": 30,
               "body": {
                 "pageNum": "{page_from}",
@@ -8333,10 +8333,10 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.uc.query.api.store.QueryStoreProvider",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
             "version": "1.0.0",
             "request": {
-              "method": "queryAllStores",
+              "method": "queryAllStores4Search",
               "timeout": 30,
               "body": {
                 "pageNum": "{page_from}",
