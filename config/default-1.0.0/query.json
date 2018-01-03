@@ -1849,6 +1849,94 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "boss_records",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "boss/records",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/boss/records$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "boss-records",
+        "type": "records",
+        "id": "{ticketId}"
+      },
+      "response": {}
+    },
+    {
+      "name": "usercenter_ticket_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "usercenter/tickets",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/usercenter/tickets$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-user-{version}",
+        "type": "User"
+      },
+      "response": {}
+    },
+    {
+      "name": "usercenter_shop_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "usercenter/shops",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/usercenter/shops$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-usershop-{version}",
+        "type": "Shop"
+      },
+      "response": {}
     }
   ]
 }
