@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import inspect
+import socket
 import time
 from datetime import datetime
-import socket
-from re import search
+
 import os
-
 from django.http import QueryDict
-
-
+from re import search
 
 __author__ = 'liuzhaoming'
 
@@ -164,6 +162,8 @@ def set_dict_value_by_path(path, data_dict, value):
             return None
     last_dict[iter_key] = value
     return value
+
+
 def merge(dict_param, other_dict_param):
     """
     合并字典，支持嵌套，返回一个全新字典
@@ -316,6 +316,8 @@ def format_time(time_stamp, format='%Y-%m-%d %H:%M:%S.%f'):
     """
     date = datetime.fromtimestamp(time_stamp)
     return date.strftime(format)[:23]
+
+
 def get_day_and_hour():
     """
     获取一年中的第多少天和一天中的第多少小时， 格式为：00102 表示一年中的第一天第二个小时
@@ -355,6 +357,8 @@ def upper_admin_id(admin_id):
         return admin_id.upper()
     else:
         return admin_id
+
+
 def lower_admin_id(admin_id):
     """
     对admin id 进行小写
@@ -367,6 +371,8 @@ def lower_admin_id(admin_id):
         return admin_id.lower()
     else:
         return admin_id
+
+
 def get_cats_path(product, tag='b2c', cats_prop_name='cats'):
     """
     获取路径的字符串表示形式：'b2c,休闲食品,时尚零食,蜜饯干果'
@@ -391,6 +397,8 @@ def get_cats_path(product, tag='b2c', cats_prop_name='cats'):
     if len(filter_cat_path) < 3:
         return ''
     return ','.join(filter_cat_path)
+
+
 def hash_encode(input_str, modulus=1):
     """
     hash编码
@@ -399,6 +407,8 @@ def hash_encode(input_str, modulus=1):
     :return:
     """
     return abs(hash(input_str)) % modulus
+
+
 if __name__ == '__main__':
     # print to_utf_chars('China u中华人民共和国 ￥$end')
     print 'bind_variable test start........'
@@ -416,6 +426,7 @@ if __name__ == '__main__':
 
     print get_function_params(merge)
     import copy
+
     start_time = time.time()
     for i in xrange(10):
         copy.deepcopy(dict1)
