@@ -254,8 +254,8 @@ LOGGING = {
         'error': {
             'handlers': ['logfile'],
             'propagate': False,
-            'level': 'INFO',
-            'filters': ['sms_alarm_filter']
+            'level': 'INFO'
+            # 'filters': ['sms_alarm_filter']
         },
         'interface': {
             'handlers': ['logfile'],
