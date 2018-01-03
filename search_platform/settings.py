@@ -127,7 +127,7 @@ LOGGING = {
     },
     'handlers': {
         'django_logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'django.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -135,7 +135,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'root.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -143,7 +143,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'listener_logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'listener.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -159,7 +159,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'interface_logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'interface.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -167,7 +167,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'error_logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'error.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -175,7 +175,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'query_logfile': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(os.path.dirname(__file__), '../logs', 'query.log'),
             'maxBytes': 1024 * 1024 * 10,
@@ -186,22 +186,22 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
-        },
-        'app_logstash_log': {
-            'level': 'INFO',
-            'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
-            'host': '192.168.65.224',
-            'key': 'LOGSTASH_APP_LOG',
-            'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
-            'is_interface_handler': False
-        },
-        'interface_logstash_log': {
-            'level': 'INFO',
-            'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
-            'host': '192.168.65.224',
-            'key': 'LOGSTASH_INTF_LOG',
-            'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
-        },
+        }
+        # 'app_logstash_log': {
+        #     'level': 'INFO',
+        #     'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
+        #     'host': '192.168.65.224',
+        #     'key': 'LOGSTASH_APP_LOG',
+        #     'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
+        #     'is_interface_handler': False
+        # },
+        # 'interface_logstash_log': {
+        #     'level': 'INFO',
+        #     'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
+        #     'host': '192.168.65.224',
+        #     'key': 'LOGSTASH_INTF_LOG',
+        #     'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
+        # },
     },
     'loggers': {
         # 'app': {
@@ -247,43 +247,43 @@ LOGGING = {
 
         ####################################################
         'app': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'error': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
             'filters': ['sms_alarm_filter']
         },
         'interface': {
-            'handlers': ['interface_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'listener': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'debug': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'query': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'django': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'propagate': False,
             'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['app_logstash_log'],
+            'handlers': ['logfile'],
             'level': 'INFO',
             'propagate': False,
         },
