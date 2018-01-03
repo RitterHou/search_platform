@@ -8035,6 +8035,332 @@
           ]
         }
       ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.ticketChange",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "usercenter_ticket_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ticketId": "ticketId\":\"(?P<ticketId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.quser.api.ticket.TicketQueryProvider",
+            "request": {
+              "method": "getTicketVOById",
+              "timeout": 30,
+              "body": {
+                "ticketId": "{ticketId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-user-{version}",
+              "type": "User",
+              "id": "{ticketId}"
+            }
+          ]
+        },
+        {
+          "name": "usercenter_ticket_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ticketId": "ticketId\":\"(?P<ticketId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-user-{version}",
+              "type": "User",
+              "id": "{ticketId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.shopChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "usercenter_shop_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.qstore.api.store.StoreQueryProvider",
+            "request": {
+              "method": "getStoreVOById",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-usershop-{version}",
+              "type": "Shop",
+              "id": "{adminId}"
+            }
+          ]
+        },
+        {
+          "name": "usercenter_shop_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-usershop-{version}",
+              "type": "Shop",
+              "id": "{adminId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.ticketInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "usercenter_ticket_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": []
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {}
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.query.api.ticket.QueryTicketProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllTickets",
+              "timeout": 30,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-user-{version}",
+              "type": "User",
+              "id": "{ticketId}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.shopInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "usercenter_shop_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": []
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {}
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.query.api.store.QueryStoreProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllStores",
+              "timeout": 30,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-usershop-{version}",
+              "type": "Shop",
+              "id": "{adminId}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
