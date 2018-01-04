@@ -4,8 +4,7 @@ from collections import OrderedDict
 from itertools import chain
 
 from common.adapter import es_adapter
-from common.loggers import query_log, app_log
-
+from common.loggers import app_log
 
 __author__ = 'liuzhaoming'
 
@@ -51,6 +50,7 @@ class SpuAndSkuDict(object):
 
     def get_sku_ids_by_spu(self, spu_id):
         return self.__ordered_dict.get(spu_id)
+
     def get_sku_ids(self):
         return chain(*self.__ordered_dict.itervalues())
 
@@ -84,7 +84,6 @@ class SpuSearchBySku(object):
     如果原查询中带有aggs聚合，那么还要做一次聚合
     """
 
-
     def get_spu_by_sku(self, sku_dsl, es_cfg, args, parse_fields, es_search_params=None):
         from service.models import Aggregation
 
@@ -94,7 +93,7 @@ class SpuSearchBySku(object):
         es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, es_search_params=es_search_params,
                                          **es_cfg)
         es_scan_result = tuple(es_scan_result)
-        app_log.info("spu by sku scan id spends {0}  {1}", time.time()-start_time, parse_fields)
+        app_log.info("spu by sku scan id spends {0}  {1}", time.time() - start_time, parse_fields)
         start_time = time.time()
         build_start_time = time.time()
         # 限制SPU中聚合的SKU数目
@@ -223,7 +222,3 @@ class SpuSearchBySku(object):
 
 
 spu_search_scene = SpuSearchBySku()
-
-
-
-
