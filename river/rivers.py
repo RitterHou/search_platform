@@ -12,7 +12,6 @@ from river import get_river_key
 from river.processor import MessageProcessorChain
 from search_platform.celery_config import app
 
-
 __author__ = 'liuzhaoming'
 
 LIST_SEP_SIGN = ';'
@@ -40,6 +39,8 @@ def process_message(self, message, river_key):
         app_log.error('Process_message has error, message={0}, river_key={1}', e, message, river_key)
         if isinstance(e, MsgHandlingFailError):
             msg_sla.process_do_error_message(message, e)
+
+
 def process_syn_message(message, river_key):
     """
     同步调用处理MQ消息
