@@ -168,7 +168,7 @@ class ExtendQdslParser(object):
             return {}
         field_name_list = fields_str.split(',')
         if field_name_list:
-            return {'fields': field_name_list}
+            return {'_source': field_name_list}
         return {}
 
     def get_script_fields_dsl(self, query_params):
