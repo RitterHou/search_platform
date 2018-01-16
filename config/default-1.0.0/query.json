@@ -1959,7 +1959,8 @@
         "destination_type": "elasticsearch",
         "reference": "general_vip",
         "index": "qm-oms-{hashcode}-{version}",
-        "type": "DeliveryNote"
+        "type": "DeliveryNote",
+        "add_admin_id_field": true
       },
       "response": {}
     }
