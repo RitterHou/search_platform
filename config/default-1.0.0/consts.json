@@ -169,6 +169,7 @@
             "salePoint",
             "title.standard",
             "brand.standard",
+            "barCode.analyzed",
             "specs.svs.svname.analyzed",
             "bn.analyzed",
             "skuBn.analyzed"
