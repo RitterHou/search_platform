@@ -1840,10 +1840,10 @@
       "response": {}
     },
     {
-      "name": "boss_records",
+      "name": "boss_tickets",
       "res_type": "default",
       "http_method": "GET,POST",
-      "url_format": "boss/records",
+      "url_format": "boss/tickets",
       "filter": {
         "type": "regex",
         "union_operator": "and",
@@ -1852,7 +1852,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "^/boss/records$"
+            "expression": "^/boss/tickets$"
           }
         ]
       },
@@ -1863,9 +1863,39 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
-        "index": "boss-records",
-        "type": "records",
+        "index": "boss-tickets-{version}",
+        "type": "Tickets",
         "id": "{ticketId}"
+      },
+      "response": {}
+    },
+    {
+      "name": "boss_shops",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "boss/shops",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/boss/shops$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "boss-shops-{version}",
+        "type": "Shops",
+        "id": "{shopId}"
       },
       "response": {}
     },
