@@ -2057,6 +2057,36 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "pc_goods_barcode",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "pc/goods/barcode",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/pc/goods/barcode$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "pc-goods-barcode-{version}",
+        "type": "Barcode",
+        "id": "{barcode}"
+      },
+      "response": {}
     }
   ]
 }
