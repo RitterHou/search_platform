@@ -1993,6 +1993,70 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "uc_visit_plan_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "uc/visit/plan/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/visit/plan/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/visit/plan/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-uc-{version}",
+        "type": "Plan",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "uc_visit_record_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "uc/visit/record/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/visit/record/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/visit/record/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-uc-{version}",
+        "type": "Record",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
