@@ -18,7 +18,6 @@ from common.loggers import app_log
 from common.rest_quest import RestRequest
 from search_platform.settings import SERVICE_BASE_CONFIG
 
-
 __author__ = 'liuzhaoming'
 
 
@@ -240,6 +239,7 @@ class MsgSLA(object):
             if not cur_msgs:
                 return
 
+            app_log.info("sla fetch messages {0}".format(cur_msgs))
             msg_handler_fun(cur_msgs)
 
             self._update_msg_process_status(admin_id, cur_msgs)
@@ -317,6 +317,7 @@ class MsgSLA(object):
             else:
                 experience_admin_ids.append(admin_id)
         return experience_admin_ids, vip_admin_ids
+
     def _query_msg_admin_ids(self):
         """
         查询需要处理消息的Admin用户ID，通过keys * 来查询adminId
@@ -364,12 +365,14 @@ class MsgSLA(object):
         :param admin_id:
         :return:
         """
+
         def __convert_msg(_msg_str):
             try:
                 return json.loads(_msg_str)
             except Exception as e:
                 app_log.error("Admin {0} has invalid message {1}".format(admin_id, _msg_str))
                 return None
+
         try:
             str_key = self._msg_queue_key.format(admin_id)
             iter_size, is_vip = self._get_msg_iter_size(admin_id)
@@ -729,10 +732,13 @@ class MsgSLA(object):
 
 
 msg_sla = MsgSLA()
+
+
 class RestSLA(object):
     """
     RESTFul 接口SLA
     """
+
     def __init__(self):
         self._kafka_host = config.get_value('/consts/custom_variables/kafka_host')
         self._rest_quest_topic = config.get_value('/consts/query/sla/rest_request_fail_topic') \
@@ -743,6 +749,7 @@ class RestSLA(object):
         self._kafka_producer = None
         self._kafka_topic = None
         self._mutex = threading.Lock()
+
     def process_http_error_request(self, request, exception, timestamp):
         """
         处理操作失败的http请求
@@ -761,6 +768,7 @@ class RestSLA(object):
             self._send_fail_rest_request(json.dumps(message))
         except Exception as e:
             app_log.error('send fail rest request to kafka ', e)
+
     def _send_fail_rest_request(self, message):
         """
         发送处理失败REST请求到kafka
@@ -769,6 +777,7 @@ class RestSLA(object):
         """
         producer = self._get_kafka_producer()
         producer.produce(message)
+
     def get_kafka_topic(self):
         """
         获取kafka消息topic
@@ -780,6 +789,7 @@ class RestSLA(object):
             client = KafkaClientFactory.get_kafka_client(self._kafka_host)
             self._kafka_topic = client.topics[str(self._rest_quest_topic)]
             return self._kafka_topic
+
     def _get_kafka_producer(self):
         """
         获取kafka消息生产者，如果没有就初始化一个
@@ -800,6 +810,8 @@ class RestSLA(object):
                 finally:
                     self._mutex.release()
                     return self._kafka_producer
+
+
 rest_sla = RestSLA()
 if __name__ == '__main__':
     pass
