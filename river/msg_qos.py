@@ -2,6 +2,8 @@
 """
 msq qos 消息转发
 """
+
+
 def init_django_env():
     """
     初始化Django环境
@@ -14,6 +16,8 @@ def init_django_env():
     os.environ['DJANGO_SETTINGS_MODULE'] = 'search_platform.settings'
     import django
     django.setup()
+
+
 init_django_env()
 import sys
 import threading
@@ -25,6 +29,7 @@ from common.sla import msg_sla
 from river.rivers import process_message
 
 __author__ = 'liuzhaoming'
+
 
 def process_message_wrapper(_message_dict_list):
     """
@@ -38,9 +43,12 @@ def process_message_wrapper(_message_dict_list):
             # process_message('', _message_dict, _message_dict['river_key'])
         except Exception as e:
             app_log.error('process message error {0}', e, _message_dict)
+
+
 class MsgQos(object):
     def __init__(self):
         pass
+
     def start_vip_msg_handler(self):
         """
         启动VIP用户消息处理
@@ -49,6 +57,7 @@ class MsgQos(object):
         vip_msg_handler_thread = threading.Thread(target=self._handle_msg, args=(True,), name='Vip msg handler thread')
         vip_msg_handler_thread.setDaemon(True)
         vip_msg_handler_thread.start()
+
     def start_experience_msg_handler(self):
         """
         启动体验用户消息处理
@@ -58,6 +67,7 @@ class MsgQos(object):
                                                          name='Experience msg handler thread')
         experience_msg_handler_thread.setDaemon(True)
         experience_msg_handler_thread.start()
+
     def start_vip_redo_msg_handler(self):
         """
         启动VIP消息失败消息重做
@@ -67,6 +77,7 @@ class MsgQos(object):
                                                        name='Vip redo msg handler thread')
         vip_redo_msg_handler_thread.setDaemon(True)
         vip_redo_msg_handler_thread.start()
+
     def start_experience_redo_msg_handler(self):
         """
         启动体验用户失败消息重做
@@ -76,6 +87,7 @@ class MsgQos(object):
                                                               name='Experience redo msg handler thread')
         experience_redo_msg_handler_thread.setDaemon(True)
         experience_redo_msg_handler_thread.start()
+
     def start_check_msg_num(self):
         """
         启动消息队列阈值检查
@@ -84,6 +96,7 @@ class MsgQos(object):
         check_msg_num_thread = threading.Thread(target=self._handle_check_msg_num, name='Check msg num thread')
         check_msg_num_thread.setDaemon(True)
         check_msg_num_thread.start()
+
     def start_check_final_msg_num(self):
         """
         启动最终失败消息队列阈值检查
@@ -93,12 +106,13 @@ class MsgQos(object):
                                                       name='Check final msg num thread')
         check_final_msg_num_thread.setDaemon(True)
         check_final_msg_num_thread.start()
+
     def _handle_msg(self, is_vip):
         """
         处理消息
         :param is_vip
         """
-        time_interval = 0.1
+        time_interval = 0.02
         while True:
             _start_time = time.time()
             try:
@@ -111,6 +125,7 @@ class MsgQos(object):
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 0.01:
                     time.sleep(time_delta)
+
     def _handle_redo_msg(self, is_vip):
         """
         处理重做消息
@@ -128,6 +143,7 @@ class MsgQos(object):
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 1:
                     time.sleep(time_delta)
+
     def _handle_check_msg_num(self):
         """
         检查消息队列消息数目
@@ -146,6 +162,7 @@ class MsgQos(object):
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 1:
                     time.sleep(time_delta)
+
     def _handle_check_final_msg_num(self):
         """
         检查最终消息队列数目
@@ -165,6 +182,8 @@ class MsgQos(object):
                 time_delta = time_interval - (time.time() - _start_time)
                 if time_delta >= 1:
                     time.sleep(time_delta)
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] not in ('vip', 'experience'):
         app_log.error('Msg qos app start param is not valid {0}', sys.argv)
