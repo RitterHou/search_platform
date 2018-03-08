@@ -239,7 +239,7 @@ class MsgSLA(object):
             if not cur_msgs:
                 return
 
-            app_log.info("sla fetch messages {0}".format(cur_msgs))
+            app_log.info("sla fetch {0} messages {1}".format(len(cur_msgs), json.dumps(cur_msgs)))
             msg_handler_fun(cur_msgs)
 
             self._update_msg_process_status(admin_id, cur_msgs)
