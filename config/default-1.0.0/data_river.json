@@ -3597,16 +3597,14 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchFansQueryProvider",
+            "service_interface": "com.qianmi.weixin.api.fans.SearchFansQueryProvider",
             "request": {
               "method": "queryFansByIds",
               "timeout": 30,
               "body": {
-                "adminId": "{adminId}",
+                "owner": "{adminId}",
                 "ids": "{ids}",
-                "msgId": "{msgId}",
-                "domainType": "{domainType}"
+                "msgId": "{msgId}"
               }
             }
           },
@@ -4105,16 +4103,14 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchFansQueryProvider",
+            "service_interface": "com.qianmi.weixin.api.fans.SearchFansQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryFans",
               "timeout": 10,
               "body": {
-                "adminId": "{adminId}",
+                "owner": "{adminId}",
                 "msgId": "{msgId}",
-                "domainType": "{domainType}",
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}"
               }
