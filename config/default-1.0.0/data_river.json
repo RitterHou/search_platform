@@ -8981,9 +8981,7 @@
             "data_parser": {
               "type": "regex",
               "fields": {
-                "fields": {
-                  "employeeId": "employeeId\":\"(?P<employeeId>[\\d\\D]+?)\""
-                }
+                "employeeId": "employeeId\":\"(?P<employeeId>[\\d\\D]+?)\""
               }
             }
           },
