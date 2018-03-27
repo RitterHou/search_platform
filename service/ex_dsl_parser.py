@@ -938,7 +938,7 @@ class ExtendQdslParser(object):
                 if search_item_key_value[0] == 'boost':
                     geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
                 elif search_item_key_value[0] == 'location':
-                    geo_distance_filter_dsl[field_name] = float(search_item_key_value[1])
+                    geo_distance_filter_dsl[field_name] = str(search_item_key_value[1])
                 else:
                     geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
         return {"geo_distance": geo_distance_filter_dsl}
@@ -962,7 +962,7 @@ class ExtendQdslParser(object):
                 if search_item_key_value[0] == 'boost':
                     geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
                 elif search_item_key_value[0] == 'location':
-                    geo_distance_filter_dsl[field_name] = float(search_item_key_value[1])
+                    geo_distance_filter_dsl[field_name] = str(search_item_key_value[1])
                 else:
                     geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
         return {"geo_distance_range": geo_distance_filter_dsl}
