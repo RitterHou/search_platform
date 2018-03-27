@@ -1,14 +1,13 @@
 # coding=utf-8
-from kazoo.recipe.lock import Lock
 import redis
+from kazoo.recipe.lock import Lock
 from redis import RedisError
 
 from common.configs import config
 from common.connections import ZkClientFactory
-from utils import get_client_id
 from common.loggers import app_log
 from search_platform.settings import SERVICE_BASE_CONFIG
-
+from utils import get_client_id
 
 __author__ = 'liuzhaoming'
 
@@ -93,7 +92,6 @@ class RedisLockStore(LockStore):
         finally:
             pipe_line.reset()
 
-
     def release_lock_info(self, task_name):
         task_key = self.__get_task_key(task_name)
         app_log.info('{0} relase lock {1}', self.__client_id, task_key)
@@ -112,20 +110,23 @@ class RedisLockStore(LockStore):
         """
         return ''.join(('distributed_lock_store', '|||', task_name))
 
-
     def __init_store(self):
         pool = redis.ConnectionPool.from_url(self.__host)
         self.__redis_conn = redis.Redis(connection_pool=pool)
         self.__has_initialized = True
 
         self.__client_id = get_client_id()
+
+
 class ZookeeperLockStore(LockStore):
     """
     用Zookeeper实现的分布式锁
     """
+
     def __init__(self):
         self.zk = None
         self.lock_path = '/app/search_platform/locks'
+
     def get_lock_info(self, task_name, timeout=0):
         """
         获取分布式锁
@@ -139,6 +140,7 @@ class ZookeeperLockStore(LockStore):
         except Exception as e:
             app_log.error('ZookeeperLockStore get lock error {0}', e, task_name)
             return False
+
     def release_lock_info(self, task_name):
         """
         释放分布式锁
@@ -150,6 +152,7 @@ class ZookeeperLockStore(LockStore):
         except Exception as e:
             app_log.error('ZookeeperLockStore release lock error {0}', e, task_name)
             return False
+
     def _get_zk_client(self):
         if self.zk:
             return self.zk
@@ -204,4 +207,3 @@ if __name__ == '__main__':
     host = config.get_value('consts/global/lock_store') or 'redis://127.0.0.1:6379/1'
     lock_store = RedisLockStore(host)
     lock_store.get_conn().hmset('test_key', {{'host1': {'key1': 'value1', 'key2': 122}, 'host2': 'google'}})
-

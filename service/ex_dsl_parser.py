@@ -1118,6 +1118,7 @@ class ExtendQdslParser(object):
             return {"filtered": {"filter": {"missing": {"field": field_name}}}}
         else:
             return {"filtered": {"filter": {"exists": {"field": field_name}}}}
+
     def __get_agg_max_fragment(self, field_name, field_str):
         """
         agg max聚合
