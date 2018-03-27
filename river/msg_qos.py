@@ -112,7 +112,7 @@ class MsgQos(object):
         处理消息
         :param is_vip
         """
-        time_interval = 0.1
+        time_interval = 0.02
         while True:
             _start_time = time.time()
             try:

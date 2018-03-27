@@ -535,10 +535,8 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "index":
-            "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
-          "task_name":
-            "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+          "index": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name": "stats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
         }
       }
     },
@@ -562,10 +560,8 @@
       "data_parser": {
         "type": "regex",
         "fields": {
-          "index":
-            "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
-          "task_name":
-            "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
+          "index": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)",
+          "task_name": "exstats/(?P<index>[\\d\\w\\-.]+?)/(?P<task_name>[\\d\\w\\-.^/]+)"
         }
       }
     },
@@ -842,8 +838,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression":
-              "(?!cloudshop)/marketings/(?!(items|trades|usercoupons|fans|integral))"
+            "expression": "(?!cloudshop)/marketings/(?!(items|trades|usercoupons|fans|integral))"
           }
         ]
       },
@@ -1077,8 +1072,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression":
-              "scene/d2c/trades/(?!(items|applies|refund_receipts|return_receipts|cash|ship_receipts|receive_receipts))"
+            "expression": "scene/d2c/trades/(?!(items|applies|refund_receipts|return_receipts|cash|ship_receipts|receive_receipts))"
           }
         ]
       },
@@ -1320,8 +1314,7 @@
         "type": "regex",
         "fields": {
           "adminId": "scene/d2c/trades/receive_receipts/(?P<adminId>[^/]+)",
-          "id":
-            "scene/d2c/trades/receive_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "id": "scene/d2c/trades/receive_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
             "modulus": 1,
@@ -1352,8 +1345,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression":
-              "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
+            "expression": "scene/d2p/trades/(?!(items|applications|refunded_receipts|returned_receipts))"
           }
         ]
       },
@@ -1431,8 +1423,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression":
-              "scene/d2c/cash/trades/(?!(items|refund_receipts|return_receipts))"
+            "expression": "scene/d2c/cash/trades/(?!(items|refund_receipts|return_receipts))"
           }
         ]
       },
@@ -1518,8 +1509,7 @@
         "type": "regex",
         "fields": {
           "adminId": "scene/d2c/cash/trades/return_receipts/(?P<adminId>[^/]+)",
-          "id":
-            "scene/d2c/cash/trades/return_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "id": "scene/d2c/cash/trades/return_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
             "modulus": 1,
@@ -1558,8 +1548,7 @@
         "type": "regex",
         "fields": {
           "adminId": "scene/d2c/cash/trades/refund_receipts/(?P<adminId>[^/]+)",
-          "id":
-            "scene/d2c/cash/trades/refund_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "id": "scene/d2c/cash/trades/refund_receipts/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
             "modulus": 1,
@@ -1851,10 +1840,10 @@
       "response": {}
     },
     {
-      "name": "boss_records",
+      "name": "boss_tickets",
       "res_type": "default",
       "http_method": "GET,POST",
-      "url_format": "boss/records",
+      "url_format": "boss/tickets",
       "filter": {
         "type": "regex",
         "union_operator": "and",
@@ -1863,7 +1852,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "^/boss/records$"
+            "expression": "^/boss/tickets$"
           }
         ]
       },
@@ -1874,9 +1863,39 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_experience",
-        "index": "boss-records",
-        "type": "records",
+        "index": "boss-tickets-{version}",
+        "type": "Tickets",
         "id": "{ticketId}"
+      },
+      "response": {}
+    },
+    {
+      "name": "boss_shops",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "boss/shops",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/boss/shops$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "boss-shops-{version}",
+        "type": "Shops",
+        "id": "{shopId}"
       },
       "response": {}
     },
@@ -1935,6 +1954,233 @@
         "reference": "general_vip",
         "index": "qm-usershop-{version}",
         "type": "Shop"
+      },
+      "response": {}
+    },
+    {
+      "name": "oms_delivery_note_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "oms/delivery/notes/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/oms/delivery/notes/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "oms/delivery/notes/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-oms-{hashcode}-{version}",
+        "type": "DeliveryNote",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "uc_visit_plan_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "uc/visit/plan/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/visit/plan/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/visit/plan/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-uc-{version}",
+        "type": "Plan",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "uc_visit_record_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "uc/visit/record/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/visit/record/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/visit/record/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-uc-{version}",
+        "type": "Record",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "pc_goods_barcode",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "pc/goods/barcode",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/pc/goods/barcode$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "pc-goods-barcode-{version}",
+        "type": "Barcode",
+        "id": "{barcode}"
+      },
+      "response": {}
+    },
+    {
+      "name": "x_site_site_info",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE",
+      "url_format": "x/site/site/info",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/x/site/site/info"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "id": "site/info/(?P<id>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "x-site-site-info-{version}",
+        "type": "SiteInfo",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "name": "x_site_page_info",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE",
+      "url_format": "x/site/page/info",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/x/site/page/info"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "id": "page/info/(?P<id>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "x-site-page-info-{version}",
+        "type": "PageInfo",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "name": "uc_employee_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "uc/employee/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/employee/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/employee/(?P<adminId>[\\d\\D]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "qm-uc-employee-{version}",
+        "type": "Employee",
+        "add_admin_id_field": true
       },
       "response": {}
     }

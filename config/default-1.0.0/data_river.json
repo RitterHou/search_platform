@@ -3597,16 +3597,14 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchFansQueryProvider",
+            "service_interface": "com.qianmi.weixin.api.fans.SearchFansQueryProvider",
             "request": {
               "method": "queryFansByIds",
               "timeout": 30,
               "body": {
-                "adminId": "{adminId}",
+                "owner": "{adminId}",
                 "ids": "{ids}",
-                "msgId": "{msgId}",
-                "domainType": "{domainType}"
+                "msgId": "{msgId}"
               }
             }
           },
@@ -4105,16 +4103,14 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchFansQueryProvider",
+            "service_interface": "com.qianmi.weixin.api.fans.SearchFansQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryFans",
               "timeout": 10,
               "body": {
-                "adminId": "{adminId}",
+                "owner": "{adminId}",
                 "msgId": "{msgId}",
-                "domainType": "{domainType}",
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}"
               }
@@ -8357,6 +8353,725 @@
               "index": "qm-usershop-{version}",
               "type": "Shop",
               "id": "{adminId}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.oms.searchPlatform.deliveryNote.change",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "oms"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "oms_delivery_note_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "deliveryNos": "deliveryNos\":\"(?P<deliveryNos>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.oms.api.delivery.DeliveryNoteViewProvider",
+            "request": {
+              "method": "findByDeliveryNos",
+              "timeout": 30,
+              "body": {
+                "chainMaster": "{adminId}",
+                "deliveryNos": "{deliveryNos}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-oms-{hashcode}-{version}",
+              "type": "DeliveryNote",
+              "id": "{deliveryNo}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "oms_delivery_note_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "deliveryNos": "deliveryNos\":\"(?P<deliveryNos>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-oms-{hashcode}-{version}",
+              "type": "DeliveryNote",
+              "id": "{deliveryNos}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.oms.searchPlatform.deliveryNote.init",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "oms"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "oms_delivery_note_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"init\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.oms.api.delivery.DeliveryNoteViewProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "findByChainMaster",
+              "timeout": 30,
+              "body": {
+                "chainMaster": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-oms-{hashcode}-{version}",
+              "type": "DeliveryNote",
+              "id": "{deliveryNo}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.visitPlanChange",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_visit_plan"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_visit_plan_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "planId": "planId\":\"(?P<planId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.vrecord.api.plan.search.VisitPlanQuery4SearchProvider",
+            "request": {
+              "method": "getById4Search",
+              "timeout": 30,
+              "body": {
+                "planId": "{planId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-{version}",
+              "type": "Plan",
+              "id": "{planId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "uc_visit_plan_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "fields": {
+                  "planId": "planId\":\"(?P<planId>[\\d\\D]+?)\""
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-uc-{version}",
+              "type": "Plan",
+              "id": "{planId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.visitRecordChange",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_visit_record"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_visit_record_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "recordId": "recordId\":\"(?P<recordId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.vrecord.api.record.search.VisitRecordQuery4SearchProvider",
+            "request": {
+              "method": "getById4Search",
+              "timeout": 30,
+              "body": {
+                "recordId": "{recordId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-{version}",
+              "type": "Record",
+              "id": "{recordId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "uc_visit_record_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "fields": {
+                  "recordId": "recordId\":\"(?P<recordId>[\\d\\D]+?)\""
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-uc-{version}",
+              "type": "Record",
+              "id": "{recordId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.visitPlanInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_visit_plan"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_visit_plan_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.vrecord.api.plan.search.VisitPlanQuery4SearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllVisitPlan4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-{version}",
+              "type": "Plan",
+              "id": "{planId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.visitRecordInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_visit_record"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_visit_record_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.vrecord.api.record.search.VisitRecordQuery4SearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllVisitRecord4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-{version}",
+              "type": "Record",
+              "id": "{recordId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.employeeInfoChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_employee_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "employeeId": "employeeId\":\"(?P<employeeId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.query.api.employee.search.QueryEmployee4SearchProvider",
+            "request": {
+              "method": "listEmployeeById",
+              "timeout": 30,
+              "body": {
+                "employeeId": "{employeeId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-employee-{version}",
+              "type": "Employee",
+              "id": "{employeeId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "uc_employee_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "employeeId": "employeeId\":\"(?P<employeeId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "qm-uc-employee-{version}",
+              "type": "Employee",
+              "id": "{employeeId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.syncEmployee",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "shopId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_employee_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "shopId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.query.api.employee.search.QueryEmployee4SearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "listEmployeeByAdminId",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "qm-uc-employee-{version}",
+              "type": "Employee",
+              "id": "{employeeId}",
+              "add_admin_id_field": true
             }
           ]
         }
