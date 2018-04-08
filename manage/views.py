@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-import datetime
+import json
+import urllib2
 from collections import OrderedDict
+import datetime
 
 from django.http import JsonResponse, QueryDict
 from django.shortcuts import render
@@ -16,7 +18,7 @@ from common.exceptions import PKIsNullError, InvalidParamError
 from common.utils import merge, hash_encode
 from manage.filters import estmpl_validater, suggest_validater, message_validater, ansj_validater
 from models import supervisor, data_river, es_tmpl, query_chain, sys_param, message, ansjSegmentation, suggest, \
-    es_index, shop, shop_product, es_doc, vip_admin_id_model, cluster
+    es_index, shop, shop_product, es_doc, vip_admin_id_model, cluster, yxd_shop_suggest
 from search_platform import settings
 from search_platform.responses import ExceptionResponse
 
@@ -302,6 +304,25 @@ class SuggestView(APIView):
         suggest_validater.validate(request, admin_id, data, 'DELETE')
         suggest.delete_suggest_term(data)
         return Response({})
+
+
+class YxdSuggestView(APIView):
+    def post(self, request):
+        """
+        初始化云小店所有的店铺名称搜索关键词的web接口
+        :param request:
+        :return:
+        """
+        search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
+        search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
+        response = urllib2.urlopen(urllib2.Request(search_url)).read()
+        result = json.loads(response)
+        store_names = []
+        for admin in result['root']:
+            store_names.append(admin['storeName'])
+        yxd_shop_suggest.init_suggest(store_names)
+
+        return Response()
 
 
 class EsIndexView(APIView):

@@ -832,7 +832,7 @@
   "suggest_vip": {
     "host": "{experience_es_host}",
     "index": "suggest-product-{version}",
-    "type": "{adminId}",
+    "type": "Suggest",
     "id": "{id}",
     "mapping": {
       "properties": {
@@ -851,6 +851,11 @@
           "store": true,
           "type": "string"
         },
+        "adminId": {
+          "index": "not_analyzed",
+          "store": true,
+          "type": "string"
+        },
         "suggest": {
           "max_input_length": 50,
           "preserve_separators": true,
@@ -860,11 +865,35 @@
           "preserve_position_increments": true,
           "type": "completion",
           "context": {
-            "type": {
-              "path": "_type",
+            "adminId": {
+              "path": "adminId",
               "type": "category"
             }
           }
+        }
+      }
+    }
+  },
+  "yxd_shop_suggest": {
+    "host": "{experience_es_host}",
+    "index": "yxd-shop-suggest-{version}",
+    "type": "ShopSuggest",
+    "id": "{id}",
+    "mapping": {
+      "properties": {
+        "name": {
+          "index": "not_analyzed",
+          "store": true,
+          "type": "string"
+        },
+        "suggest": {
+          "max_input_length": 50,
+          "preserve_separators": true,
+          "payloads": true,
+          "index_analyzer": "standard",
+          "search_analyzer": "standard",
+          "preserve_position_increments": true,
+          "type": "completion"
         }
       }
     }

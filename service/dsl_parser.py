@@ -25,7 +25,7 @@ class QdslParser(object):
                 "field": "suggest",
                 "size": 10,
                 "context": {
-                    "type": ""
+                    "adminId": ""
                 }
             }
         }
@@ -526,8 +526,7 @@ class QdslParser(object):
     ###########################################################################################
     # Suggest QDSL解析相关函数 start
     ###########################################################################################
-    @debug_log.debug('get_suggest_qdl')
-    def get_suggest_qdl(self, index, type, query_params):
+    def get_suggest_qdl(self, index, type, query_params, parse_fields=None):
         word = get_dict_value(query_params, 'q')
         # type = get_dict_value(query_params, 'type', 1)  #暂时不支持type，type表示建议类型（可不填，默认为1），1表示搜索框的拼写建议，2表示“你要找的是不是…”
         suggest_size = get_dict_value(query_params, 'size', DEFAULT_VALUE['suggest_size']['default'],
@@ -536,8 +535,30 @@ class QdslParser(object):
         cur_suggest_qdl['completion_suggest']['text'] = word
         # suggest_size_multiple = config.get_value('/consts/suggest/tag_query_multiple') or 10
         cur_suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size)
-        cur_suggest_qdl['completion_suggest']['completion']['context']['type'] = type
+        cur_suggest_qdl['completion_suggest']['completion']['context']['adminId'] = parse_fields[
+            'adminId'] if parse_fields else 'A000000'
         return cur_suggest_qdl
+
+    def get_yxd_suggest_qdl(self, query_params, parse_fields=None):
+        """
+        构建查询云小店店铺名称的搜索提示时的query dsl
+        :return:
+        """
+        suggest_qdl = {
+            "completion_suggest": {
+                "text": "",
+                "completion": {
+                    "field": "suggest",
+                    "size": 10
+                }
+            }
+        }
+        word = get_dict_value(query_params, 'q')
+        suggest_qdl['completion_suggest']['text'] = word
+        suggest_size = get_dict_value(query_params, 'size', DEFAULT_VALUE['suggest_size']['default'],
+                                      DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
+        suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size)
+        return suggest_qdl
 
     ###########################################################################################
     # Search QDSL解析相关函数 start

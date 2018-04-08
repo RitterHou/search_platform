@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import json
+import urllib2
 
 __author__ = 'liuzhaoming'
 
@@ -35,6 +36,8 @@ from suggest.notifications import SuggestNotification
 from common.msg_bus import message_bus, Event
 from common.loggers import app_log
 from common.distributed_locks import distributed_lock
+from search_platform import settings
+from manage.models import yxd_shop_suggest, suggest
 
 
 class ProductSuggests(object):
@@ -66,6 +69,10 @@ class ProductSuggests(object):
                     self.scheduler.add_job(notification_notify_fun, args=[notification_config, suggest_river],
                                            trigger=trigger, id=('suggest_river_' + str(index)))
                     notification_result = self.suggest_notification.notify(notification_config, suggest_river)
+                # 云小店商品提示数据定时处理任务
+                app_log.info('Add yxd crontab job...')
+                yxd_suggest_task_func = distributed_lock.lock('yxd_suggest_task_lock')(yxd_suggest_task)
+                self.scheduler.add_job(yxd_suggest_task_func, 'cron', day_of_week='mon', hour=3)
             except Exception as e:
                 app_log.error('Suggest notification has error, suggest river is {0}', e, suggest_river)
             index += 1
@@ -95,6 +102,25 @@ class ProductSuggests(object):
         """
         self.stop()
         self.start()
+
+
+def yxd_suggest_task():
+    """
+    云小店根据用户A编号定时的处理并保存商品提示数据
+    :return:
+    """
+    app_log.info('yxd user\'s goods and shop data sync task started.')
+    search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
+    search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
+    response = urllib2.urlopen(urllib2.Request(search_url)).read()
+    result = json.loads(response)
+
+    store_names = []
+    for admin in result['root']:
+        admin_id = admin['adminId']
+        suggest.init_suggest_index(admin_id)
+        store_names.append(admin['storeName'])
+    yxd_shop_suggest.init_suggest(store_names)
 
 
 def apscheduler_listener(event):

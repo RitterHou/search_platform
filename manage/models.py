@@ -17,6 +17,7 @@ from common.configs import config, config_holder
 from common.exceptions import UpdateDataNotExistError, InvalidParamError
 from common.loggers import query_log as app_log
 from common.adapter import es_adapter
+from common.pingyin_utils import pingyin_utils
 from common.registers import register_center
 from common.utils import get_dict_value_by_path, bind_dict_variable, merge, unbind_variable
 from river import get_river_key
@@ -674,6 +675,32 @@ class Suggest(object):
         return yun_product_suggest_cfg
 
 
+class YxdShopSuggest(object):
+    def init_suggest(self, store_names):
+        """
+        初始化云小店的店铺名称的搜索提示关键词
+        :param store_names:
+        :return:
+        """
+        _es_config = config.get_value('es_index_setting/yxd_shop_suggest')
+
+        es_adapter.delete_all_doc(_es_config, None)
+        body = []
+        for store_name in store_names:
+            input_value = pingyin_utils.get_pingyin_combination(store_name)
+            body.append(
+                {
+                    'id': store_name,
+                    'name': store_name,
+                    'suggest': {
+                        'input': input_value,
+                        'output': store_name
+                    }
+                }
+            )
+        es_adapter.batch_create(_es_config, body)
+
+
 class EsIndex(object):
     """
     ES索引操作接口
@@ -1297,6 +1324,7 @@ es_tmpl = EsTmpl()
 message = Message()
 ansjSegmentation = AnsjSegmentation()
 suggest = Suggest()
+yxd_shop_suggest = YxdShopSuggest()
 es_index = EsIndex()
 shop = Shop()
 shop_product = ShopProduct()

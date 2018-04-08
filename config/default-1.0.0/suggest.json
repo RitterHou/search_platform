@@ -284,7 +284,8 @@
             "type": "map",
             "fields": {
               "source_type": "source_type",
-              "id": "id"
+              "id": "id",
+              "adminId": "adminId"
             }
           }
         }

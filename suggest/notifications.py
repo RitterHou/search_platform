@@ -92,7 +92,9 @@ class AdminSuggestNotification(SuggestNotification):
         _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
         if not _es_connection.indices.exists_type(index, doc_type):
             return []
-        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip}]
+        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip, 'adminId': notify_data['adminId']}]
+
+
 class EsRegularlyScanNotification(SuggestNotification):
     """
     ES全库所有索引扫描触发器

@@ -2215,6 +2215,30 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "yxd_shop_name_suggest",
+      "res_type": "yxd_suggest",
+      "http_method": "GET",
+      "url_format": "suggests/yxd/shop",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/suggests/yxd/shop$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "yxd_shop_suggest"
+      },
+      "response": {}
     }
   ]
 }
