@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-import urllib2
 
 __author__ = 'liuzhaoming'
 
@@ -25,13 +23,12 @@ def init_django_env():
 init_django_env()
 
 import time
+import json
+import urllib2
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 
-from common.configs import config
-from common.utils import get_dict_value_by_path
 from suggest.notifications import SuggestNotification
 from common.msg_bus import message_bus, Event
 from common.loggers import app_log
@@ -51,27 +48,6 @@ class ProductSuggests(object):
         """
         启动产品建议任务
         """
-        app_log.info('Product Suggests begin starting')
-        suggest_river_list = config.get_value('suggest/rivers/')
-        index = 0
-        for suggest_river in suggest_river_list:
-            try:
-                notification_config = get_dict_value_by_path('notification', suggest_river)
-                trigger_time = notification_config.get('crontab')
-                if not trigger_time:
-                    continue
-                trigger = CronTrigger(**trigger_time)
-                if trigger:
-                    app_log.info('Add crontab job : {0}', notification_config)
-                    suggest_river_name = suggest_river['name'] if 'name' in suggest_river else str(time.time())
-                    notification_notify_fun = distributed_lock.lock(suggest_river_name)(
-                        self.suggest_notification.notify)
-                    self.scheduler.add_job(notification_notify_fun, args=[notification_config, suggest_river],
-                                           trigger=trigger, id=('suggest_river_' + str(index)))
-                    notification_result = self.suggest_notification.notify(notification_config, suggest_river)
-            except Exception as e:
-                app_log.error('Suggest notification has error, suggest river is {0}', e, suggest_river)
-            index += 1
         # 云小店商品提示数据定时处理任务
         app_log.info('Add yxd crontab job...')
         yxd_suggest_task_func = distributed_lock.lock('yxd_suggest_task_lock')(yxd_suggest_task)
@@ -110,14 +86,21 @@ def yxd_suggest_task():
     云小店根据用户A编号定时的处理并保存商品提示数据
     :return:
     """
-    app_log.info('yxd user\'s goods and shop data sync task started.')
+    app_log.info('yxd user goods and shop data sync task started.')
 
-    admins = _get_vip_yxd()
-    for admin in admins:
-        admin_id = admin['adminId']
-        suggest.init_suggest_index(admin_id)
+    start = time.time()
+    try:
+        admins = _get_vip_yxd()
+        for admin in admins:
+            admin_id = admin['adminId']
+            suggest.init_suggest_index(admin_id)
 
-    yxd_shop_suggest.init_suggest()
+        yxd_shop_suggest.init_suggest()
+    except Exception as e:
+        app_log.exception(e)
+    finally:
+        end = time.time()
+        app_log.info('yxd user goods and shop data sync task cost {0} seconds.'.format(end - start))
 
 
 def _get_vip_yxd():
