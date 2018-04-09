@@ -143,6 +143,7 @@ def apscheduler_listener(event):
 product_suggest = ProductSuggests()
 
 if __name__ == '__main__':
+    print 11111
     app_log.info('suggest process start...')
     product_suggest.start()
 
