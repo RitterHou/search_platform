@@ -30,7 +30,6 @@ from suggest.destinations import suggest_destination
 from suggest.notifications import SuggestNotification
 from suggest.sources import suggest_source
 
-
 __author__ = 'liuzhaoming'
 
 
@@ -326,7 +325,6 @@ class Supervisor(object):
         elif action == 'get_log':
             return self.__get_process_log(host_info_list, process_name)
 
-
     def __do_process_start(self, host_list, process_name=None):
         """
         启动进程
@@ -430,7 +428,6 @@ class Supervisor(object):
             hosts = filter(lambda host: host['host'] == host_addr, hosts)
         return hosts
 
-
     def __get_proxy(self, host_url=None, host_info=None):
         """
         获取XML-RPC代理
@@ -515,7 +512,6 @@ class AnsjSegmentation(object):
         self.redis_cfg = config.get_value('consts/global/ansj_segment_redis')
         pool = redis.ConnectionPool.from_url(self.redis_cfg['host'])
         self.redis_conn = redis.Redis(connection_pool=pool)
-
 
     def __to_msg(self, segmentation):
         """
@@ -663,6 +659,7 @@ class Suggest(object):
                       'source_type': u'自动分词' if es_suggest_doc['suggest']['payload']['source_type'] == '1' else u'手工添加',
                       'hits': es_suggest_doc['suggest']['payload']['hits']}
         return suggestion
+
     def _get_admin_suggest_river(self, admin_id):
         """
         获取用户的suggest river配置
@@ -676,17 +673,19 @@ class Suggest(object):
 
 
 class YxdShopSuggest(object):
-    def init_suggest(self, store_names):
+    def init_suggest(self):
         """
         初始化云小店的店铺名称的搜索提示关键词
-        :param store_names:
         :return:
         """
         _es_config = config.get_value('es_index_setting/yxd_shop_suggest')
-
         es_adapter.delete_all_doc(_es_config, None)
+        admins = self._get_vip_yxd()
+
         body = []
-        for store_name in store_names:
+        for admin in admins:
+            store_name = admin['storeName']
+
             input_value = pingyin_utils.get_pingyin_combination(store_name)
             body.append(
                 {
@@ -699,6 +698,29 @@ class YxdShopSuggest(object):
                 }
             )
         es_adapter.batch_create(_es_config, body)
+
+    def _get_vip_yxd(self):
+        """
+        获取所有的云小店已签约用户信息
+        :return:
+        """
+        search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
+        search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
+        response = urllib2.urlopen(urllib2.Request(search_url)).read()
+        result = json.loads(response)
+
+        total = result['total']
+        admins = []
+        _from = 0
+        size = 200
+        while 1:
+            response = urllib2.urlopen(urllib2.Request(search_url + '&from={0}&size={1}'.format(_from, size))).read()
+            result = json.loads(response)
+            admins += result['root']
+            _from += size
+            if _from >= total:
+                break
+        return admins
 
 
 class EsIndex(object):
@@ -749,7 +771,6 @@ class EsIndex(object):
         if es_connection.indices.exists_type(es_index['index'], es_index['type']):
             app_log.info('Delete index {0}', es_index['index'])
             es_connection.indices.delete(es_index['index'])
-
 
     def delete_all_index_docs(self, _es_index):
         """
@@ -1060,7 +1081,6 @@ class ShopProduct(EsDoc):
         es_config = es_adapter.get_product_es_cfg(admin_id)
         return super(ShopProduct, self).delete_by_id(es_config, doc_id)
 
-
     def update(self, data, admin_id):
         if not admin_id:
             return
@@ -1071,6 +1091,8 @@ class ShopProduct(EsDoc):
             doc_list = [data]
 
         return es_adapter.batch_update(es_config, doc_list)
+
+
 class VipAdminId(object):
     def __init__(self):
         self.host = SERVICE_BASE_CONFIG.get('redis_admin_id_config') or SERVICE_BASE_CONFIG.get('msg_queue')
@@ -1082,6 +1104,7 @@ class VipAdminId(object):
             config.get_value('/data_river/rivers'))
         self.sp_shop_init_river = sp_shop_init_rivers[0] if sp_shop_init_rivers else {}
         self.sp_shop_init_river_key = get_river_key(self.sp_shop_init_river)
+
     def delete(self, admin_id):
         """
         将admin 用户降级为非VIP用户
@@ -1092,6 +1115,7 @@ class VipAdminId(object):
             return
         self.redis_conn.srem(self.vip_users_key, *admin_id.split(','))
         self.send_update_msg()
+
     def add(self, admin_id):
         """
         将admin用户添加为VIP用户
@@ -1102,6 +1126,7 @@ class VipAdminId(object):
             return
         self.redis_conn.sadd(self.vip_users_key, *admin_id.split(','))
         self.send_update_msg()
+
     def upgrade_vip(self, admin_id):
         """
         将用户从体验用户升级为VIP，
@@ -1124,6 +1149,7 @@ class VipAdminId(object):
             self.add(admin_id)
         except Exception as e:
             app_log.error('upgrade_vip fail {0}', e, admin_id)
+
     def query(self, admin_ids=None):
         """
         查询所有VIP用户
@@ -1135,12 +1161,15 @@ class VipAdminId(object):
             intersection_list = [admin_id.strip() for admin_id in admin_id_list if admin_id.strip() in vip_admin_ids]
             return None if not intersection_list else intersection_list
         return sorted(vip_admin_ids)
+
     def send_update_msg(self):
         """
         发送VIP用户变更消息
         :return:
         """
         message_bus.publish(Event.TYPE_VIP_ADMIN_ID_UPDATE, source='', body='')
+
+
 class Cluster():
     def __init__(self):
         message_bus.add_event_listener(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, self.update_config)
@@ -1152,18 +1181,22 @@ class Cluster():
             '/consts/global/admin_id_cfg/msg_redo_queue_key') or "sp_msg_redo_queue_{0}"
         self._msg_queue_key = config.get_value(
             '/consts/global/admin_id_cfg/msg_queue_key') or "sp_msg_queue_{0}"
+
     def fail_over_es(self, data):
         """
         将ES切换到备份服务器上
         :param data:
         :return:
         """
+
         def set_vip_es_host(_body):
             back_vip_es_host = config.get_value('/consts/custom_variables/back_vip_es_host')
             _body['/consts/custom_variables/vip_es_host'] = back_vip_es_host
+
         def set_experience_es_host(_body):
             back_experience_es_host = config.get_value('/consts/custom_variables/back_experience_es_host')
             _body['/consts/custom_variables/experience_es_host'] = back_experience_es_host
+
         target = data.get('target')
         body = {}
         if target == 'vip':
@@ -1176,6 +1209,7 @@ class Cluster():
         if body:
             message_bus.publish(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, source='',
                                 body={'update_values': body, 'operation': 'update'})
+
     def fail_back_es(self, data=None):
         """
         将ES切换回正式服务器
@@ -1183,6 +1217,7 @@ class Cluster():
         :return:
         """
         message_bus.publish(Event.TYPE_REST_CLUSTER_UPDATE_CONFIG, source='', body={'operation': 'reload'})
+
     def update_config(self, event):
         """
         根据config配置更新消息处理函数
@@ -1200,6 +1235,7 @@ class Cluster():
                 config.update_value(item_key, item_value)
         elif event.data.get('operation') == 'reload':
             config_holder.synchronize_config('file', 'cache', True)
+
     def operate_rest_qos_processor(self, operation='stop'):
         """
         处理restful接口失败消息重做程序启停
@@ -1208,6 +1244,7 @@ class Cluster():
         """
         app_log.info('Cluster operate rest qos processor is called')
         message_bus.publish(Event.TYPE_REST_KAFKA_CONSUMER_START_STOP, source='', body={'operation': operation})
+
     def get_msg_queue(self, admin_id, start=0, size=0):
         """
         获取消息队列信息，如果size参数大于0，则返回size条消息记录
@@ -1220,6 +1257,7 @@ class Cluster():
             raise InvalidParamError('Admin ID cannot be null')
         admin_msg_queue_key = self._msg_queue_key.format(admin_id)
         return self._get_redis_list_info(admin_msg_queue_key, start, size)
+
     def delete_msg_queue(self, admin_id):
         """
         删除消息队列信息
@@ -1230,6 +1268,7 @@ class Cluster():
             raise InvalidParamError('Admin ID cannot be null')
         admin_msg_queue_key = self._msg_queue_key.format(admin_id)
         return self._msg_redis_conn.delete(admin_msg_queue_key)
+
     def get_redo_msg_queue(self, admin_id, start=0, size=0):
         """
         获取用户重做消息队列信息
@@ -1242,6 +1281,7 @@ class Cluster():
             raise InvalidParamError('Admin ID cannot be null')
         admin_msg_queue_key = self._redo_msg_queue_key.format(admin_id)
         return self._get_redis_list_info(admin_msg_queue_key, start, size)
+
     def delete_redo_msg_queue(self, admin_id):
         """
         删除用户重做队列信息
@@ -1252,6 +1292,7 @@ class Cluster():
             raise InvalidParamError('Admin ID cannot be null')
         admin_msg_queue_key = self._redo_msg_queue_key.format(admin_id)
         return self._msg_redis_conn.delete(admin_msg_queue_key)
+
     def get_final_msg_queue(self, start=0, size=0):
         """
         获取最终失败消息队列信息
@@ -1260,12 +1301,14 @@ class Cluster():
         :return:
         """
         return self._get_redis_list_info(self._final_msg_queue_key, start, size)
+
     def delete_final_msg_queue(self):
         """
         删除最终失败消息队列信息
         :return:
         """
         return self._msg_redis_conn.delete(self._final_msg_queue_key)
+
     def _get_redis_list_info(self, list_key, start, size):
         """
         获取redis list信息，如果size参数大于0，则返回size条记录
@@ -1281,6 +1324,7 @@ class Cluster():
             msg_list = map(lambda msg_str: json.loads(msg_str), msg_str_list)
             result['root'] = msg_list
         return result
+
     def _get_redis_list_size(self, list_key):
         """
         获取redis队列长度
@@ -1288,6 +1332,7 @@ class Cluster():
         :return:
         """
         return self._msg_redis_conn.llen(list_key)
+
     def _get_redis_list_range(self, list_key, start=0, size=4):
         """
         获取redis队列范围
@@ -1297,6 +1342,7 @@ class Cluster():
         :return:
         """
         return self._msg_redis_conn.lrange(list_key, start, start + size)
+
     def get_rest_request_queue(self):
         """
         获取REST请求失败队列信息, kafka python接口无法获取topic offset，通过kafka manager 接口获取html进行解析
@@ -1333,8 +1379,6 @@ vip_admin_id_model = VipAdminId()
 cluster = Cluster()
 
 if __name__ == '__main__':
-
-
     # proxy = xmlrpclib.ServerProxy('http://localhost:9001/RPC2')
     # supervisor = proxy.supervisor
     # if not supervisor:

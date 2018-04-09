@@ -875,7 +875,7 @@
     }
   },
   "yxd_shop_suggest": {
-    "host": "{experience_es_host}",
+    "host": "{vip_es_host}",
     "index": "yxd-shop-suggest-{version}",
     "type": "ShopSuggest",
     "id": "{id}",

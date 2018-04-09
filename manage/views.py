@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-import json
-import urllib2
 from collections import OrderedDict
 import datetime
 
@@ -313,15 +311,7 @@ class YxdSuggestView(APIView):
         :param request:
         :return:
         """
-        search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
-        search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
-        response = urllib2.urlopen(urllib2.Request(search_url)).read()
-        result = json.loads(response)
-        store_names = []
-        for admin in result['root']:
-            store_names.append(admin['storeName'])
-        yxd_shop_suggest.init_suggest(store_names)
-
+        yxd_shop_suggest.init_suggest()
         return Response()
 
 

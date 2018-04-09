@@ -110,17 +110,37 @@ def yxd_suggest_task():
     :return:
     """
     app_log.info('yxd user\'s goods and shop data sync task started.')
+
+    admins = _get_vip_yxd()
+    for admin in admins:
+        admin_id = admin['adminId']
+        suggest.init_suggest_index(admin_id)
+
+    yxd_shop_suggest.init_suggest()
+
+
+def _get_vip_yxd():
+    """
+    获取所有的云小店已签约用户信息
+    :return:
+    """
     search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
     search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
     response = urllib2.urlopen(urllib2.Request(search_url)).read()
     result = json.loads(response)
 
-    store_names = []
-    for admin in result['root']:
-        admin_id = admin['adminId']
-        suggest.init_suggest_index(admin_id)
-        store_names.append(admin['storeName'])
-    yxd_shop_suggest.init_suggest(store_names)
+    total = result['total']
+    admins = []
+    _from = 0
+    size = 200
+    while 1:
+        response = urllib2.urlopen(urllib2.Request(search_url + '&from={0}&size={1}'.format(_from, size))).read()
+        result = json.loads(response)
+        admins += result['root']
+        _from += size
+        if _from >= total:
+            break
+    return admins
 
 
 def apscheduler_listener(event):
