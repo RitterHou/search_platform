@@ -263,7 +263,9 @@
             }
           }
         },
-        "hashcode": 50,
+        "hashcode": {
+          "modulus": 50
+        },
         "tags": {
           "default": []
         }

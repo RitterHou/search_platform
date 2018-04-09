@@ -69,13 +69,14 @@ class ProductSuggests(object):
                     self.scheduler.add_job(notification_notify_fun, args=[notification_config, suggest_river],
                                            trigger=trigger, id=('suggest_river_' + str(index)))
                     notification_result = self.suggest_notification.notify(notification_config, suggest_river)
-                # 云小店商品提示数据定时处理任务
-                app_log.info('Add yxd crontab job...')
-                yxd_suggest_task_func = distributed_lock.lock('yxd_suggest_task_lock')(yxd_suggest_task)
-                self.scheduler.add_job(yxd_suggest_task_func, 'cron', day_of_week='mon', hour=3)
             except Exception as e:
                 app_log.error('Suggest notification has error, suggest river is {0}', e, suggest_river)
             index += 1
+        # 云小店商品提示数据定时处理任务
+        app_log.info('Add yxd crontab job...')
+        yxd_suggest_task_func = distributed_lock.lock('yxd_suggest_task_lock')(yxd_suggest_task)
+        self.scheduler.add_job(yxd_suggest_task_func, 'cron', day_of_week='mon', hour=3)
+
         self.scheduler.add_listener(apscheduler_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         try:
             self.scheduler.start()

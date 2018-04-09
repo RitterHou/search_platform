@@ -88,7 +88,7 @@ class AdminSuggestNotification(SuggestNotification):
             return []
         _es_config = es_router.merge_es_config(_es_config)
         notification_config['es_cfg'] = _es_config
-        modulus = suggest_config['source']['hashcode']
+        modulus = suggest_config['source']['hashcode']['modulus']
         notify_data['hashcode'] = hash_encode(notify_data.get('adminId'), modulus=modulus)
         is_vip = admin_config.is_vip(notify_data.get('adminId'))
         index, doc_type, doc_id = es_adapter.get_es_doc_keys(_es_config, kwargs=notify_data)
