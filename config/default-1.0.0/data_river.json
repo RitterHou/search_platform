@@ -4314,7 +4314,7 @@
               "operation": "delete",
               "index": "d2c-trade-{hashcode}-{version}",
               "type": "Trade",
-              "id": "{tid}",
+              "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
