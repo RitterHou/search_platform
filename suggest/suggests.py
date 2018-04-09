@@ -146,5 +146,5 @@ if __name__ == '__main__':
     product_suggest.start()
 
     while True:
-        app_log.info(time.time())
+        app_log.info('suggest loop {0}'.format(str(time.time())))
         time.sleep(10)
