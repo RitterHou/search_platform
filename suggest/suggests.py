@@ -10,21 +10,15 @@ def init_django_env():
     """
     import sys
     import os
-    print 111111
-
     sys.path.append(os.path.dirname(__file__).replace('\\', '/'))
     sys.path.append(os.path.join(os.path.dirname(__file__).replace('\\', '/'), '../'))
     os.environ['DJANGO_SETTINGS_MODULE'] = 'search_platform.settings'
 
     import django
-
-    print 2222222
     django.setup()
 
 
-print 333333
 init_django_env()
-print 44444444
 
 import time
 import json
@@ -147,10 +141,9 @@ def apscheduler_listener(event):
 product_suggest = ProductSuggests()
 
 if __name__ == '__main__':
-    print 000000
     app_log.info('suggest process start...')
     product_suggest.start()
 
     while True:
-        app_log.info('suggest loop {0}'.format(str(time.time())))
+        # app_log.info('suggest loop {0}'.format(str(time.time())))
         time.sleep(10)
