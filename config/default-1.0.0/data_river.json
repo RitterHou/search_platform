@@ -12,6 +12,9 @@
               "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "pc-"
+          },
           "redo": true
         }
       },
@@ -26,8 +29,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -107,8 +109,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -188,8 +189,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -268,8 +268,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -419,8 +418,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -494,8 +492,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -574,8 +571,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":[02])|(\"sys\":[02][\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -741,8 +737,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -819,8 +814,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -903,8 +897,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -931,8 +924,7 @@
                     "fields": {
                       "pc_ids": {
                         "type": "regex",
-                        "expression":
-                          "\"updateSkuIds\":\"(?P<pc_ids>[\\d\\D]+?)\""
+                        "expression": "\"updateSkuIds\":\"(?P<pc_ids>[\\d\\D]+?)\""
                       },
                       "sep_char": {
                         "type": "fixed",
@@ -1033,8 +1025,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "not",
@@ -1111,8 +1102,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -1195,8 +1185,7 @@
                 {
                   "operator": "is",
                   "type": "regex",
-                  "expression":
-                    "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
+                  "expression": "(\"type\":\"add\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"add\")|(\"type\":\"update\"[\\d\\D]*\"sys\":1)|(\"sys\":1[\\d\\D]*\"type\":\"update\")"
                 },
                 {
                   "operator": "is",
@@ -1223,8 +1212,7 @@
                     "fields": {
                       "pc_ids": {
                         "type": "regex",
-                        "expression":
-                          "\"updateSkuIds\":\"(?P<pc_ids>[\\d\\D]+?)\""
+                        "expression": "\"updateSkuIds\":\"(?P<pc_ids>[\\d\\D]+?)\""
                       },
                       "sep_char": {
                         "type": "fixed",
@@ -1349,6 +1337,9 @@
             "fields": {
               "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
           }
         }
       },
@@ -2095,6 +2086,9 @@
               "adminId": "gonghuo"
             }
           },
+          "msg": {
+            "custom_queue_prefix": "pc-"
+          },
           "redo": true
         }
       },
@@ -2117,13 +2111,11 @@
               "type": "regex",
               "fields": {
                 "type": "\"type\":\"(?P<type>[\\d\\D]+?)\"",
-                "parentCateId":
-                  "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
+                "parentCateId": "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
                 "cateId": {
                   "type": "script",
                   "language": "python",
-                  "obj_path":
-                    "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
+                  "obj_path": "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
                 }
               }
             }
@@ -2178,13 +2170,11 @@
               "type": "regex",
               "fields": {
                 "type": "\"type\":\"(?P<type>[\\d\\D]+?)\"",
-                "parentCateId":
-                  "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
+                "parentCateId": "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
                 "cateId": {
                   "type": "script",
                   "language": "python",
-                  "obj_path":
-                    "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
+                  "obj_path": "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
                 }
               }
             }
@@ -2239,13 +2229,11 @@
               "type": "regex",
               "fields": {
                 "type": "\"type\":\"(?P<type>[\\d\\D]+?)\"",
-                "parentCateId":
-                  "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
+                "parentCateId": "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
                 "cateId": {
                   "type": "script",
                   "language": "python",
-                  "obj_path":
-                    "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
+                  "obj_path": "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
                 }
               }
             }
@@ -2300,13 +2288,11 @@
               "type": "regex",
               "fields": {
                 "type": "\"type\":\"(?P<type>[\\d\\D]+?)\"",
-                "parentCateId":
-                  "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
+                "parentCateId": "parentCateId\":\"(?P<parentCateId>[\\d\\D]+?)\"",
                 "cateId": {
                   "type": "script",
                   "language": "python",
-                  "obj_path":
-                    "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
+                  "obj_path": "script_data_parsers.parse_cateIds_from_standard_cate_update_msg"
                 }
               }
             }
@@ -2356,6 +2342,9 @@
             "fields": {
               "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
           }
         }
       },
@@ -2384,8 +2373,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "query",
@@ -2446,6 +2434,9 @@
               "adminId": "pointUserId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "pc-"
+          },
           "redo": true
         }
       },
@@ -2482,8 +2473,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
             "request": {
               "method": "listSsmProductByIds",
               "timeout": 30,
@@ -2552,8 +2542,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
+            "service_interface": "com.qianmi.pc.api.ssm.es.EsSsmProductQueryProvider",
             "request": {
               "method": "listSsmProductByIds",
               "timeout": 30,
@@ -2698,8 +2687,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryMarketingList4ESearch",
@@ -2782,8 +2770,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
               "method": "queryMarketingList4ESearchByIds",
               "timeout": 10,
@@ -2839,8 +2826,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.cloudshop.api.es.ESMarketingProvider",
+            "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
               "method": "queryMarketingList4ESearchByIds",
               "timeout": 10,
@@ -2923,6 +2909,9 @@
             "fields": {
               "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
           }
         }
       },
@@ -3101,8 +3090,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryMarketingByIds",
               "timeout": 30,
@@ -3225,8 +3213,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryItemByIds",
               "timeout": 30,
@@ -3349,8 +3336,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryTradeMarketingRecordByIds",
               "timeout": 30,
@@ -3473,8 +3459,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchCouponQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchCouponQueryProvider",
             "request": {
               "method": "queryUserCouponByIds",
               "timeout": 30,
@@ -3839,8 +3824,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryMarketing",
@@ -3905,8 +3889,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryItem",
@@ -3971,8 +3954,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchActivityQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryTradeMarketingRecord",
@@ -4037,8 +4019,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.mc.api.search.SearchCouponQueryProvider",
+            "service_interface": "com.qianmi.mc.api.search.SearchCouponQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryUserCoupon",
@@ -4252,8 +4233,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryTradeByTid",
               "timeout": 30,
@@ -4375,8 +4355,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryItemOrderByOid",
               "timeout": 30,
@@ -4498,8 +4477,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.apply.search.Apply4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.apply.search.Apply4SearchQueryProvider",
             "request": {
               "method": "queryApplyListByIds",
               "timeout": 30,
@@ -4621,8 +4599,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryRefundReceiptListByIds",
               "timeout": 30,
@@ -4744,8 +4721,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReturnReceiptListByIds",
               "timeout": 30,
@@ -4867,8 +4843,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryShipReceiptListByIds",
               "timeout": 30,
@@ -4990,8 +4965,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReceiveReceiptListByIds",
               "timeout": 30,
@@ -5110,8 +5084,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
@@ -5176,8 +5149,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryItemOrderPage",
@@ -5242,8 +5214,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.apply.search.Apply4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.apply.search.Apply4SearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryApplyPage",
@@ -5308,8 +5279,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryRefundReceiptPage",
@@ -5374,8 +5344,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryReturnReceiptPage",
@@ -5440,8 +5409,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryReceiveReceiptPage",
@@ -5506,8 +5474,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryShipReceiptPage",
@@ -5592,8 +5559,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryTradeByTids",
               "timeout": 30,
@@ -5715,8 +5681,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryItemOrderByOids",
               "timeout": 30,
@@ -5838,8 +5803,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryReturnReceiptListByIds",
               "timeout": 30,
@@ -5961,8 +5925,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryRefundReceiptListByIds",
               "timeout": 30,
@@ -6081,8 +6044,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
@@ -6147,8 +6109,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryItemOrderPage",
@@ -6213,8 +6174,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryReturnReceiptPage",
@@ -6279,8 +6239,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "queryRefundReceiptPage",
@@ -6475,8 +6434,7 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface":
-              "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
+            "service_interface": "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
             "version": "1.0.0",
             "request": {
               "method": "findByAdminId",
@@ -6559,8 +6517,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface":
-              "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
+            "service_interface": "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
             "request": {
               "method": "findByIds",
               "timeout": 30,
@@ -6734,7 +6691,7 @@
                   "type": "regex",
                   "expression": "\"operation\":\"delete\""
                 }
-    ]
+              ]
             },
             "data_parser": {
               "type": "regex",
