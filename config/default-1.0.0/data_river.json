@@ -3693,7 +3693,7 @@
             },
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
+              "reference": "general_vip",
               "operation": "create",
               "index": "marketing-fans-{hashcode}-{version}",
               "type": "Fans",
