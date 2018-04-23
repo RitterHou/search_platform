@@ -10,6 +10,7 @@ from itertools import groupby
 from multiprocessing.dummy import Pool
 
 import jsonpickle
+
 from common.admin_config import admin_config
 from common.configs import config
 from common.connections import RedisConnectionFactory, KafkaClientFactory
@@ -43,6 +44,19 @@ class MsgSLA(object):
         # 体验用户消息次数计算周期
         self._experience_sla_time_interval = config.get_value(
             '/consts/global/admin_id_cfg/experience_time_interval') or 5
+
+        # 商品中心VIP消息最大处理次数
+        self._pc_task_vip_sla_max_calls = config.get_value('/consts/global/admin_id_cfg/pc_task_vip_max_msg') or 5
+        # 商品中心VIP用户消息次数计算周期
+        self._pc_task_vip_sla_time_interval = config.get_value(
+            '/consts/global/admin_id_cfg/pc_task_vip_time_interval') or 5
+        # 商品中心体验用户消息最大处理次数
+        self._pc_task_experience_sla_max_calls = config.get_value(
+            '/consts/global/admin_id_cfg/pc_task_experience_max_msg') or 1
+        # 商品中心体验用户消息次数计算周期
+        self._pc_task_experience_sla_time_interval = config.get_value(
+            '/consts/global/admin_id_cfg/pc_task_experience_time_interval') or 5
+
         # vip用户失败消息是否重做
         self._vip_msg_redo_enable = config.get_value('/consts/global/admin_id_cfg/vip_msg_redo_enable') or True
         # 体验用户失败消息是否重做
@@ -65,6 +79,7 @@ class MsgSLA(object):
         # 消息队列key
         self._msg_queue_key = config.get_value(
             '/consts/global/admin_id_cfg/msg_queue_key') or "sp_msg_queue_{0}"
+        # 消息队列key前缀
         self._msg_queue_key_prefix = config.get_value(
             '/consts/global/admin_id_cfg/msg_queue_key_prefix') or "sp_msg_queue_*"
         self._msg_queue_key_pos = len(self._msg_queue_key_prefix) - 1
@@ -325,6 +340,7 @@ class MsgSLA(object):
         """
         admin_msg_keys = self._redis_conn.keys(self._msg_queue_key_prefix)
         admin_ids = map(lambda msg_key: msg_key[self._msg_queue_key_pos:], admin_msg_keys)
+
         vip_admin_ids = []
         experience_admin_ids = []
         for admin_id in admin_ids:
@@ -530,11 +546,20 @@ class MsgSLA(object):
         is_vip = admin_config.is_vip(admin_id)
         config_msg_iter_size = self._vip_msg_iter_size if is_vip else self._experience_msg_iter_size
 
-        max_calls = admin_config.get_admin_param_value(admin_id, 'max_msg') or (
-            self._vip_sla_max_calls if is_vip else self._experience_sla_max_calls)
+        max_calls = admin_config.get_admin_param_value(admin_id, 'max_msg')
+        time_interval = admin_config.get_admin_param_value(admin_id, 'msg_time_interval')
 
-        time_interval = admin_config.get_admin_param_value(admin_id, 'msg_time_interval') or (
-            self._vip_sla_time_interval if is_vip else self._experience_sla_time_interval)
+        if not max_calls:
+            if admin_id.startswith('pc-'):
+                max_calls = self._pc_task_vip_sla_max_calls if is_vip else self._pc_task_experience_sla_max_calls
+            else:
+                max_calls = self._vip_sla_max_calls if is_vip else self._experience_sla_max_calls
+
+        if not time_interval:
+            if admin_id.startswith('pc-'):
+                time_interval = self._pc_task_vip_sla_time_interval if is_vip else self._pc_task_experience_sla_time_interval
+            else:
+                time_interval = self._vip_sla_time_interval if is_vip else self._experience_sla_time_interval
 
         msg_status_cache = self._get_msg_cache(admin_id)
         cur_time = time.time()

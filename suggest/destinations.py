@@ -143,8 +143,10 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
         if clear_policy == 'every_msg,all':
             es_adapter.delete_all_doc(es_config, param)
         elif clear_policy == 'every_msg,auto_term':
-            es_adapter.delete_by_query(es_config=es_config, doc=param, body={"query": {"term": {"source_type": "1"}}})
-
+            es_adapter.delete_by_query(es_config=es_config, doc=param,
+                                       body={"query": {"bool": {
+                                           "must": [{"term": {"source_type": "1"}},
+                                                    {"term": {"adminId": data['adminId']}}]}}})
 
     def __batch_hybrid_es_opearate(self, es_config, data_list):
         bulk_body_list = []

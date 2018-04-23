@@ -685,7 +685,7 @@ class EsSuggestManager(object):
         :return:
         """
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args)
+        qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args, parse_fields)
         app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
         try:
@@ -718,6 +718,34 @@ class EsSuggestManager(object):
             lambda suggest_res: {'key': suggest_res['text'], 'doc_count': suggest_res['payload']['hits'][tag_name]},
             options))
         return suggest_term_list if len(suggest_term_list) <= suggest_size else suggest_term_list[:suggest_size]
+
+
+class YxdShopSuggestManager(object):
+    connection_pool = EsConnectionFactory
+
+    def get(self, es_config, index_name, doc_type, args, parse_fields=None):
+        """
+        对云小店的店铺名称进行搜索提示
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param args:
+        :param parse_fields:
+        :return:
+        """
+        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        qdsl = qdsl_parser.get_yxd_suggest_qdl(args, parse_fields)
+        app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
+        try:
+            es_result = es_connection.suggest(index=index_name, body=qdsl)
+            es_result = es_result['completion_suggest'][0]['options']
+            result = []
+            for value in es_result:
+                result.append(value['text'])
+            return result
+        except Exception as e:
+            app_log.error('Get suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
+            return []
 
 
 class EsSearchManager(object):
@@ -1397,6 +1425,13 @@ class Product(EsModel):
 
 class Suggest(EsModel):
     objects = EsSuggestManager()
+
+    def __init__(self, **args):
+        EsModel.__init__(**args)
+
+
+class YxdShopSuggest(EsModel):
+    objects = YxdShopSuggestManager()
 
     def __init__(self, **args):
         EsModel.__init__(**args)

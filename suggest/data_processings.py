@@ -2,16 +2,14 @@
 from math import sqrt
 
 from algorithm.keyword_freq_service import keyword_freq_service
-from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable
+from common.loggers import app_log
 from common.pingyin_utils import pingyin_utils
-from common.loggers import app_log, debug_log
-
+from common.utils import get_dict_value_by_path, bind_variable, bind_dict_variable
 
 __author__ = 'liuzhaoming'
 
 
 class DataProcessing(object):
-    @debug_log.debug('DataProcessing.process_data')
     def process_data(self, processing_config, data, suggest_config=None):
         """
         整理数据，生成可以插入到数据源中得数据
@@ -57,16 +55,16 @@ class BasicElasticsearchDataProcessing(DataProcessing):
             word_query_freq_list = keyword_freq_service.get_keyword_freq(admin_id, word_list)
         index = 0
         for data in data_list:
-            data['id'] = self.__to_suggest_doc_id(data['word'])
+            data['id'] = self.__to_suggest_doc_id(data['word'], data['adminId'])
             weight_update_body = self.__get_weight_update_body(processing_config, data, word_query_freq_list[index])
             index += 1
             payloads_update_body = self.__get_payload_update_body(processing_config, data)
             common_fields_update_body = self.__get_common_fields_update_body(processing_config, data)
             word = data['word']
-            suggest_field = 'suggest-{0}'.format(data['doc_type'].lower())
+            suggest_field = 'suggest'
             create_doc = {'name': word, suggest_field: {'payload': {}, 'weight': 0,
-                                                    'input': pingyin_utils.get_pingyin_combination(word) + [
-                                                        word], 'output': word}}
+                                                        'input': pingyin_utils.get_pingyin_combination(word) + [word],
+                                                        'output': word, 'context': {'adminId': admin_id}}}
 
             update_doc = None
             if common_fields_update_body:
@@ -148,7 +146,6 @@ class BasicElasticsearchDataProcessing(DataProcessing):
 
         return self.__bind_fields_config(computer_type, fields_config, data)
 
-
     def __bind_fields_config(self, computer_type, fields_config, data):
         """
         绑定变量
@@ -167,9 +164,9 @@ class BasicElasticsearchDataProcessing(DataProcessing):
             result = bind_dict_variable(fields_config, data)
         return result
 
-    def __to_suggest_doc_id(self, word):
+    def __to_suggest_doc_id(self, word, admin_id):
         reg = repr(word.decode('utf8'))
-        return reg[2:(len(reg) - 1)]
+        return admin_id + '-' + reg[2:(len(reg) - 1)]
 
 
 Data_Processing_DICT = {'basic_processing': BasicElasticsearchDataProcessing()}

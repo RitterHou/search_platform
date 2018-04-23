@@ -44,14 +44,22 @@
       "like_string_fuzzy_size": 10,
       "content_based_recom": {
         "vectors": {
-          "brand": {"weight": 1},
+          "brand": {
+            "weight": 1
+          },
           "salePrice": {
             "weight": 1,
             "type": "range"
           },
-          "salePoint": {"weight": 1},
-          "tags": {"weight": 1},
-          "spuId": {"weight": 1},
+          "salePoint": {
+            "weight": 1
+          },
+          "tags": {
+            "weight": 1
+          },
+          "spuId": {
+            "weight": 1
+          },
           "props": {
             "weight": 1,
             "type": "nest"
@@ -88,6 +96,10 @@
       "vip_time_interval": 5,
       "experience_max_msg": 100,
       "experience_time_interval": 5,
+      "pc_task_vip_max_msg": 20,
+      "pc_task_vip_time_interval": 5,
+      "pc_task_experience_max_msg": 20,
+      "pc_task_experience_time_interval": 5,
       "vip_msg_redo_enable": true,
       "experience_msg_redo_enable": true,
       "vip_msg_iter_capacity": 50,

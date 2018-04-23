@@ -117,7 +117,7 @@ LOGGING = {
         'sms_alarm_filter': {
             '()': 'redislog.tdummy.filters.QmAlarmFilter',
             'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
-            'phone_numbers': '15051885330,18651618480',
+            'phone_numbers': '15051885330,15195935889',
             'error_log_num': ERROR_LOG_NUM,
             'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
                                     'elasticsearch.exceptions.ConnectionTimeout', 'DubboError', 'MsgQueueFullError',
@@ -323,7 +323,9 @@ SERVICE_BASE_CONFIG = {
     'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER',
     'msg_queue': 'redis://172.17.8.253:6379/4',
     'redis_admin_id_config': 'redis://172.17.8.253:6379/3',
-    'register_zk_host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181'
+    'register_zk_host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
+    'keywords_redis_host': 'redis://172.17.8.253:6379/1',
+    'search_platform_host': 'http://192.168.65.222:18082'
 }
 
 

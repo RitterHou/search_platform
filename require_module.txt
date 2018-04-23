@@ -57,3 +57,4 @@ zope.interface==4.1.2
 ujson==1.35
 jsonpickle==0.9.3
 pykafka==2.4.0
+-e git+http://git.dev.qianmi.com/commons/python_logstash_redis_log.git@v0.1.4#egg=logstash

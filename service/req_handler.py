@@ -10,7 +10,6 @@ from service.models import *
 from common.loggers import query_log as app_log, interface_log
 from common.utils import query_dict_to_normal_dict, local_host_name, format_time
 
-
 __author__ = 'liuzhaoming'
 
 
@@ -20,7 +19,7 @@ class RequestHandler(object):
     """
     RES_TYPE_DICT = {'product': Product, 'aggregation': Aggregation, 'suggest': Suggest, 'search': Search,
                      'measure': Stats, 'ex_measure': ExStats, 'ex_suggest': ExSuggest, 'recommendation': Recommendation,
-                     'default': SearchPlatformDoc}
+                     'default': SearchPlatformDoc, 'yxd_suggest': YxdShopSuggest}
 
     def __init__(self, handler_config):
         self.handler_config = handler_config

@@ -263,6 +263,9 @@
             }
           }
         },
+        "hashcode": {
+          "modulus": 50
+        },
         "tags": {
           "default": []
         }
@@ -284,7 +287,8 @@
             "type": "map",
             "fields": {
               "source_type": "source_type",
-              "id": "id"
+              "id": "id",
+              "adminId": "adminId"
             }
           }
         }

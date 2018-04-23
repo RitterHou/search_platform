@@ -11,7 +11,6 @@ from common.adapter import es_adapter
 from common.loggers import app_log
 from service.dsl_parser import qdsl_parser
 
-
 __author__ = 'liuzhaoming'
 
 
@@ -67,11 +66,13 @@ class ElasticsearchDataSource(SuggestSource):
         temp_list_list = [
             self.__get_keywords_from_doc(host, keyword_filter_regex, query_fields, source_doc, field_mapping_dict,
                                          request_param) for source_doc in source_docs['root']]
-        keyword_list = chain(*temp_list_list)
-        keyword_list = list(set(keyword_list))
-        keyword_list = filter(lambda _keyword: _keyword not in suggest_term_dict, keyword_list)
+        keyword_list = list(chain(*temp_list_list))
         for _keyword in keyword_list:
-            suggest_term_dict[_keyword] = ''
+            if suggest_term_dict.get(_keyword):
+                suggest_term_dict[_keyword] += 1
+            else:
+                suggest_term_dict[_keyword] = 1
+        keyword_list = set(keyword_list)
 
         # count_dsl_list = [({"search_type": "count"}, self._get_count_query_dsl(keyword, host, suggest_config).values())
         # for keyword in keyword_list]
@@ -79,11 +80,11 @@ class ElasticsearchDataSource(SuggestSource):
         # es_count_result_list = es_adapter.multi_search(count_body, host, request_param['index'], request_param['type'])
         source_type_weight = config.get_value('consts/suggest/source_type/1')
         # keyword_hits = map(lambda count_result: count_result['hits']['total'], es_count_result_list['responses'])
-        keyword_hits = self._get_keyword_hits_list(keyword_list, request_param, host, suggest_config)
+        # keyword_hits = self._get_keyword_hits_list(keyword_list, request_param, host, suggest_config)
         term_list = [
-            dict({'word': keyword, 'hits': keyword_hits, 'source_type': '1', 'source_type_weight': source_type_weight},
-                 **additional_param) for (keyword, keyword_hits) in zip(keyword_list, keyword_hits) if keyword_hits > 0]
-        source_docs['root'] = filter(lambda _term: _term['hits']['default'], term_list)
+            dict({'word': keyword, 'source_type': '1', 'source_type_weight': source_type_weight},
+                 **additional_param) for keyword in keyword_list]
+        source_docs['root'] = term_list
         return source_docs
 
     def _get_keyword_hits_list(self, keyword_list, request_param, host, suggest_config):
@@ -169,7 +170,10 @@ class ElasticsearchDataSource(SuggestSource):
         size = source_config['size'] if 'size' in source_config else config.get_value(
             'consts/suggest/default_es_iterator_get_size')
         pos_from = request_param['from'] if 'from' in request_param else 0
-        return {'query': {'match_all': {}}, 'size': size, 'from': pos_from}
+        if request_param.get('hashcode'):
+            return {'query': {'term': {"_adminId": request_param['adminId']}}, 'size': size, 'from': pos_from}
+        else:
+            return {'query': {'match_all': {}}, 'size': size, 'from': pos_from}
 
     def __get_es_query_fields(self, source_config):
         """
@@ -219,6 +223,8 @@ class ElasticsearchDataSource(SuggestSource):
                 name, field_value = unbind_variable(field_parser_config['expression'], field_name,
                                                     request_param[field_parser_config['field']])
                 result[field_name] = field_value
+        if 'adminId' not in result or not result['adminId']:
+            result['adminId'] = request_param['adminId']
         return result
 
     def _get_count_query_dsl(self, keyword, host, suggest_config=None):

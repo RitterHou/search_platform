@@ -14,7 +14,6 @@ from common.loggers import app_log
 from search_platform.celery_config import app
 from suggest.processors import suggest_processor
 
-
 __author__ = 'liuzhaoming'
 
 
@@ -33,6 +32,8 @@ def process_suggest_notification(self, suggest_config, notification_data_list):
             app_log.error(
                 'process celery suggest message has error, message={0}, river_key={1}', ex, suggest_config,
                 notification_data)
+
+
 def process_no_celery_suggest_notification(suggest_config, notification_data_list):
     """
     立即执行suggest任务
@@ -65,9 +66,9 @@ class SuggestNotification(object):
             notification_data_list = _suggest_notification.notify(notification_config, suggest_config, notify_data)
             app_log.info('Notify data list is {0}', notification_data_list)
             if notification_type == 'elasticsearch_regularly_scan':
-            # process_suggest_notification('', suggest_config, notification_data_list)
+                # process_suggest_notification('', suggest_config, notification_data_list)
                 process_suggest_notification.delay(suggest_config, notification_data_list)
-            # 因为任务是通过celery异步执行，所以延迟10秒，防止结束过快释放锁过快，其它进程上的相同任务得以进行
+                # 因为任务是通过celery异步执行，所以延迟10秒，防止结束过快释放锁过快，其它进程上的相同任务得以进行
                 time.sleep(10)
             else:
                 process_no_celery_suggest_notification(suggest_config, notification_data_list)
@@ -79,6 +80,7 @@ class AdminSuggestNotification(SuggestNotification):
     """
     固定Admin ID suggest初始化
     """
+
     def notify(self, notification_config, suggest_config, notify_data):
         _es_config = notification_config.get('es_cfg')
         if not _es_config:
@@ -86,13 +88,16 @@ class AdminSuggestNotification(SuggestNotification):
             return []
         _es_config = es_router.merge_es_config(_es_config)
         notification_config['es_cfg'] = _es_config
-        notify_data['hashcode'] = hash_encode(notify_data.get('adminId'))
+        modulus = suggest_config['source']['hashcode']['modulus']
+        notify_data['hashcode'] = hash_encode(notify_data.get('adminId'), modulus=modulus)
         is_vip = admin_config.is_vip(notify_data.get('adminId'))
         index, doc_type, doc_id = es_adapter.get_es_doc_keys(_es_config, kwargs=notify_data)
         _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
         if not _es_connection.indices.exists_type(index, doc_type):
             return []
-        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip}]
+        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip, 'adminId': notify_data['adminId']}]
+
+
 class EsRegularlyScanNotification(SuggestNotification):
     """
     ES全库所有索引扫描触发器
@@ -115,7 +120,6 @@ class EsRegularlyScanNotification(SuggestNotification):
             lambda index_type_dict: notification_filter.filter(index_type_dict, filter_config), index_type_dict_list)
         return matched_index_type_dict_list
 
-
     def __parse_index_mapping(self, index_name, mapping):
         """
         解析索引mapping文件，获取(index, type)列表
@@ -130,6 +134,8 @@ class EsRegularlyScanNotification(SuggestNotification):
         if not __mappings:
             return ()
         return [{'index': index_name, 'type': type_name} for type_name in mapping.get('mappings')]
+
+
 class EsVipHashScanNotification(SuggestNotification):
     pass
 
@@ -142,10 +148,10 @@ if __name__ == '__main__':
         {u'operator': u'is', u'field': u'index', u'type': u'regex',
          u'expression': u'^search_platform-gonghuo[\\d\\D]*'},
         {u'operator': u'is', u'field': u'type', u'type': u'regex', u'expression': u'^Product$'}], u'type': u'es_regex',
-                                                    u'union_operator': u'and'}, u'host': u'http://172.19.65.66:9200',
-                                        u'type': u'elasticsearch_regularly_scan',
-                                        u'crontab': {u'second': 0, u'hour': 13, u'minute': 10},
-                                        u'key': u'elasticsearch_regularly_scan_1'}, u'destination': [
+        u'union_operator': u'and'}, u'host': u'http://172.19.65.66:9200',
+        u'type': u'elasticsearch_regularly_scan',
+        u'crontab': {u'second': 0, u'hour': 13, u'minute': 10},
+        u'key': u'elasticsearch_regularly_scan_1'}, u'destination': [
         {u'index': u'suggest-gonghuo-{version}', u'operation': u'create', u'reference': u'suggest',
          u'destination_type': u'elasticsearch_processed'}], u'processing': {
         u'output': {u'common_fields': {u'fields': {u'id': u'id'}, u'type': u'map'},
@@ -155,11 +161,11 @@ if __name__ == '__main__':
                                            u'type': u'math_expression'}, u'language': u'mvel',
                                 u'script': u'ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)'}},
         u'type': u'basic_processing'},
-                      u'source': {u'param_parser': {u'fields': {}, u'type': u'regex'}, u'type': u'iterator_es_get',
-                                  u'data_parser': {
-                                      u'fields': {u'category': u'type', u'brand': u'brand', u'title': u'title'},
-                                      u'keyword_filter_regex': u'^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z0-9]+$',
-                                      u'type': u'map'}, u'size': 50}}
+        u'source': {u'param_parser': {u'fields': {}, u'type': u'regex'}, u'type': u'iterator_es_get',
+                    u'data_parser': {
+                        u'fields': {u'category': u'type', u'brand': u'brand', u'title': u'title'},
+                        u'keyword_filter_regex': u'^[\u4e00-\u9fa5A-Za-z][\u4e00-\u9fa5A-Za-z0-9]+$',
+                        u'type': u'map'}, u'size': 50}}
     notfication_data_list = [{'index': u'qmshop-gonghuo-1.0.0', 'type': u'Product'}]
 
     process_suggest_notification('kk', suggest_config, notfication_data_list)
@@ -199,11 +205,7 @@ if __name__ == '__main__':
     bulk_body_list = [{"update": {"_type": "ProductSuggest", "_id": "mark", "_index": "suggest-gonghuo-1.0.0"}},
                       {"detect_noop": True, "params": {"current_weight": 9},
                        "script": "ctx._source.suggest.weight = round(ctx._source.suggest.weight*0.5 + 0.5*current_weight)"}
-    ]
+                      ]
 
     # es_bulk_result = es_connection.bulk(bulk_body_list)
     # print es_bulk_result
-
-
-
-
