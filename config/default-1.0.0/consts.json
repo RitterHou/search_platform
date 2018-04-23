@@ -204,7 +204,7 @@
       "score": {
         "fields": "_all",
         "query_type": "query_string",
-        "boost": 1.5
+        "boost": 100
       }
     },
     "preference": "_primary_first",
