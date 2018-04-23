@@ -216,7 +216,7 @@
       "score": {
         "fields": "_all",
         "query_type": "query_string",
-        "boost": 100
+        "boost": 10
       }
     },
     "preference": "_primary_first",

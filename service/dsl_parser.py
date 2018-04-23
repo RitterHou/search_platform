@@ -3,7 +3,6 @@ from itertools import *
 
 from common.adapter import es_adapter
 from common.configs import config
-from common.loggers import debug_log
 from common.utils import get_dict_value, unbind_variable, deep_merge
 from service.ex_dsl_parser import extend_parser
 
@@ -204,7 +203,11 @@ class QdslParser(object):
         if not query_string:
             return []
         boost = config.get_value('/consts/query/query_string/score/boost') or 1.0
-        return [{'bool': {'minimum_should_match': 0, 'boost': boost, 'should': [{'match': {'_all': query_string}}]}}]
+        return [{'bool': {'boost': boost, 'should':
+            [{'match': {'brand.standard': {'query': query_string, 'type': 'phrase'}}},
+             {'match': {'title.standard': {'query': query_string, 'type': 'phrase'}}},
+             {"match_all": {"boost": 0.01}}],
+                          "minimum_should_match": 0}}]
 
     def _get_nest_dsl(self, path, level, cur_path, item_dsl):
         """
