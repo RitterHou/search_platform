@@ -3105,15 +3105,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-{hashcode}-{version}",
@@ -3155,19 +3146,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -3250,15 +3228,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-item-{hashcode}-{version}",
@@ -3300,19 +3269,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -3395,15 +3351,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-trade-{hashcode}-{version}",
@@ -3445,19 +3392,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -3540,15 +3474,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-usercoupon-{hashcode}-{version}",
@@ -3590,19 +3515,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -3684,15 +3596,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{openId}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-fans-{hashcode}-{version}",
@@ -3734,19 +3637,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "delete",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -3957,16 +3847,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-{hashcode}-{version}",
@@ -4030,16 +3910,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -4107,16 +3977,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-trade-{hashcode}-{version}",
@@ -4182,16 +4042,6 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
               "reference": "general_vip",
               "operation": "create",
               "index": "marketing-usercoupon-{hashcode}-{version}",
@@ -4254,16 +4104,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "operation": "create",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{openId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
