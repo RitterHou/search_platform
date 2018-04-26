@@ -856,7 +856,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "marketing-{hashcode}-{version}",
         "type": "Marketing",
         "id": "{id}",
@@ -895,7 +895,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "marketing-item-{hashcode}-{version}",
         "type": "Item",
         "id": "{id}",
@@ -934,7 +934,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "marketing-trade-{hashcode}-{version}",
         "type": "Trade",
         "id": "{tid}",
@@ -973,7 +973,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "marketing-usercoupon-{hashcode}-{version}",
         "type": "Coupon",
         "id": "{couponId}",
@@ -1012,7 +1012,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "reference": "general_vip",
         "index": "marketing-fans-{hashcode}-{version}",
         "type": "Fans",
         "id": "{openId}",
