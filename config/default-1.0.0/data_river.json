@@ -9208,6 +9208,564 @@
           ]
         }
       ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.searchPlatform.d2c.cart.cartInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cart_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerCartQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryPage4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-{version}",
+              "type": "Cart",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.searchPlatform.d2c.cart.footprintInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cart_footprint_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFootprintQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryPage4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-footprint-{version}",
+              "type": "CartFootprint",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.searchPlatform.d2c.cart.favouriteInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cart_favourite_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFavouriteQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryPage4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-favourite-{version}",
+              "type": "CartFavourite",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.d2c.cart.cartChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_card_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\"",
+                "levelId": "levelId\":\"(?P<levelId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerCartQueryProvider",
+            "request": {
+              "method": "query4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "userId": "{userId}",
+                "levelId": "{levelId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-{version}",
+              "type": "Cart",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_card_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "operation": "delete",
+              "index": "qm-d2c-cart-{version}",
+              "type": "Cart",
+              "id": "{userId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.d2c.cart.footprintChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_card_footprint_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\"",
+                "levelId": "levelId\":\"(?P<levelId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFootprintQueryProvider",
+            "request": {
+              "method": "query4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "userId": "{userId}",
+                "levelId": "{levelId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-footprint-{version}",
+              "type": "CartFootprint",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_card_footprint_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "operation": "delete",
+              "index": "qm-d2c-cart-footprint-{version}",
+              "type": "CartFootprint",
+              "id": "{userId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.d2c.cart.favouriteChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_card_favourite_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\"",
+                "levelId": "levelId\":\"(?P<levelId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFavouriteQueryProvider",
+            "request": {
+              "method": "query4Search",
+              "timeout": 30,
+              "body": {
+                "adminId": "{adminId}",
+                "domainType": "{domainType}",
+                "userId": "{userId}",
+                "levelId": "{levelId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-d2c-cart-favourite-{version}",
+              "type": "CartFavourite",
+              "id": "{userId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_card_favourite_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "userId": "userId\":\"(?P<userId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "operation": "delete",
+              "index": "qm-d2c-cart-favourite-{version}",
+              "type": "CartFavourite",
+              "id": "{userId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
