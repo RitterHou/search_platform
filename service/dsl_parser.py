@@ -97,12 +97,43 @@ class QdslParser(object):
                   self.parse_catpath_query_condition(cats),
                   self.parse_add_field_query_qdsl(es_config, parse_fields)))
 
+        must_not_query_dsl_list = list(
+            chain(self.parse_owner_filter(es_config, query_params))
+        )
+
         product_query_qdsl = reduce(lambda dict_1, dict_2: dict(dict_1, **dict_2),
                                     filter(lambda item: item,
-                                           [{'query': {'bool': {'must': must_bool_query_qdsl_list}}},
-                                            self.parse_page_param(from_num, size_num), self.parse_sort_params(sort)]))
+                                           [{'query': {'bool': {'must': must_bool_query_qdsl_list,
+                                                                'must_not': must_not_query_dsl_list}}},
+                                            self.parse_page_param(from_num, size_num),
+                                            self.parse_sort_params(sort)]))
         extend_query_qdsl = extend_parser.get_qdsl(query_params)
         return deep_merge(product_query_qdsl, extend_query_qdsl)
+
+    def parse_owner_filter(self, es_config, query_params):
+        """
+        是否过滤非自营的商品
+        :param es_config:
+        :param query_params:
+        :return:
+        """
+        # 1表示只查询自营商品，也是默认值；0表示关闭自营查询过滤，即查询所有的数据
+        owner_filter = get_dict_value(query_params, 'ownerFilter', 1)
+        owner_filter = int(owner_filter)
+        es_reference = es_config['reference']
+        if owner_filter == 0 and (es_reference.startswith('spu_') or es_reference.startswith('product_')):
+            # 确实要查询，不做任何限制
+            return []
+        else:
+            return [
+                {
+                    "range": {
+                        "joinedType": {
+                            "gt": 0
+                        }
+                    }
+                }
+            ]
 
     def parse_add_field_query_qdsl(self, es_config, query_params):
         """
