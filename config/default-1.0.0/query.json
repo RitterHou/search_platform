@@ -31,33 +31,6 @@
       "response": {}
     },
     {
-      "name": "sup_product_query",
-      "res_type": "product",
-      "http_method": "GET,PUT,POST,DELETE",
-      "url_format": "^products/gonghuo/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/products/gonghuo"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "gonghuo_product"
-      },
-      "response": {}
-    },
-    {
       "name": "yun_product_query",
       "res_type": "product",
       "http_method": "GET,PUT,POST,DELETE",
@@ -111,33 +84,6 @@
       "response": {}
     },
     {
-      "name": "sup_spu_query",
-      "res_type": "product",
-      "http_method": "GET,PUT,POST,DELETE",
-      "url_format": "^spus/gonghuo/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/spus/gonghuo"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "gonghuo_spu"
-      },
-      "response": {}
-    },
-    {
       "name": "yun_spu_query",
       "res_type": "product",
       "http_method": "GET,PUT,POST,DELETE",
@@ -186,33 +132,6 @@
             }
           ]
         }
-      },
-      "response": {}
-    },
-    {
-      "name": "sup_product_aggregation",
-      "res_type": "aggregation",
-      "http_method": "GET",
-      "url_format": "^aggregations/gonghuo/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/aggregations/gonghuo"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "gonghuo_product"
       },
       "response": {}
     },
@@ -358,33 +277,6 @@
       }
     },
     {
-      "name": "sup_product_search",
-      "res_type": "search",
-      "http_method": "GET",
-      "url_format": "^search/gonghuo/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/search/gonghuo"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "gonghuo_product"
-      },
-      "response": {}
-    },
-    {
       "name": "yun_product_search",
       "res_type": "search",
       "http_method": "GET",
@@ -433,33 +325,6 @@
             }
           ]
         }
-      },
-      "response": {}
-    },
-    {
-      "name": "sup_spu_search",
-      "res_type": "search",
-      "http_method": "GET",
-      "url_format": "^spu_search/gonghuo/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/spu_search/gonghuo"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "gonghuo_spu"
       },
       "response": {}
     },
