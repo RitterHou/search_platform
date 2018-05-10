@@ -406,7 +406,7 @@ def hash_encode(input_str, modulus=1):
     :param modulus:
     :return:
     """
-    if input_str.lower() == 'a000000':
+    if input_str and input_str.lower() == 'a000000':
         return 'a000000'
     return abs(hash(input_str)) % modulus
 
