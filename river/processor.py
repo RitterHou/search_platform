@@ -24,7 +24,7 @@ class MessageProcessor(object):
 
     def process(self, message):
         """
-        处理消息d
+        处理消息
         """
         if not self.__match(message):
             return None
@@ -57,7 +57,7 @@ class MessageProcessor(object):
         # self.topic = get_dict_value_by_path('notification/topic', river_config)
         # self.queue = get_dict_value_by_path('notification/queue', river_config)
         # if self.notification_type == 'MQ' and (not self.host or (not self.topic and not self.queue)):
-            # Todo 此处需要处理，如果配置不合法，是抛出异常还是构造函数处理
+        # Todo 此处需要处理，如果配置不合法，是抛出异常还是构造函数处理
         # app_log.error(
         # "Notification config is invalid, type is MQ, but host or topic is null, {0}", river_config)
         #     return
@@ -117,7 +117,6 @@ class MessageProcessor(object):
             return
         has_next, page_from, size = True, 0, config.get_value('consts/source/default_iteration_get_size')
         source_config = get_dict_value_by_path('source', river_config)
-        total = 0
         while has_next:
             for key in pull_request_param:
                 pull_request_param[key].update({'page_from': page_from, 'page_size': size})
@@ -131,17 +130,16 @@ class MessageProcessor(object):
                 pull_response = pull_response[0]
             pull_parser_values = MessageProcessor.__parse_pull_response(river_config, pull_response)
             data = pull_parser_values['data']
-            total = total if total else pull_parser_values['total']
             if page_from == 0:
                 # 如果是第一次执行，支持清除掉数据目的地中数据
                 destination.clear(river_config, data, pull_request_param)
             destination.push(river_config, data, pull_request_param)
-            # pull_parser_values['']
-            # cur_size = len(data) if isinstance(data, list) or isinstance(data, tuple) else 1
             page_from += 1
-            cur_size = page_from * size
-            has_next = cur_size < total
 
+            result_size = 1
+            if isinstance(data, (list, tuple)):
+                result_size = len(data)
+            has_next = result_size == size
 
     @staticmethod
     def __do_single_data_flow(river_config, pull_request_param):
