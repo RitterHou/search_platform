@@ -447,7 +447,7 @@ class QdslParser(object):
     @staticmethod
     def to_range_qdsl(value_str):
         """
-        获取范围查询的QDSL， 支持100-300，-300， 100三种格式
+        获取范围查询的QDSL，支持100-300, 100-, -300, 100四种格式
         :param value_str:
         :return:
         """
@@ -456,8 +456,29 @@ class QdslParser(object):
 
         ranges = value_str.split('-')
         if '-' in value_str:
-            range_qdsl = {'gte': float(ranges[0].strip()) if len(ranges) == 2 else 0,
-                          'lt': float(ranges[1].strip()) if len(ranges) == 2 else float(ranges[0].strip())}
+            if len(ranges) == 2:
+                gte = ranges[0].strip()
+                lt = ranges[1].strip()
+                if gte and lt:
+                    range_qdsl = {
+                        'gte': float(gte),
+                        'lt': float(lt)
+                    }
+                elif gte and not lt:
+                    range_qdsl = {
+                        'gte': float(gte)
+                    }
+                elif not gte and lt:
+                    range_qdsl = {
+                        'lt': float(lt)
+                    }
+                else:
+                    return ""
+            else:
+                range_qdsl = {
+                    'gte': 0,
+                    'lt': float(ranges[0].strip())
+                }
         else:
             range_qdsl = {'gte': float(ranges[0].strip())}
 
