@@ -8026,6 +8026,198 @@
           ]
         }
       ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.uc.retail.init",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "storeId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "b2c_uc_retail_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "storeId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "mqId": "mqId\":\"(?P<mqId>[\\d\\D]+?)\"",
+                "storeId": "storeId\":\"(?P<storeId>[\\d\\D]+?)\"",
+                "storeType": "storeType\":\"(?P<storeType>[\\d\\D]+?)\"",
+                "uuid": "uuid\":\"(?P<uuid>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.connection.api.view.search.ConnectionSearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryB2cByPage",
+              "timeout": 30,
+              "body": {
+                "clientIp": "127.0.0.1",
+                "clientType": "SEARCH_PLATFORM",
+                "mqId": "{mqId}",
+                "storeId": "{storeId}",
+                "storeType": "{storeType}",
+                "uuid": "{uuid}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "b2c-retail-view-{version}",
+              "type": "B2CRetailView",
+              "add_admin_id_field": true,
+              "id": "{cid}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.uc.retail.change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "storeId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "b2c_retail_view_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "storeId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "mqId": "mqId\":\"(?P<mqId>[\\d\\D]+?)\"",
+                "storeId": "storeId\":\"(?P<storeId>[\\d\\D]+?)\"",
+                "storeType": "storeType\":\"(?P<storeType>[\\d\\D]+?)\"",
+                "cids": "cids\":\"(?P<cids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.connection.api.view.search.ConnectionSearchProvider",
+            "request": {
+              "method": "queryB2cByCids",
+              "timeout": 30,
+              "body": {
+                "clientIp": "127.0.0.1",
+                "clientType": "SEARCH_PLATFORM",
+                "ids": "{cids}",
+                "mqId": "{mqId}",
+                "storeId": "{storeId}",
+                "storeType": "{storeType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "b2c-retail-view-{version}",
+              "type": "B2CRetailView",
+              "add_admin_id_field": true,
+              "id": "{cid}"
+            }
+          ]
+        },
+        {
+          "name": "b2c_retail_view_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "cids": "cids\":\"(?P<cids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "b2c-retail-view-{version}",
+              "type": "B2CRetailView",
+              "operation": "delete",
+              "id": "{cids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

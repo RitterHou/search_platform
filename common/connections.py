@@ -16,6 +16,8 @@ BATCH_REQUEST_TIMEOUT = 30
 BATCH_TIMEOUT = 120000
 INDEX_REQUEST_TIMEOUT = 120
 INDEX_TIMEOUT = 120000
+
+
 class EsConnection(Elasticsearch):
     """
     封装的ES操作接口，添加了多个索引
@@ -109,22 +111,30 @@ class DubboRegistryPool(object):
         # DubboRegistry连接字典，对应：{‘192.168.0.1：9200’：DubboRegistry,‘172.168.0.1：9200’：DubboRegistry}
         self.connection_cache = {}
         self.dubbo_client_cache = {}
+        self.__lock = threading.Lock()
 
     def get_dubbo_client(self, host, service_interface, fields, version):
         if not host or not service_interface:
             app_log.error('Get bubbo client param is invalid, {0} {1}', host, service_interface)
             return None
         if host not in self.connection_cache:
-            registry = ZookeeperRegistry(host, self.config)
-            self.connection_cache[host] = registry
+            self.__lock.acquire()
+            if host not in self.connection_cache:
+                registry = ZookeeperRegistry(host, self.config)
+                self.connection_cache[host] = registry
+            self.__lock.release()
         dubbo_client_key = COMBINE_SIGN.join((host, service_interface))
         if dubbo_client_key not in self.dubbo_client_cache:
-            dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version)
-            self.dubbo_client_cache[dubbo_client_key] = dubbo_client
+            self.__lock.acquire()
+            if dubbo_client_key not in self.dubbo_client_cache:
+                dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version)
+                self.dubbo_client_cache[dubbo_client_key] = dubbo_client
+            self.__lock.release()
         return self.dubbo_client_cache[dubbo_client_key]
 
 
 DubboRegistryFactory = DubboRegistryPool()
+
 
 class RedisPool(object):
     def __init__(self):
@@ -138,15 +148,19 @@ class RedisPool(object):
             self.redis_conn_pool[host] = redis.ConnectionPool.from_url(host)
         return redis.Redis(connection_pool=self.redis_conn_pool[host])
 
+
 RedisConnectionFactory = RedisPool()
+
 
 class ZkClientPool(object):
     """
     ZK client
     """
+
     def __init__(self):
         self.zk_client_pool = {}
         self.mutex = threading.Lock()
+
     def get_zk_client(self, host=None):
         """
         获取ZK客户端
@@ -172,14 +186,20 @@ class ZkClientPool(object):
                     finally:
                         self.mutex.release()
                         return self.zk_client_pool.get(host, None)
+
+
 ZkClientFactory = ZkClientPool()
+
+
 class KafkaClientPool(object):
     """
     kafka消息客户端
     """
+
     def __init__(self):
         self.kafka_client_pool = {}
         self.mutex = threading.Lock()
+
     def get_kafka_client(self, host):
         """
         获取kafka客户端
@@ -202,6 +222,8 @@ class KafkaClientPool(object):
                     finally:
                         self.mutex.release()
                         return self.kafka_client_pool.get(host, None)
+
+
 KafkaClientFactory = KafkaClientPool()
 if __name__ == '__main__':
     es_config = {'host': 'http://172.19.65.66:9200,http://172.19.65.79:9200', 'index': 'test-aaa', 'type': 'test-type',
