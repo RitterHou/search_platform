@@ -6253,7 +6253,7 @@
       "notification": {
         "type": "MQ",
         "host": "{mq_host}",
-        "topic": "t.usercenter.ticketChange",
+        "topic": "t.usercenter.es.ticketChange",
         "sla": {
           "data_parser": {
             "type": "fixed",
@@ -6281,6 +6281,7 @@
             "data_parser": {
               "type": "regex",
               "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "ticketId": "ticketId\":\"(?P<ticketId>[\\d\\D]+?)\""
               }
             }
@@ -6290,11 +6291,12 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.uc.quser.api.ticket.search.TicketQuery4SearchProvider",
+            "service_interface": "com.qianmi.uc.query.api.ticket.search.QueryTicket4SearchProvider",
             "request": {
-              "method": "getById4Search",
+              "method": "getTicketById4Search",
               "timeout": 30,
               "body": {
+                "msgId": "{msgId}",
                 "ticketId": "{ticketId}"
               }
             }
@@ -6355,7 +6357,7 @@
       "notification": {
         "type": "MQ",
         "host": "{mq_host}",
-        "topic": "t.usercenter.shopChange",
+        "topic": "t.usercenter.es.storeChange",
         "sla": {
           "data_parser": {
             "type": "regex",
@@ -6383,6 +6385,7 @@
             "data_parser": {
               "type": "regex",
               "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
               }
             }
@@ -6392,11 +6395,12 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.uc.qstore.api.store.search.StoreQuery4SearchProvider",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
             "request": {
-              "method": "getById4Search",
+              "method": "getStoreById4Search",
               "timeout": 30,
               "body": {
+                "msgId": "{msgId}",
                 "adminId": "{adminId}"
               }
             }
@@ -7123,7 +7127,7 @@
       "notification": {
         "type": "MQ",
         "host": "{mq_host}",
-        "topic": "t.usercenter.employeeInfoChange",
+        "topic": "t.usercenter.es.employeeChange",
         "sla": {
           "data_parser": {
             "type": "regex",
@@ -7151,6 +7155,7 @@
             "data_parser": {
               "type": "regex",
               "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
                 "employeeId": "employeeId\":\"(?P<employeeId>[\\d\\D]+?)\"",
                 "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
               }
@@ -7166,6 +7171,7 @@
               "method": "listEmployeeById",
               "timeout": 30,
               "body": {
+                "msgId": "{msgId}",
                 "employeeId": "{employeeId}"
               }
             }
