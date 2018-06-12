@@ -2021,7 +2021,7 @@
       "name": "uc_employee_query",
       "res_type": "default",
       "http_method": "GET",
-      "url_format": "uc/employee/[\\d\\D]+",
+      "url_format": "uc/employee/[\\d\\D]*",
       "filter": {
         "type": "regex",
         "union_operator": "and",
@@ -2030,14 +2030,14 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "^/uc/employee/[\\d\\D]+"
+            "expression": "^/uc/employee/[\\d\\D]*"
           }
         ]
       },
       "data_parser": {
         "type": "regex",
         "fields": {
-          "adminId": "uc/employee/(?P<adminId>[\\d\\D]+)"
+          "adminId": "uc/employee/(?P<adminId>[\\d\\D]*)"
         }
       },
       "destination": {
