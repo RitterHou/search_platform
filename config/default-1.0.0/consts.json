@@ -5,7 +5,7 @@
     "query_size": {
       "from": {
         "min": 0,
-        "max": 6000,
+        "max": 10000,
         "default": 0
       },
       "size": {
