@@ -2266,6 +2266,31 @@
         "id": "{id}"
       },
       "response": {}
+    },
+    {
+      "name": "bi_reports_product",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "bi/reports/product",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/bi/reports/product$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "reference": "bi",
+        "index": "bi-report-product",
+        "id": "{id}"
+      },
+      "response": {}
     }
   ]
 }

@@ -1297,5 +1297,58 @@
         }
       ]
     }
+  },
+  "bi": {
+    "host": "{bi_es_host}",
+    "destination_type": "elasticsearch",
+    "type": "BIDefaultType",
+    "mapping": {
+      "dynamic_templates": [
+        {
+          "string_fields": {
+            "mapping": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "match_mapping_type": "string",
+            "match": "*"
+          }
+        },
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "long",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "long",
+            "match": "*"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "double",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "double",
+            "match": "*"
+          }
+        }
+      ]
+    }
   }
 }
