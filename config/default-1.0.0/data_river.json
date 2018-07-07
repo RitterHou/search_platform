@@ -8108,6 +8108,7 @@
               "index": "b2c-retail-view-{version}",
               "type": "B2CRetailView",
               "add_admin_id_field": true,
+              "clear_policy": "every_msg,by_adminId",
               "id": "{cid}"
             }
           ]
