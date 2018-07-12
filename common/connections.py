@@ -126,10 +126,12 @@ class DubboRegistryPool(object):
         dubbo_client_key = COMBINE_SIGN.join((host, service_interface))
         if dubbo_client_key not in self.dubbo_client_cache:
             self.__lock.acquire()
-            if dubbo_client_key not in self.dubbo_client_cache:
-                dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version)
-                self.dubbo_client_cache[dubbo_client_key] = dubbo_client
-            self.__lock.release()
+            try:
+                if dubbo_client_key not in self.dubbo_client_cache:
+                    dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version)
+                    self.dubbo_client_cache[dubbo_client_key] = dubbo_client
+            finally:
+                self.__lock.release()
         return self.dubbo_client_cache[dubbo_client_key]
 
 
