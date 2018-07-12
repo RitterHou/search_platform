@@ -2513,6 +2513,15 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+            {
+              "desc": "修改需要被反映到标准订单中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2553,6 +2562,19 @@
               "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
               "type": "Trade",
               "id": "{ids}",
               "id_process": {
@@ -2757,6 +2779,14 @@
               "type": "Application",
               "id": "{applyId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id": "{applyId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2797,6 +2827,19 @@
               "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id": "{applyId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "type": "Application",
               "id": "{applyId}",
               "id_process": {
@@ -3374,6 +3417,82 @@
               "id": "{tid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "desc": "同时把商城订单数据初始化到标准订单的索引中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{tid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_trade_cash_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"trade\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryTradePage",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "desc": "这里把收银订单的数据初始化到标准订单中，收银订单本身数据的初始化在q.searchPlatform.d2c.cash.tradeInit中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -3503,6 +3622,82 @@
               "type": "Application",
               "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "desc": "售后单的数据也需要初始化到标准售后单订单中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id": "{applyId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_cash_trade_application_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"apply\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryApplyPage",
+              "timeout": 30,
+              "body": {
+                "clientIp": "127.0.0.1",
+                "clientDeviceType": "SELLER_CASH_IPAD",
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "desc": "收银售后单只需要被初始化到标准售后单索引中，不需要单独存在",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id": "{refundReceiptId}",
               "add_admin_id_field": true
             }
           ]
@@ -3839,6 +4034,14 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -3881,6 +4084,19 @@
               "index": "d2c-cash-trade-{hashcode}-{version}",
               "type": "Trade",
               "id": "{tid}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
@@ -8325,6 +8541,125 @@
               "id_process": {
                 "type": "seperate",
                 "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.d2c.cash.apply.change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cash_apply_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "request": {
+              "method": "queryApplyListByIds",
+              "timeout": 30,
+              "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "clientDeviceType": "SELLER_CASH_IPAD",
+                "clientIp": "127.0.0.1"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id": "{refundReceiptId}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "d2c_cash_apply_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 1,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "type": "Application",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
               }
             }
           ]

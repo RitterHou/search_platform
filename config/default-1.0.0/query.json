@@ -2321,6 +2321,80 @@
         "id": "{id}"
       },
       "response": {}
+    },
+    {
+      "name": "d2c_standard_trades",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "scene/d2c/standard/trades",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/scene/d2c/standard/trades/(?!applies)[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/d2c/standard/trades/(?P<adminId>[\\d\\D]*)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-standard-trade-{hashcode}-{version}",
+        "type": "Trade",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2c_standard_trades_applies",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "scene/d2c/standard/trades/applies",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/scene/d2c/standard/trades/applies/[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "scene/d2c/standard/trades/applies/(?P<adminId>[\\d\\D]*)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-standard-trade-application-{hashcode}-{version}",
+        "type": "Application",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
