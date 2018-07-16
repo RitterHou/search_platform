@@ -220,7 +220,7 @@ class DubboDataSource(DataSource):
                                'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method is invoked',
                                'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
                                'param_values': [host, service_interface, method, version, body],
-                               'search_platform_interface_classify': '{0}.{1}'.format(service_interface, method),
+                               'srv_group': '{0}.{1}'.format(service_interface, method),
                                'result_value': result}
             interface_log.print_log(json_log_record)
             return result
@@ -233,7 +233,7 @@ class DubboDataSource(DataSource):
                                'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method has error {0}',
                                'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
                                'param_values': [host, service_interface, method, version, body],
-                               'search_platform_interface_classify': '{0}.{1}'.format(service_interface, method),
+                               'srv_group': '{0}.{1}'.format(service_interface, method),
                                'result_value': result}
             interface_log.print_error(json_log_record, e)
             raise MsgHandlingFailError(MsgHandlingFailError.DUBBO_ERROR)
