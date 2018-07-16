@@ -2,6 +2,7 @@
 import time
 
 from common.exceptions import MsgHandlingFailError
+
 __author__ = 'liuzhaoming'
 
 import httplib
@@ -71,7 +72,7 @@ class HttpDataSource(DataSource):
             body['version'] = version
 
         response = json.loads(self.call_http_method(host, get_method_url, http_method, body, timeout))
-            # 如果返回code，抛出异常
+        # 如果返回code，抛出异常
         if 'code' in response:
             app_log.error(
                 'Can not pull, source_config is {0}, version is {1}, request_param is {2}, response is {3} '
@@ -178,7 +179,7 @@ class DubboDataSource(DataSource):
             body['version'] = version
 
         response = self.call_dubbo_method(host, service_interface, method, body, version, timeout)
-            # 如果返回code，抛出异常
+        # 如果返回code，抛出异常
         if response is None:
             app_log.error(
                 'can not pull, service_interface is {0}, version is {1}, request_param is {2}, response is {3}',
@@ -199,8 +200,7 @@ class DubboDataSource(DataSource):
         """
         app_log.info(
             'Call JsonRPC method start by param : host = {0}, service_interface={1}, method={2}, body={3}, '
-            'version={4}, timeout={5}',
-            host, service_interface, method, body, version, timeout)
+            'version={4}, timeout={5}', host, service_interface, method, body, version, timeout)
         start_time = time.time()
         result = None
         # reflect_method = getattr(dubbo_client, method)
@@ -211,8 +211,8 @@ class DubboDataSource(DataSource):
             else:
                 result = dubbo_client(method)
             app_log.info(
-                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}', host,
-                service_interface, method, body)
+                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}',
+                host, service_interface, method, body)
 
             cost_time = int((time.time() - start_time) * 1000)
             json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',
@@ -220,6 +220,7 @@ class DubboDataSource(DataSource):
                                'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method is invoked',
                                'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
                                'param_values': [host, service_interface, method, version, body],
+                               'search_platform_interface_classify': '{0}.{1}'.format(service_interface, method),
                                'result_value': result}
             interface_log.print_log(json_log_record)
             return result
@@ -232,6 +233,7 @@ class DubboDataSource(DataSource):
                                'invoke_time': format_time(start_time), 'message': 'Call JsonRPC method has error {0}',
                                'param_types': ['host', 'service_interface', 'method', 'version', 'body'],
                                'param_values': [host, service_interface, method, version, body],
+                               'search_platform_interface_classify': '{0}.{1}'.format(service_interface, method),
                                'result_value': result}
             interface_log.print_error(json_log_record, e)
             raise MsgHandlingFailError(MsgHandlingFailError.DUBBO_ERROR)
