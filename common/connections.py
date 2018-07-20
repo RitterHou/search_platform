@@ -113,7 +113,7 @@ class DubboRegistryPool(object):
         self.dubbo_client_cache = {}
         self.__lock = threading.Lock()
 
-    def get_dubbo_client(self, host, service_interface, fields, version):
+    def get_dubbo_client(self, host, service_interface, fields, version, print_log=False):
         if not host or not service_interface:
             app_log.error('Get bubbo client param is invalid, {0} {1}', host, service_interface)
             return None
@@ -128,7 +128,8 @@ class DubboRegistryPool(object):
             self.__lock.acquire()
             try:
                 if dubbo_client_key not in self.dubbo_client_cache:
-                    dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version)
+                    dubbo_client = DubboClient(service_interface, self.connection_cache[host], version=version,
+                                               print_log=print_log)
                     self.dubbo_client_cache[dubbo_client_key] = dubbo_client
             finally:
                 self.__lock.release()

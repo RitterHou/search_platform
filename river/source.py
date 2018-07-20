@@ -205,11 +205,11 @@ class DubboDataSource(DataSource):
         result = None
         # reflect_method = getattr(dubbo_client, method)
         try:
-            dubbo_client = DubboRegistryFactory.get_dubbo_client(host, service_interface, body, version)
+            dubbo_client = DubboRegistryFactory.get_dubbo_client(host, service_interface, body, version, True)
             if body:
-                result = dubbo_client(method, body)
+                result = dubbo_client.call_method(method, timeout, body)
             else:
-                result = dubbo_client(method)
+                result = dubbo_client.call_method(method, timeout)
             app_log.info(
                 'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}',
                 host, service_interface, method, body)
