@@ -2395,6 +2395,62 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "shop_pay_type_statistics",
+      "desc": "店铺支付方式统计",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "shop/pay/type/statistics",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/shop/pay/type/statistics$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "shop-pay-type-statistics",
+        "type": "Statistics",
+        "id": "{sid}"
+      },
+      "response": {}
+    },
+    {
+      "name": "shop_olp_statistics",
+      "desc": "店铺网关统计",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "shop/olp/statistics",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/shop/olp/statistics$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "shop-olp-statistics",
+        "type": "Statistics",
+        "id": "{sid}"
+      },
+      "response": {}
     }
   ]
 }
