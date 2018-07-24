@@ -2451,6 +2451,96 @@
         "id": "{sid}"
       },
       "response": {}
+    },
+    {
+      "name": "tms_view_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "tms/view",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/tms/view/[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "tms/view/(?P<adminId>[\\d\\D]*)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "tms-view-{version}",
+        "type": "View",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "system_orders_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "system/orders",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/system/orders$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "qm-system-order-{version}",
+        "type": "Order"
+      },
+      "response": {}
+    },
+    {
+      "name": "purchaser_sku_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "purchaser/sku",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/purchaser/sku/[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "purchaser/sku/(?P<adminId>[\\d\\D]*)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "qmshop-purchaser-sku",
+        "type": "Sku",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
