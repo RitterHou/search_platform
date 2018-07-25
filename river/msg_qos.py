@@ -191,7 +191,7 @@ if __name__ == '__main__':
     msg_qos = MsgQos()
     lock_task_name = '{0}_msg_qos'.format(sys.argv[1])
     while not zk_lock_store.get_lock_info(lock_task_name):
-        time.sleep(60)
+        time.sleep(5)
     app_log.info('{0} msg qos get lock successfully', sys.argv[1])
     if sys.argv[1] == 'vip':
         msg_qos.start_vip_msg_handler()
