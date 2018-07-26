@@ -64,7 +64,7 @@
             "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -144,7 +144,7 @@
             "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -224,7 +224,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -303,7 +303,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -448,7 +448,7 @@
             "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -527,7 +527,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -606,7 +606,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listByIdString",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "idString": "{ids}"
@@ -782,7 +782,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -861,7 +861,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -951,7 +951,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryMarketingList4ESearch",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -1033,7 +1033,7 @@
             "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
               "method": "queryMarketingList4ESearchByIds",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domain_type}",
@@ -1089,7 +1089,7 @@
             "service_interface": "com.qianmi.cloudshop.api.es.ESMarketingProvider",
             "request": {
               "method": "queryMarketingList4ESearchByIds",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domain_type}",
@@ -1211,7 +1211,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -1272,7 +1272,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMasterId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -1353,7 +1353,7 @@
             "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryMarketingByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -1476,7 +1476,7 @@
             "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryItemByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -1599,7 +1599,7 @@
             "service_interface": "com.qianmi.mc.api.search.SearchActivityQueryProvider",
             "request": {
               "method": "queryTradeMarketingRecordByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -1722,7 +1722,7 @@
             "service_interface": "com.qianmi.mc.api.search.SearchCouponQueryProvider",
             "request": {
               "method": "queryUserCouponByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -1845,7 +1845,7 @@
             "service_interface": "com.qianmi.weixin.api.fans.SearchFansQueryProvider",
             "request": {
               "method": "queryFansByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "owner": "{adminId}",
                 "ids": "{ids}",
@@ -1967,7 +1967,7 @@
             "service_interface": "com.qianmi.mc.api.search.SearchIntegralItemQueryProvider",
             "request": {
               "method": "queryIntegralItemByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -2088,7 +2088,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryMarketing",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -2153,7 +2153,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryItem",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -2218,7 +2218,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryTradeMarketingRecord",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -2283,7 +2283,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryUserCoupon",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -2348,7 +2348,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryFans",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "owner": "{adminId}",
                 "msgId": "{msgId}",
@@ -2412,7 +2412,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryIntegralItems",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -2496,7 +2496,7 @@
             "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryTradeByTid",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -2640,7 +2640,7 @@
             "service_interface": "com.qianmi.d2c.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryItemOrderByOid",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -2762,7 +2762,7 @@
             "service_interface": "com.qianmi.d2c.api.apply.search.Apply4SearchQueryProvider",
             "request": {
               "method": "queryApplyListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -2905,7 +2905,7 @@
             "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryRefundReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -3027,7 +3027,7 @@
             "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReturnReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -3149,7 +3149,7 @@
             "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryShipReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -3271,7 +3271,7 @@
             "service_interface": "com.qianmi.d2c.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReceiveReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -3391,7 +3391,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3467,7 +3467,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3532,7 +3532,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryItemOrderPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3597,7 +3597,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryApplyPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3672,7 +3672,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryApplyPage",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "clientIp": "127.0.0.1",
                 "clientDeviceType": "SELLER_CASH_IPAD",
@@ -3738,7 +3738,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryRefundReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3803,7 +3803,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryReturnReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3868,7 +3868,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryReceiveReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -3933,7 +3933,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryShipReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -4017,7 +4017,7 @@
             "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryTradeByTids",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -4160,7 +4160,7 @@
             "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryItemOrderByOids",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -4282,7 +4282,7 @@
             "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryReturnReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -4404,7 +4404,7 @@
             "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryRefundReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -4524,7 +4524,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -4589,7 +4589,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryItemOrderPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -4654,7 +4654,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryReturnReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -4719,7 +4719,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryRefundReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -4802,7 +4802,7 @@
             "service_interface": "com.qianmi.d2p.order.api.TradeQueryProvider",
             "request": {
               "method": "findByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "ids": "{ids}",
                 "msgId": "{msgId}",
@@ -4914,7 +4914,7 @@
             "version": "1.0.0",
             "request": {
               "method": "findByAdminId",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -4996,7 +4996,7 @@
             "service_interface": "com.qianmi.d2p.returnorder.api.ReturnOrderQueryProvider",
             "request": {
               "method": "findByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "adminId": "{adminId}",
@@ -5109,7 +5109,7 @@
             "version": "1.0.0",
             "request": {
               "method": "findByAdminId",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -5192,7 +5192,7 @@
             "service_interface": "com.qianmi.consignment.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryTradeByTid",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5314,7 +5314,7 @@
             "service_interface": "com.qianmi.consignment.api.trade.search.TradeSearchQueryProvider",
             "request": {
               "method": "queryItemOrderByOid",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5436,7 +5436,7 @@
             "service_interface": "com.qianmi.consignment.api.apply.search.Apply4SearchQueryProvider",
             "request": {
               "method": "queryApplyListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5558,7 +5558,7 @@
             "service_interface": "com.qianmi.consignment.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryRefundReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5680,7 +5680,7 @@
             "service_interface": "com.qianmi.consignment.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReturnReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5802,7 +5802,7 @@
             "service_interface": "com.qianmi.consignment.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryShipReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -5924,7 +5924,7 @@
             "service_interface": "com.qianmi.consignment.api.receipt.search.Receipt4SearchQueryProvider",
             "request": {
               "method": "queryReceiveReceiptListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "ids": "{ids}",
@@ -6044,7 +6044,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryTradePage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6109,7 +6109,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryItemOrderPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6174,7 +6174,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryApplyPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6239,7 +6239,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryRefundReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6304,7 +6304,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryReturnReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6369,7 +6369,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryReceiveReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6434,7 +6434,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryShipReceiptPage",
-              "timeout": 10,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -6510,7 +6510,7 @@
             "service_interface": "com.qianmi.uc.query.api.ticket.search.QueryTicket4SearchProvider",
             "request": {
               "method": "getTicketById4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "ticketId": "{ticketId}"
@@ -6614,7 +6614,7 @@
             "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
             "request": {
               "method": "getStoreById4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "adminId": "{adminId}"
@@ -6709,7 +6709,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryAllTickets4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}"
@@ -6770,7 +6770,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryAllStores4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}"
@@ -6845,7 +6845,7 @@
             "service_interface": "com.qianmi.oms.api.delivery.DeliveryNoteViewProvider",
             "request": {
               "method": "findByDeliveryNos",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMaster": "{adminId}",
                 "deliveryNos": "{deliveryNos}"
@@ -6960,7 +6960,7 @@
             "version": "1.0.0",
             "request": {
               "method": "findByChainMaster",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "chainMaster": "{adminId}",
                 "pageNum": "{page_from}",
@@ -7031,7 +7031,7 @@
             "service_interface": "com.qianmi.uc.vrecord.api.plan.search.VisitPlanQuery4SearchProvider",
             "request": {
               "method": "getById4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "planId": "{planId}"
               }
@@ -7136,7 +7136,7 @@
             "service_interface": "com.qianmi.uc.vrecord.api.record.search.VisitRecordQuery4SearchProvider",
             "request": {
               "method": "getById4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "recordId": "{recordId}"
               }
@@ -7241,7 +7241,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryAllVisitPlan4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -7312,7 +7312,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryAllVisitRecord4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -7385,7 +7385,7 @@
             "service_interface": "com.qianmi.uc.query.api.employee.search.QueryEmployee4SearchProvider",
             "request": {
               "method": "listEmployeeById",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "employeeId": "{employeeId}"
@@ -7489,7 +7489,7 @@
             "version": "1.0.0",
             "request": {
               "method": "listEmployeeByAdminId",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -7562,7 +7562,7 @@
             "service_interface": "com.qianmi.self.order.query.PartnerEsQueryProvider",
             "request": {
               "method": "customerById",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "customerId": "{customerId}"
               }
@@ -7665,7 +7665,7 @@
             "version": "1.0",
             "request": {
               "method": "customerByPage",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "pageNum": "{page_from}",
@@ -7738,7 +7738,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryPage4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -7813,7 +7813,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryPage4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -7888,7 +7888,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryPage4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -7965,7 +7965,7 @@
             "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerCartQueryProvider",
             "request": {
               "method": "query4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -8076,7 +8076,7 @@
             "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFootprintQueryProvider",
             "request": {
               "method": "query4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -8187,7 +8187,7 @@
             "service_interface": "com.qianmi.d2c.cart.api.buyer.BuyerFavouriteQueryProvider",
             "request": {
               "method": "query4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "adminId": "{adminId}",
                 "domainType": "{domainType}",
@@ -8298,7 +8298,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryB2cByPage",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "clientIp": "127.0.0.1",
                 "clientType": "SEARCH_PLATFORM",
@@ -8379,7 +8379,7 @@
             "service_interface": "com.qianmi.uc.connection.api.view.search.ConnectionSearchProvider",
             "request": {
               "method": "queryB2cByCids",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "clientIp": "127.0.0.1",
                 "clientType": "SEARCH_PLATFORM",
@@ -8488,7 +8488,7 @@
             "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
             "request": {
               "method": "listByIds4Search",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "adminId": "{adminId}"
@@ -8598,7 +8598,7 @@
             "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
             "request": {
               "method": "queryApplyListByIds",
-              "timeout": 30,
+              "timeout": 8,
               "body": {
                 "msgId": "{msgId}",
                 "adminId": "{adminId}",

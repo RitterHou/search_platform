@@ -174,7 +174,7 @@ class DubboDataSource(DataSource):
         method = get_dict_value_by_path('request/method', source_config)
         body_template = get_dict_value_by_path('request/body', source_config, {})
         body = bind_dict_variable(body_template, _request_param)
-        timeout = get_dict_value_by_path('request/timeout', source_config, 60)
+        timeout = get_dict_value_by_path('request/timeout', source_config, 10)
         if 'version' in body_template:
             body['version'] = version
 
