@@ -8665,6 +8665,447 @@
           ]
         }
       ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.tms.searchPlatform.shippingOrder.change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "tms_view_change",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "deliverType": "deliverType\":\"(?P<deliverType>[\\d\\D]+?)\"",
+                "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "no": "no\":\"(?P<no>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.tms.view.ShippingOrderViewProvider",
+            "request": {
+              "method": "findByNo",
+              "timeout": 30,
+              "body": {
+                "deliverType": "{deliverType}",
+                "chainMaster": "{adminId}",
+                "no": "{no}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "tms-view-{version}",
+              "type": "View",
+              "id": "{no}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.admin_micro_order.search.sys_order.one",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "sys_order"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "system_order_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "orderNo": "orderNo\":\"(?P<orderNo>[\\d\\D]+?)\"",
+                "userNo": "userNo\":\"(?P<userNo>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0",
+            "service_interface": "com.qianmi.admin.order.api.boss.OrderEsQueryProvider",
+            "request": {
+              "method": "getOrderInfoByOIdAndUId",
+              "timeout": 30,
+              "body": {
+                "orderNo": "{orderNo}",
+                "userNo": "{userNo}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-system-order-{version}",
+              "type": "Order",
+              "id": "{orderNo}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.admin_micro_order.search.sys_order.page",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "sys_order"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "system_order_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {}
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.admin.order.api.boss.OrderEsQueryProvider",
+            "version": "1.0",
+            "request": {
+              "method": "getOrderInfoPage",
+              "timeout": 30,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qm-system-order-{version}",
+              "type": "Order",
+              "id": "{orderNo}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.purchase.es.purchaserSkuInit",
+        "desc": "初始化商品中心位于多个仓库的商品",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "purchaser_sku_init_0",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.gcs.purchase.view.api.EsPurchaseViewQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 30,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "initType": "0",
+                "msgId": "{msgId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qmshop-purchaser-sku",
+              "type": "Sku",
+              "add_admin_id_field": true,
+              "clear_policy": "every_msg,by_adminId",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "purchaser_sku_init_1",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.gcs.purchase.view.api.EsPurchaseViewQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 30,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "initType": "1",
+                "msgId": "{msgId}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qmshop-purchaser-sku",
+              "type": "Sku",
+              "add_admin_id_field": true,
+              "id": "{id}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.purchase.es.purchaserSku",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "purchaser_sku_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.gcs.purchase.view.api.EsPurchaseViewQueryProvider",
+            "request": {
+              "method": "listByIds",
+              "timeout": 30,
+              "body": {
+                "msgId": "{msgId}",
+                "chainMasterId": "{adminId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qmshop-purchaser-sku",
+              "type": "Sku",
+              "add_admin_id_field": true,
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "purchaser_sku_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "qmshop-purchaser-sku",
+              "type": "Sku",
+              "operation": "delete",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
