@@ -184,7 +184,11 @@
             "barCode.analyzed",
             "specs.svs.svname.analyzed",
             "bn.analyzed",
-            "skuBn.analyzed"
+            "skuBn.analyzed",
+            "brandName.standard",
+            "brandName.analyzed",
+            "name.standard",
+            "name.analyzed"
           ],
           "nest": {
             "props.value.standard": {
