@@ -1362,5 +1362,67 @@
         }
       ]
     }
+  },
+  "pc_es_cluster": {
+    "desc": "商品中心的ES集群",
+    "host": "{pc_es_host}",
+    "mapping": {
+      "_all": {
+        "enabled": false
+      },
+      "dynamic_templates": [
+        {
+          "string_fields": {
+            "mapping": {
+              "index": "not_analyzed",
+              "type": "string",
+              "fields": {
+                "analyzed": {
+                  "index": "analyzed",
+                  "analyzer": "qm_standard",
+                  "type": "string"
+                }
+              }
+            },
+            "match_mapping_type": "string",
+            "match": "*"
+          }
+        },
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "long",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "long",
+            "match": "*"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "double",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "double",
+            "match": "*"
+          }
+        }
+      ]
+    }
   }
 }

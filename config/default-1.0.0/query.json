@@ -2541,6 +2541,39 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "purchase_view_trade",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "purchase/view/trade",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/purchase/view/trade/[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "purchase/view/trade/(?P<adminId>[\\d\\D]*)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "pc_es_cluster",
+        "index": "purchase-view-trade",
+        "type": "Trade",
+        "id": "{tid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
