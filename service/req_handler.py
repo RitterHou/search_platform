@@ -64,6 +64,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
+                               'srv_group': request.method,
                                'result_value': response}
             interface_log.print_log(json_log_record)
             return response
@@ -75,6 +76,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
+                               'srv_group': request.method,
                                'result_value': response}
             app_log.error('Handle http request error, {0}, {1}', e,
                           self.handler_config.get('name') or self.handler_config.get('res_type'), request_desc)
@@ -217,7 +219,6 @@ class RequestHandler(object):
                 temp_strs = item_config['input_param'].split('.')
                 return str(data['param'].get(temp_strs[1])) if len(temp_strs) == 2 else str(data['param'])
             return data['url']
-
 
         parser_type = data_parser_config.get('type', 'regex')
         fields_config = data_parser_config.get('fields')
