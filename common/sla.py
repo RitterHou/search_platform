@@ -57,6 +57,18 @@ class MsgSLA(object):
         self._pc_task_experience_sla_time_interval = config.get_value(
             '/consts/global/admin_id_cfg/pc_task_experience_time_interval') or 5
 
+        # 订单VIP消息最大处理次数
+        self._trade_task_vip_sla_max_calls = config.get_value('/consts/global/admin_id_cfg/trade_task_vip_max_msg') or 5
+        # 订单VIP用户消息次数计算周期
+        self._trade_task_vip_sla_time_interval = config.get_value(
+            '/consts/global/admin_id_cfg/trade_task_vip_time_interval') or 5
+        # 订单体验用户消息最大处理次数
+        self._trade_task_experience_sla_max_calls = config.get_value(
+            '/consts/global/admin_id_cfg/trade_task_experience_max_msg') or 1
+        # 订单体验用户消息次数计算周期
+        self._trade_task_experience_sla_time_interval = config.get_value(
+            '/consts/global/admin_id_cfg/trade_task_experience_time_interval') or 5
+
         # vip用户失败消息是否重做
         self._vip_msg_redo_enable = config.get_value('/consts/global/admin_id_cfg/vip_msg_redo_enable') or True
         # 体验用户失败消息是否重做
@@ -552,12 +564,16 @@ class MsgSLA(object):
         if not max_calls:
             if admin_id.startswith('pc-'):
                 max_calls = self._pc_task_vip_sla_max_calls if is_vip else self._pc_task_experience_sla_max_calls
+            elif admin_id.startswith('trade-'):
+                max_calls = self._trade_task_vip_sla_max_calls if is_vip else self._trade_task_experience_sla_max_calls
             else:
                 max_calls = self._vip_sla_max_calls if is_vip else self._experience_sla_max_calls
 
         if not time_interval:
             if admin_id.startswith('pc-'):
                 time_interval = self._pc_task_vip_sla_time_interval if is_vip else self._pc_task_experience_sla_time_interval
+            elif admin_id.startswith('trade-'):
+                time_interval = self._trade_task_vip_sla_time_interval if is_vip else self._trade_task_experience_sla_time_interval
             else:
                 time_interval = self._vip_sla_time_interval if is_vip else self._experience_sla_time_interval
 

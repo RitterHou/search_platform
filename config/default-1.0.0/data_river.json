@@ -2455,6 +2455,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -2599,6 +2602,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -2720,6 +2726,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -2864,6 +2873,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -2985,6 +2997,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -3108,6 +3123,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -3230,6 +3248,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -3351,6 +3372,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -3976,6 +4000,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -4119,6 +4146,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -4240,6 +4270,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -4363,6 +4396,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -4484,6 +4520,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -4762,6 +4801,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -4881,6 +4923,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -4955,6 +5000,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -5076,6 +5124,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -5150,6 +5201,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -5273,6 +5327,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -5394,6 +5451,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -5517,6 +5577,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -5638,6 +5701,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           },
           "redo": true
         }
@@ -5761,6 +5827,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -5883,6 +5952,9 @@
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
           },
+          "msg": {
+            "custom_queue_prefix": "trade-"
+          },
           "redo": true
         }
       },
@@ -6004,6 +6076,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -8558,6 +8633,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -8677,6 +8755,9 @@
             "fields": {
               "adminId": "chainMaster\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "trade-"
           }
         }
       },
@@ -8877,6 +8958,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
           }
         }
       },
@@ -9009,6 +9093,9 @@
             "fields": {
               "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
             }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
           }
         }
       },
