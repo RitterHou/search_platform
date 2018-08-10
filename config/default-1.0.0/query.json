@@ -2323,6 +2323,84 @@
       "response": {}
     },
     {
+      "name": "bi_reports_store_o2o",
+      "desc": "门店明细报表，负责人：杨志远",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "bi/reports/store/o2o",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/bi/reports/store/o2o$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "reference": "bi",
+        "index": "bi-report-store-o2o",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "name": "bi_reports_customer_mall",
+      "desc": "云商城客户分析明细报表，负责人：杨志远",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "bi/reports/customer/mall",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/bi/reports/customer/mall$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "reference": "bi",
+        "index": "bi-report-customer-mall",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "name": "bi_reports_customer_distribution",
+      "desc": "云分销客户分析明细报表，负责人：杨志远",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "bi/reports/customer/distribution",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/bi/reports/customer/distribution$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "reference": "bi",
+        "index": "bi-report-customer-distribution$",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
       "name": "d2c_standard_trades",
       "res_type": "default",
       "http_method": "GET",
@@ -2572,6 +2650,99 @@
         "type": "Trade",
         "id": "{tid}",
         "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "大订单视图的数据查询",
+      "name": "view_retail_trades_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "view/retail/trades",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/view/retail/trades/(?!applies)[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "view/retail/trades/(?P<adminId>[\\d\\D]*)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "view-retail-trades",
+        "type": "Trade",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "大订单申请单视图的数据查询",
+      "name": "view_retail_trades_applies_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "view/retail/trades/applies",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/view/retail/trades/applies/[\\d\\D]*$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "view/retail/trades/applies/(?P<adminId>[\\d\\D]*)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "view-retail-trades-applies",
+        "type": "Trade",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "连接大视图的查询",
+      "name": "b2c_connection_grandview_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "b2c/connection/grandview",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2c/connection/grandview$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "b2c-connection-grandview",
+        "type": "View"
       },
       "response": {}
     }
