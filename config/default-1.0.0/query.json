@@ -2745,6 +2745,34 @@
         "type": "View"
       },
       "response": {}
+    },
+    {
+      "name": "pc_item_operation_log",
+      "desc": "商品操作日志，负责人：张德元",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "pc/item/operation/log",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/pc/item/operation/log$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "pc_es_cluster",
+        "index": "item-operation-log",
+        "type": "Log",
+        "id": "{id}"
+      },
+      "response": {}
     }
   ]
 }
