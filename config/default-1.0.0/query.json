@@ -2395,7 +2395,33 @@
       "data_parser": {},
       "destination": {
         "reference": "bi",
-        "index": "bi-report-customer-distribution$",
+        "index": "bi-report-customer-distribution",
+        "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "name": "bi_reports_customer_store",
+      "desc": "云小店客户分析明细报表，负责人：杨志远",
+      "res_type": "default",
+      "http_method": "GET,POST,DELETE,PUT",
+      "url_format": "bi/reports/customer/store",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/bi/reports/customer/store$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "reference": "bi",
+        "index": "bi-report-customer-store",
         "id": "{id}"
       },
       "response": {}
