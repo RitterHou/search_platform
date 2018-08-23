@@ -82,6 +82,7 @@ class ExtendQdslParser(object):
         :return:
         """
         query_qdsl = self.get_query_qdsl(query_params)
+        rescore_qdsl = self.get_rescore_qdsl(query_params)
         dsl_qdsl = self.get_request_dsl_qdsl(query_params)
         script_qdsl = self.get_request_py_script_qdsl(query_params)
         hight_qdsl = self.get_highlight_dsl(query_params)
@@ -90,8 +91,45 @@ class ExtendQdslParser(object):
         fielddata_fields_qdsl = self.get_fielddata_fields_dsl(query_params)
         filter_qdsl = self.get_filter_qdsl(query_params)
         return reduce(deep_merge, (
-            query_qdsl, dsl_qdsl, script_qdsl, hight_qdsl, fields_qdsl, script_fields_qdsl, fielddata_fields_qdsl,
-            filter_qdsl))
+            query_qdsl, rescore_qdsl, dsl_qdsl, script_qdsl, hight_qdsl, fields_qdsl, script_fields_qdsl,
+            fielddata_fields_qdsl, filter_qdsl))
+
+    def get_rescore_qdsl(self, query_params):
+        """
+        rescore用于对得到的结果根据条件进行重新排序
+        :param query_params:
+        :return:
+        """
+        field_str = query_params.get('rescore')
+        if not field_str:
+            return {}
+
+        if field_str:
+            search_item_str_list = field_str.split(';')
+            values = {}
+            for search_item_str in search_item_str_list:
+                name, value = search_item_str.split(':')
+                values[name] = value
+
+            query_weight = float(values['query_weight']) if 'query_weight' in values else 1
+            rescore_query_weight = float(values['rescore_query_weight']) if 'rescore_query_weight' in values else 1.5
+
+            sub_queries = values['query'].split('|')
+            sub_query_dsls = []
+            for sub_query in sub_queries:
+                _, sub_query = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', sub_query)
+                item_name, item_value = sub_query.split('=')
+                item_query_dsl = self.get_query_qdsl_single_fragment(item_name[len('ex_q_'):], item_value)
+
+                sub_query_dsl = {
+                    "query": {
+                        "query_weight": query_weight,
+                        "rescore_query_weight": rescore_query_weight,
+                        'rescore_query': item_query_dsl
+                    }
+                }
+                sub_query_dsls.append(sub_query_dsl)
+            return {'rescore': sub_query_dsls}
 
     def get_agg_qdsl(self, query_params):
         """
