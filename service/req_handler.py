@@ -19,7 +19,7 @@ class RequestHandler(object):
     """
     RES_TYPE_DICT = {'product': Product, 'aggregation': Aggregation, 'suggest': Suggest, 'search': Search,
                      'measure': Stats, 'ex_measure': ExStats, 'ex_suggest': ExSuggest, 'recommendation': Recommendation,
-                     'default': SearchPlatformDoc, 'yxd_suggest': YxdShopSuggest}
+                     'default': SearchPlatformDoc, 'yxd_suggest': YxdShopSuggest, 'common_suggest': CommonSuggest}
 
     def __init__(self, handler_config):
         self.handler_config = handler_config

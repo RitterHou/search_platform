@@ -12,9 +12,10 @@ from common.configs import config
 from common.connections import EsConnectionFactory
 from common.exceptions import InvalidParamError, EsConnectionError
 from common.loggers import debug_log, query_log as app_log
+from common.pingyin_utils import pingyin_utils
 from common.utils import unbind_variable, deep_merge, bind_variable, get_default_es_host, get_dict_value, get_cats_path, \
     get_day_and_hour
-from dsl_parser import qdsl_parser, extend_parser
+from dsl_parser import qdsl_parser, extend_parser, DEFAULT_VALUE
 from measure.measure_units import measure_unit_helper
 from search_platform import settings
 from service.search_scenes import spu_search_scene
@@ -671,6 +672,111 @@ class EsAggManager(object):
         if len(cats_agg_list) == 0 or 'childs' not in cats_agg_list[0]:
             return 0
         return 1 + self.__get_cats_level(cats_agg_list[0]['childs']['name']['buckets'])
+
+
+class EsCommonSuggestManager(object):
+    """
+    通用的搜索引擎suggester
+    """
+    connection_pool = EsConnectionFactory
+
+    def get(self, es_config, index_name, doc_type, args, parse_fields=None):
+        """
+        查询通用的suggest数据
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param args:
+        :param parse_fields:
+        :return:
+        """
+        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        qdsl = self._get_suggest_dsl(args)
+        app_log.info('Get common suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
+                     qdsl)
+        try:
+            es_result = es_connection.suggest(index=index_name, body=qdsl)
+            es_result = es_result['completion_suggest'][0]['options']
+            result = []
+            for value in es_result:
+                result.append(value['text'])
+            return result
+        except Exception as e:
+            app_log.error('Get common suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
+            return []
+
+    def save(self, es_config, index_name, doc_type, product, parse_fields, timestamp, redo=False):
+        """
+        把字段经过处理之后保存到索引中
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields:
+        :param timestamp:
+        :param redo:
+        :return:
+        """
+        word_list = product
+        if not isinstance(word_list, (list, tuple)):
+            word_list = [word_list]
+
+        app_log.info('Save common suggest words, {}, {}'.format(word_list, index_name))
+        body = []
+        for word in word_list:
+            if not isinstance(word, (str, unicode)):
+                raise ValueError('{} is not string type.'.format(word))
+
+            input_value = pingyin_utils.get_pingyin_combination(word)
+            body.append(
+                {
+                    'id': word.encode('raw_unicode_escape'),
+                    'word': word,
+                    'suggest': {
+                        'input': input_value,
+                        'output': word
+                    }
+                }
+            )
+        es_adapter.batch_create(es_config, body)
+
+    def delete(self, es_config, index_name, doc_type, product, parse_fields, timestamp, redo):
+        """
+        删除指定的关键词
+        :param es_config:
+        :param index_name:
+        :param doc_type:
+        :param product:
+        :param parse_fields:
+        :param timestamp:
+        :param redo:
+        :return:
+        """
+        word = product['word']
+        app_log.info('Delete common suggest word, {}, {}'.format(word, index_name))
+        es_adapter.delete_by_field(es_config, None, 'word', [word])
+
+    def _get_suggest_dsl(self, query_params):
+        """
+        根据待查询的字段生成查询的dsl
+        :param query_params:
+        :return:
+        """
+        suggest_qdl = {
+            "completion_suggest": {
+                "text": "",
+                "completion": {
+                    "field": "suggest",
+                    "size": 10
+                }
+            }
+        }
+        word = get_dict_value(query_params, 'q')
+        suggest_qdl['completion_suggest']['text'] = word
+        suggest_size = get_dict_value(query_params, 'size', DEFAULT_VALUE['suggest_size']['default'],
+                                      DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
+        suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size)
+        return suggest_qdl
 
 
 class EsSuggestManager(object):
@@ -1418,6 +1524,13 @@ class RecommendationManager(object):
 
 class Product(EsModel):
     objects = EsProductManager()
+
+    def __init__(self, **args):
+        EsModel.__init__(**args)
+
+
+class CommonSuggest(EsModel):
+    objects = EsCommonSuggestManager()
 
     def __init__(self, **args):
         EsModel.__init__(**args)
