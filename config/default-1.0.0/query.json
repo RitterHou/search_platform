@@ -2747,6 +2747,32 @@
       "response": {}
     },
     {
+      "name": "uc_card_position_category_suggest",
+      "desc": "会员中心名片数据，负责人：李广",
+      "res_type": "common_suggest",
+      "http_method": "GET,POST,DELETE",
+      "url_format": "suggest/uc/card/position/category",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/suggest/uc/card/position/category$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "common_suggest_reference",
+        "index": "uc-card-position-category-suggest"
+      },
+      "response": {}
+    },
+    {
       "name": "pc_item_operation_log",
       "desc": "商品操作日志，负责人：张德元",
       "res_type": "default",
