@@ -9497,7 +9497,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "trade_tid_wildcard_vip",
+              "reference": "trade_apply_tid_wildcard_vip",
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
@@ -9557,7 +9557,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "trade_tid_wildcard_vip",
+              "reference": "trade_apply_tid_wildcard_vip",
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
@@ -9616,7 +9616,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "trade_tid_wildcard_vip",
+              "reference": "trade_apply_tid_wildcard_vip",
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
@@ -9675,7 +9675,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "trade_tid_wildcard_vip",
+              "reference": "trade_apply_tid_wildcard_vip",
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
@@ -9812,7 +9812,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "trade_tid_wildcard_vip",
+              "reference": "trade_apply_tid_wildcard_vip",
               "index": "view-retail-trades-applies",
               "type": "Trade",
               "add_admin_id_field": true,
