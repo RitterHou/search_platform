@@ -9501,7 +9501,7 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
-              "id": "{tid}",
+              "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
             }
@@ -9561,7 +9561,7 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
-              "id": "{tid}",
+              "id": "{applyId}",
               "add_admin_id_field": true
             }
           ]
@@ -9620,7 +9620,7 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
-              "id": "{tid}",
+              "id": "{applyId}",
               "add_admin_id_field": true
             }
           ]
@@ -9679,7 +9679,7 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
-              "id": "{tid}",
+              "id": "{applyId}",
               "add_admin_id_field": true
             }
           ]
@@ -9816,7 +9816,7 @@
               "index": "view-retail-trades-applies",
               "type": "Trade",
               "add_admin_id_field": true,
-              "id": "{tid}"
+              "id": "{applyId}"
             }
           ]
         }
