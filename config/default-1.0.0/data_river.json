@@ -9241,7 +9241,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryByPage",
-              "timeout": 8,
+              "timeout": 25,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -9301,7 +9301,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryByPage",
-              "timeout": 8,
+              "timeout": 25,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
