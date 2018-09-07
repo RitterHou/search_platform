@@ -703,7 +703,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "(?!cloudshop)/marketings/(?!(items|trades|usercoupons|fans|integral))"
+            "expression": "^/marketings/(?!(items|trades|usercoupons|fans|integral))"
           }
         ]
       },
@@ -742,7 +742,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/marketings/items/"
+            "expression": "^/marketings/items/"
           }
         ]
       },
@@ -781,7 +781,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/marketings/trades/"
+            "expression": "^/marketings/trades/"
           }
         ]
       },
@@ -820,7 +820,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/marketings/usercoupons/"
+            "expression": "^/marketings/usercoupons/"
           }
         ]
       },
@@ -859,7 +859,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/marketings/fans/"
+            "expression": "^/marketings/fans/"
           }
         ]
       },
@@ -898,7 +898,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/marketings/integral/items/"
+            "expression": "^/marketings/integral/items/"
           }
         ]
       },
@@ -2823,6 +2823,202 @@
         "index": "item-operation-log",
         "type": "Log",
         "id": "{id}"
+      },
+      "response": {}
+    },
+    {
+      "desc": "d2p营销相关的接口统一由张睿负责",
+      "name": "d2p_marketing_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^d2p/marketings/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/d2p/marketings/(?!(items|trades|usercoupons|fans|integral))"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "d2p/marketings/(?P<adminId>[^/]+)",
+          "id": "d2p/marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-marketing-{hashcode}-{version}",
+        "type": "Marketing",
+        "id": "{id}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2p_marketing_item_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^d2p/marketings/items/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/d2p/marketings/items/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "d2p/marketings/items/(?P<adminId>[^/]+)",
+          "id": "d2p/marketings/items/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-marketing-item-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{id}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2p_marketing_trade_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^d2p/marketings/trades/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/d2p/marketings/trades/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "d2p/marketings/trades/(?P<adminId>[^/]+)",
+          "id": "d2p/marketings/trades/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-marketing-trade-{hashcode}-{version}",
+        "type": "Trade",
+        "id": "{tid}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2p_marketing_usercoupon_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^d2p/marketings/usercoupons/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/d2p/marketings/usercoupons/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "d2p/marketings/usercoupons/(?P<adminId>[^/]+)",
+          "id": "d2p/marketings/usercoupons/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-marketing-usercoupon-{hashcode}-{version}",
+        "type": "Coupon",
+        "id": "{couponId}",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "name": "d2p_marketing_integral_item_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^d2p/marketings/integral/items/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/d2p/marketings/integral/items/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "d2p/marketings/integral/items/(?P<adminId>[^/]+)",
+          "id": "d2p/marketings/integral/items/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 1,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2p-marketing-integral-items-{hashcode}-{version}",
+        "type": "Item",
+        "id": "{id}",
+        "add_admin_id_field": true
       },
       "response": {}
     }
