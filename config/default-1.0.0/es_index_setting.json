@@ -1501,6 +1501,24 @@
             }
           }
         },
+        "buyer.mobile": {
+          "type": "string",
+          "index": "not_analyzed",
+          "fields": {
+            "analyzed": {
+              "type": "string",
+              "analyzer": "qm_standard"
+            },
+            "postfix": {
+              "type": "string",
+              "analyzer": "postfix"
+            },
+            "prefix": {
+              "type": "string",
+              "analyzer": "prefix"
+            }
+          }
+        },
         "logistics.logisticCode": {
           "type": "string",
           "index": "not_analyzed",
