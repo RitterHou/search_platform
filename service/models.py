@@ -930,9 +930,14 @@ class SearchPlatformDocManager(EsSearchManager):
                                           ignore_default_agg=True)
         app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
-        es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
-        es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
-                                         **es_search_params)
+
+        if args.get('ex_body_type') == 'scroll':
+            qdsl.pop('aggs')
+            es_result = self.__scroll_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
+        else:
+            es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
+            es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
+                                             **es_search_params)
         result = self.parse_es_result(es_result, args)
         debug_log.print_log('SearchPlatformDocManager get return size is {0}',
                             result['total'] if 'total' in result else 'omitted')
