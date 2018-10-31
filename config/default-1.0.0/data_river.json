@@ -9015,7 +9015,7 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_experience",
-              "index": "qmshop-purchaser-sku",
+              "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
               "add_admin_id_field": true,
               "clear_policy": "every_msg,by_adminId",
@@ -9073,7 +9073,7 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_experience",
-              "index": "qmshop-purchaser-sku",
+              "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
               "add_admin_id_field": true,
               "id": "{id}"
@@ -9143,7 +9143,7 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_experience",
-              "index": "qmshop-purchaser-sku",
+              "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
               "add_admin_id_field": true,
               "id": "{id}"
@@ -9181,7 +9181,7 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_experience",
-              "index": "qmshop-purchaser-sku",
+              "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
               "operation": "delete",
               "id": "{ids}",
