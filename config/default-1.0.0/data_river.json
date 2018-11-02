@@ -9889,6 +9889,64 @@
       ]
     },
     {
+      "desc": "连接大视图的数据删除操作，负责人：沈春南",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.uc.connection.grandview.delete",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "default"
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "b2c_connection_grandview_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "b2c-connection-grandview",
+              "type": "View",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "desc": "d2p营销相关的接口统一由张睿负责",
       "notification": {
         "type": "MQ",
