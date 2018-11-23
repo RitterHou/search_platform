@@ -313,14 +313,26 @@ class QdslParser(object):
             return {'_script': {'script': script, 'type': script_type, 'order': order}}
         elif sort_field_id == 'geodistance':
             # 支持根据距离排序
+            field = unbind_variable('field\\((?P<field>[\\d\\D]+?)\\)', 'field', sort_seq_id)[1]
             location = unbind_variable('location\\((?P<location>[\\d\\D]+?)\\)', 'location', sort_seq_id)[1]
             unit = unbind_variable('unit\\((?P<unit>[\\d\\D]+?)\\)', 'unit', sort_seq_id)[1] or 'km'
+            mode = unbind_variable('mode\\((?P<mode>[\\d\\D]+?)\\)', 'mode', sort_seq_id)[1] or 'min'
             distance_type = unbind_variable('distancetype\\((?P<distancetype>[\\d\\D]+?)\\)', 'distancetype',
                                             sort_seq_id)[1] or 'sloppy_arc'
-            mode = unbind_variable('mode\\((?P<mode>[\\d\\D]+?)\\)', 'mode', sort_seq_id)[1]
-            return {'_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type,
-                                      'mode': mode}} if mode else {
-                '_geo_distance': {'pin.location': location, 'unit': unit, 'distance_type': distance_type}}
+
+            _location = location.split(',')
+            return {
+                "_geo_distance": {
+                    field: {
+                        "lat": float(_location[0]),
+                        "lon": float(_location[1])
+                    },
+                    "order": order,
+                    "unit": unit,
+                    "mode": mode,
+                    "distance_type": distance_type
+                }
+            }
         return {self.global_id_to_field(sort_field_id): {"order": order, "unmapped_type": "double"}}
 
     def parse_basic_conditions(self, basic_conditions):
