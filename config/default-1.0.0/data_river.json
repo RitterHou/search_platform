@@ -10914,7 +10914,7 @@
           "data_parser": {
             "type": "fixed",
             "fields": {
-              "adminId": "default"
+              "adminId": "acctUniformOrder"
             }
           }
         }
@@ -10988,7 +10988,7 @@
           "data_parser": {
             "type": "fixed",
             "fields": {
-              "adminId": "default"
+              "adminId": "acctUniformOrder"
             }
           }
         }
