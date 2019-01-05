@@ -192,7 +192,8 @@
             "brandName.standard",
             "brandName.analyzed",
             "name.standard",
-            "name.analyzed"
+            "name.analyzed",
+            "searchPinyins"
           ],
           "nest": {
             "props.value.standard": {
