@@ -238,7 +238,8 @@
   },
   "notification": {
     "mq_reconnect_time": 180,
-    "mq_client_id": "search_platform"
+    "mq_client_id": "search_platform",
+    "rocket_mq_group": "search_platform"
   },
   "filter": {
     "default_match_result": "true"
@@ -310,6 +311,7 @@
     "back_experience_es_host": "http://192.168.65.139:9200,http://192.168.65.140:9200",
     "log_es_host": "http://192.168.65.192:9200,http://192.168.65.191:9200,http://192.168.65.190:9200,http://192.168.65.189:9200,http://192.168.65.188:9200,http://192.168.65.187:9200",
     "kafka_host": "172.17.16.21:9092,172.17.16.11:9092,172.17.16.1:9092",
-    "kafka_manager_host": "http://172.17.16.6:9000"
+    "kafka_manager_host": "http://172.17.16.6:9000",
+    "rocket_mq_host": "172.17.14.125:9876;172.17.14.44:9876"
   }
 }
