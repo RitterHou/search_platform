@@ -183,7 +183,7 @@ class MessageProcessorChain(object):
         self.host = get_dict_value_by_path('notification/host', river)
         self.topic = get_dict_value_by_path('notification/topic', river)
         self.queue = get_dict_value_by_path('notification/queue', river)
-        if self.notification_type == 'MQ':
+        if self.notification_type == 'MQ' or self.notification_type == 'RocketMQ':
             self.key = get_river_key(river)
             self._add_processor(river)
         else:

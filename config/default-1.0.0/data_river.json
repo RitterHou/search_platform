@@ -11084,8 +11084,7 @@
     {
       "desc": "商品中心rocketmq数据同步消息监听",
       "notification": {
-        "type": "MQ",
-        "mqType": "RocketMQ",
+        "type": "RocketMQ",
         "host": "{rocket_mq_host}",
         "topic": "t_qmpc_ItemChange",
         "sla": {

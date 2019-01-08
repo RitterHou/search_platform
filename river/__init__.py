@@ -26,7 +26,7 @@ def get_river_key(river={}, notification_type=None, host=None, topic=None, queue
     host = host.format(**config.get_value('consts/custom_variables'))
     topic = get_dict_value_by_path('notification/topic', river) or topic
     queue = get_dict_value_by_path('notification/queue', river) or queue
-    if notification_type == 'MQ':
+    if notification_type == 'MQ' or notification_type == 'RocketMQ':
         return COMBINE_SIGN.join((notification_type, host, 'topic', topic)) if topic else \
             COMBINE_SIGN.join((notification_type, host, 'queue', queue))
     else:
