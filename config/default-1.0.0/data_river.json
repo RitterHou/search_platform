@@ -11810,6 +11810,189 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "名片小程序群组社区动态信息初始化，负责人：潘儒森（以下notice皆代表动态）",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.qmuc_micro_card.search.notice.page",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_card_notice"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_card_notice_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "desc": "这里使用adminId是为了添加_adminId私有字段",
+                "adminId": "groupId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.card.api.notice.NoticeEsPushProvider",
+            "version": "1.0",
+            "request": {
+              "method": "queryPageByGId",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "groupId": "{adminId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "uc-card-notice",
+              "type": "Notice",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "名片小程序群组社区动态信息变更，负责人：潘儒森（以下notice皆代表动态）",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.qmuc_micro_card.search.notice.one",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_card_notice"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_card_notice_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"optType\":\"DELETE\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "groupId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "nid": "nid\":\"(?P<nid>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0",
+            "service_interface": "com.qianmi.uc.card.api.notice.NoticeEsPushProvider",
+            "request": {
+              "method": "queryOneByGIdAndNId",
+              "timeout": 10,
+              "body": {
+                "groupId": "{adminId}",
+                "nid": "{nid}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "uc-card-notice",
+              "type": "Notice",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "uc_card_notice_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"DELETE\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "nid": "nid\":\"(?P<nid>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "uc-card-notice",
+              "type": "Notice",
+              "id": "{nid}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
