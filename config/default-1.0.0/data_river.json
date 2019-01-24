@@ -5,6 +5,7 @@
         "type": "MQ",
         "host": "{mq_host}",
         "topic": "t.qmpc.ItemChange",
+        "send_to_redis": false,
         "sla": {
           "data_parser": {
             "type": "regex",
