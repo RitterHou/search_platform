@@ -121,7 +121,11 @@ class QdslParser(object):
         owner_filter = get_dict_value(query_params, 'ownerFilter', 1)
         owner_filter = int(owner_filter)
         es_reference = es_config['reference']
-        if owner_filter == 0 and (es_reference.startswith('spu_') or es_reference.startswith('product_')):
+        if owner_filter == 0 and (
+                        es_reference.startswith('spu_') or
+                        es_reference.startswith('product_') or
+                        es_config['index'].startswith('direct-store-')
+        ):
             # 确实要查询，不做任何限制
             return []
         else:

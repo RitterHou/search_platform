@@ -43,7 +43,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "/products/(?!gonghuo)[\\d\\D]+"
+            "expression": "/products/(?!(gonghuo|store))[\\d\\D]+"
           }
         ]
       },
@@ -3081,6 +3081,122 @@
         "reference": "general_vip",
         "index": "uc-card-notice",
         "type": "Notice",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "直营门店商品搜索，负责人：白晓琳",
+      "name": "direct_store_search",
+      "res_type": "product",
+      "http_method": "GET",
+      "url_format": "^products/store/direct/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/products/store/direct/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/products/store/direct/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 10,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "new_es_cluster_pc",
+        "index": "direct-store-sku-{hashcode}",
+        "type": "Sku",
+        "spu_index": "direct-store-spu-{hashcode}",
+        "spu_type": "Spu",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "直营门店商品SPU查询，负责人：白晓琳",
+      "name": "direct_store_spu_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^pc/store/direct/spu/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/pc/store/direct/spu/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "store/direct/spu/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 10,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "new_es_cluster_pc",
+        "index": "direct-store-spu-{hashcode}",
+        "type": "Spu",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "直营门店商品SKU查询，负责人：白晓琳",
+      "name": "direct_store_sku_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^pc/store/direct/sku/[\\d\\D]+",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/pc/store/direct/sku/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "store/direct/sku/(?P<adminId>[\\d\\D]+)",
+          "hashcode": {
+            "type": "hash_modulus",
+            "modulus": 10,
+            "origin_filed": "adminId"
+          }
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "new_es_cluster_pc",
+        "index": "direct-store-sku-{hashcode}",
+        "type": "Sku",
         "add_admin_id_field": true
       },
       "response": {}

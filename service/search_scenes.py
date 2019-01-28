@@ -122,11 +122,35 @@ class SpuSearchBySku(object):
         app_log.info("spu by sku build ids spends {0}  {1}", time.time() - build_start_time, parse_fields)
         start_time = time.time()
 
+        if 'spu_index' in es_cfg:
+            spu_index = es_cfg['spu_index']
+            spu_index = spu_index.format(**parse_fields)
+        else:
+            spu_index = es_cfg['index']
+
+        if 'spu_type' in es_cfg:
+            spu_type = es_cfg['spu_type']
+        else:
+            spu_type = es_adapter.get_spu_es_setting(parse_fields.get('adminId')).get('type')
+
+        admin_id = parse_fields['adminId']
         multi_search_body = [
-            {'index': es_cfg['index'], 'type': es_adapter.get_spu_es_setting(parse_fields.get('adminId')).get('type')},
-            {'query': {'ids': {'values': spu_id_list}}, 'size': sku_dsl.get('size')},
+            {'index': spu_index, 'type': spu_type},
+            {'query': {'bool': {'must': [
+                {
+                    'terms': {
+                        'spuId': spu_id_list,
+                        'minimum_should_match': 1
+                    }
+                },
+                {
+                    'term': {
+                        '_adminId': admin_id
+                    }
+                }
+            ]}}, 'size': sku_dsl.get('size')},
             {'index': es_cfg['index'], 'type': es_cfg['type']},
-            self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg)]
+            self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg, admin_id)]
         if 'aggs' in sku_dsl:
             # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
             sku_dsl['size'] = 0
@@ -147,7 +171,7 @@ class SpuSearchBySku(object):
         app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
         return product_dict, None
 
-    def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg):
+    def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg, admin_id):
         """
         生成SKU查询DSL
         :param sku_dsl:
@@ -161,7 +185,17 @@ class SpuSearchBySku(object):
             del sku_dsl['aggs']
         sku_dsl['from'] = 0
         sku_dsl['size'] = len(sku_id_list)
-        sku_dsl['query']['bool']['must'].append({'ids': {'values': sku_id_list}})
+        sku_dsl['query']['bool']['must'].append({
+            "terms": {
+                "skuId": sku_id_list,
+                "minimum_should_match": 1
+            }
+        })
+        sku_dsl['query']['bool']['must'].append({
+            'term': {
+                '_adminId': admin_id
+            }
+        })
         return sku_dsl
 
     def parse_sku_search_result(self, spu_list, args, multi_search_results, page_spu_sku_dict):
@@ -199,7 +233,7 @@ class SpuSearchBySku(object):
         spu_list = []
         for spu_id in page_spu_sku_dict.get_spu_ids():
             for spu_item in spu_search_response['hits']['hits']:
-                if spu_id == spu_item['_id']:
+                if spu_id == spu_item['_source']['spuId']:
                     spu_item['_source']['skuList'] = []
                     if delete_goods_field and 'goods' in spu_item['_source']:
                         del spu_item['_source']['goods']

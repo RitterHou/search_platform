@@ -11994,6 +11994,251 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "直营门店商品数据的变更，负责人：白晓琳",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.pc.o2o.storeItemChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "msg": {
+            "custom_queue_prefix": "pc-"
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "direct_store_update_spu",
+          "desc": "直营门店spu更新",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"productType\":\"spu\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 10,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.es.api.EsProductQueryProvider",
+            "request": {
+              "method": "listByIdString4Store",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "new_es_cluster_pc",
+              "index": "direct-store-spu-{hashcode}",
+              "type": "Spu",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "direct_store_update_sku",
+          "desc": "直营门店sku更新",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"productType\":\"sku\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"update\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 10,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.pc.es.api.EsGoodsQueryProvider",
+            "request": {
+              "method": "listByIdString4Store",
+              "timeout": 10,
+              "body": {
+                "chainMasterId": "{adminId}",
+                "idString": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "new_es_cluster_pc",
+              "index": "direct-store-sku-{hashcode}",
+              "type": "Sku",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "direct_store_delete_spu",
+          "desc": "直营门店删除spu",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"productType\":\"spu\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "comment": "此处的ids和上面更新商品数据ids不一样，这里是联合主键，上面是spuId",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 10,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "new_es_cluster_pc",
+              "index": "direct-store-spu-{hashcode}",
+              "type": "Spu",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        },
+        {
+          "name": "direct_store_delete_sku",
+          "desc": "直营门店删除sku",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"productType\":\"sku\""
+                },
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "hashcode": {
+                  "type": "hash_modulus",
+                  "modulus": 10,
+                  "origin_filed": "adminId"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "new_es_cluster_pc",
+              "index": "direct-store-sku-{hashcode}",
+              "type": "Sku",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

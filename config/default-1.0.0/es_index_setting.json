@@ -1767,5 +1767,278 @@
         }
       }
     }
+  },
+  "new_es_cluster_pc": {
+    "desc": "新增的ES集群，用于存储商品数据",
+    "host": "{simple_es_host}",
+    "mapping": {
+      "properties": {
+        "category": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "tags": {
+          "analyzer": "qm_standard",
+          "term_vector": "with_positions_offsets",
+          "type": "string"
+        },
+        "costPrice": {
+          "index": "not_analyzed",
+          "type": "double"
+        },
+        "marketPrice": {
+          "index": "not_analyzed",
+          "type": "double"
+        },
+        "onSale": {
+          "type": "boolean"
+        },
+        "weight": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "spuId": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "type": {
+          "index": "not_analyzed",
+          "type": "string",
+          "boost": 20,
+          "fields": {
+            "standard": {
+              "analyzer": "qm_standard",
+              "type": "string"
+            }
+          }
+        },
+        "salePoint": {
+          "analyzer": "qm_standard",
+          "term_vector": "with_positions_offsets",
+          "type": "string"
+        },
+        "adminId": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "cats": {
+          "properties": {
+            "id": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "name": {
+              "index": "not_analyzed",
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "qm_standard",
+                  "type": "string"
+                }
+              }
+            },
+            "childs": {
+              "properties": {
+                "id": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string",
+                  "fields": {
+                    "standard": {
+                      "analyzer": "qm_standard",
+                      "type": "string"
+                    }
+                  }
+                },
+                "childs": {
+                  "properties": {
+                    "id": {
+                      "index": "not_analyzed",
+                      "type": "string"
+                    },
+                    "name": {
+                      "index": "not_analyzed",
+                      "type": "string",
+                      "fields": {
+                        "standard": {
+                          "analyzer": "qm_standard",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "childs": {
+                      "properties": {
+                        "id": {
+                          "index": "not_analyzed",
+                          "type": "string"
+                        },
+                        "name": {
+                          "index": "not_analyzed",
+                          "type": "string",
+                          "fields": {
+                            "standard": {
+                              "analyzer": "qm_standard",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "childs": {
+                          "properties": {
+                            "id": {
+                              "index": "not_analyzed",
+                              "type": "string"
+                            },
+                            "name": {
+                              "index": "not_analyzed",
+                              "type": "string",
+                              "fields": {
+                                "standard": {
+                                  "analyzer": "qm_standard",
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "childs": {
+                              "properties": {
+                                "id": {
+                                  "index": "not_analyzed",
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "index": "not_analyzed",
+                                  "type": "string",
+                                  "fields": {
+                                    "standard": {
+                                      "analyzer": "qm_standard",
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "childs": {
+                                  "type": "nested"
+                                }
+                              },
+                              "type": "nested"
+                            }
+                          },
+                          "type": "nested"
+                        }
+                      },
+                      "type": "nested"
+                    }
+                  },
+                  "type": "nested"
+                }
+              },
+              "type": "nested"
+            }
+          },
+          "type": "nested"
+        },
+        "unit": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "title": {
+          "index_analyzer": "ansj_index",
+          "store": true,
+          "search_analyzer": "ansj_query",
+          "boost": 20,
+          "term_vector": "with_positions_offsets",
+          "type": "string",
+          "fields": {
+            "raw": {
+              "type": "string",
+              "index": "not_analyzed"
+            },
+            "standard": {
+              "analyzer": "qm_standard",
+              "type": "string"
+            }
+          }
+        },
+        "stock": {
+          "properties": {
+            "count": {
+              "index": "not_analyzed",
+              "type": "long"
+            },
+            "status": {
+              "type": "boolean"
+            },
+            "name": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "regions": {
+              "properties": {
+                "count": {
+                  "index": "no",
+                  "type": "long"
+                },
+                "status": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "index": "not_analyzed",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "type": "nested"
+        },
+        "skuId": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "brand": {
+          "index": "not_analyzed",
+          "type": "string",
+          "boost": 50,
+          "fields": {
+            "standard": {
+              "analyzer": "qm_standard",
+              "type": "string"
+            }
+          }
+        },
+        "images": {
+          "index": "no",
+          "type": "string"
+        },
+        "salePrice": {
+          "precision_step": 4,
+          "type": "double"
+        },
+        "props": {
+          "properties": {
+            "name": {
+              "index": "not_analyzed",
+              "type": "string"
+            },
+            "value": {
+              "index": "not_analyzed",
+              "type": "string",
+              "fields": {
+                "standard": {
+                  "analyzer": "qm_standard",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "type": "nested"
+        }
+      },
+      "_all": {
+        "store": true,
+        "analyzer": "qm_standard",
+        "auto_boost": true
+      }
+    }
   }
 }
