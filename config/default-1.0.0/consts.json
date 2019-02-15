@@ -186,6 +186,7 @@
             "title.standard",
             "brand.standard",
             "barCode.analyzed",
+            "barCode.postfix",
             "specs.svs.svname.analyzed",
             "bn.analyzed",
             "skuBn.analyzed",
