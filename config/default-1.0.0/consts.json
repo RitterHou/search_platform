@@ -186,7 +186,10 @@
             "title.standard",
             "brand.standard",
             "barCode.analyzed",
-            "barCode.postfix",
+            {
+              "field": "barCode.postfix",
+              "analyzer": "qm_standard"
+            },
             "specs.svs.svname.analyzed",
             "bn.analyzed",
             "skuBn.analyzed",

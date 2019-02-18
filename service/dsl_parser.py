@@ -199,7 +199,21 @@ class QdslParser(object):
             if normal_fields:
                 # normal_fields_match_dsl = [{'multi_match': {'query': _word, 'fields': normal_fields}}]
                 for normal_field in normal_fields:
-                    normal_fields_match_dsl.append({'match': {normal_field: _word}})
+                    if isinstance(normal_field, (str, unicode)):
+                        normal_fields_match_dsl.append({'match': {normal_field: _word}})
+                    elif isinstance(normal_field, dict):
+                        field_name = normal_field.pop('field')
+                        value = {
+                            'query': _word
+                        }
+                        value.update(normal_field)
+                        normal_field['field'] = field_name
+
+                        normal_fields_match_dsl.append({
+                            'match': {
+                                field_name: value
+                            }
+                        })
 
             nest_field_dict = _field_cfg.get('nest') or {}
             for nest_field_key in nest_field_dict:
