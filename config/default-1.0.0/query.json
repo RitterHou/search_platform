@@ -3200,6 +3200,39 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "desc": "名片小程序群组相册查询，负责人：潘儒森",
+      "name": "uc_card_album_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^uc/card/album",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "/uc/card/album/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/card/album/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "uc-card-album",
+        "type": "Album",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
