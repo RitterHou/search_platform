@@ -3261,6 +3261,39 @@
       "response": {}
     },
     {
+      "desc": "名片小程序资料库数据查询，负责人：潘儒森",
+      "name": "uc_card_data_bank_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^uc/card/databank",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/uc/card/databank/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "uc/card/databank/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "uc-card-data-bank",
+        "type": "DataBank",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
       "name": "product_title_data",
       "desc": "商品标题数据，负责人：王伟",
       "res_type": "common_suggest",
