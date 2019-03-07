@@ -45,6 +45,7 @@ class ExtendQdslParser(object):
                                        'wildcard': self.__get_query_wildcard_fragment,
                                        'stock': self.__get_query_stock_fragment,
                                        'nested': self.__get_query_nested_fragment,
+                                       'nested_multi': self.__get_query_nested_multi_fragment,
                                        'ematch': self.__get_query_ematch_fragment,
                                        'not': self.__get_query_not_fragment,
                                        'or': self.__get_query_or_fragment,
@@ -758,6 +759,39 @@ class ExtendQdslParser(object):
         nested_item_query_dsl = self.get_query_qdsl_single_fragment('.'.join(path_fields), nested_item_query_str)
 
         return compute_nested_path_dsl(path_fields, 1, nested_item_query_dsl)
+
+    def __get_query_nested_multi_fragment(self, field_name, field_str):
+        """
+        嵌套文档多个子查询，只支持一级子查询
+        ex_q_userInfo=nested_multi(field:gender;query:<terms(未知)>|field:birthday;query:<range(-1551756022810)>)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+
+        def parse_query_value(_query_str):
+            if not _query_str:
+                return None
+            _, _nested_item_query_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _query_str)
+            return _nested_item_query_str
+
+        sub_queries = []
+        for sub_query_str in field_str.split('|'):
+            for search_item_key_values in sub_query_str.split(';'):
+                search_item_key_value = search_item_key_values.split(':')
+                if search_item_key_value[0] == 'field':
+                    field = search_item_key_value[1]
+                elif search_item_key_value[0] == 'query':
+                    query_str = search_item_key_value[1]
+                    nested_item_query_str = parse_query_value(query_str)
+
+            if not field or not nested_item_query_str:
+                return {}
+
+            nested_item_query_dsl = self.get_query_qdsl_single_fragment(field_name + '.' + field,
+                                                                        nested_item_query_str)
+            sub_queries.append(nested_item_query_dsl)
+        return {"nested": {"path": field_name, "query": {"bool": {"must": sub_queries}}}}
 
     def __get_query_multi_match_fragment(self, field_name, field_str):
         """
