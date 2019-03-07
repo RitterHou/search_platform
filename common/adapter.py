@@ -152,7 +152,7 @@ class EsIndexAdapter(object):
         index, doc_type, doc_id = self.get_es_doc_keys(es_config, kwargs=message_parse_result)
         es_connection = EsConnectionFactory.get_es_connection(
             es_config=dict(es_config, index=index, type=doc_type, version=config.get_value('version')))
-        bulk_body = self.__build_batch_delete_body_by_ids(es_config, index, doc_type, doc_id_list)
+        bulk_body = self.__build_batch_delete_body_by_ids(index, doc_type, doc_id_list)
         try:
             es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                    'timeout': BATCH_TIMEOUT})

@@ -690,8 +690,9 @@ class EsCommonSuggestManager(object):
         :param parse_fields:
         :return:
         """
+        admin_id = parse_fields.get('adminId')
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = self._get_suggest_dsl(args)
+        qdsl = self._get_suggest_dsl(args, admin_id)
         app_log.info('Get common suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
         try:
@@ -717,6 +718,7 @@ class EsCommonSuggestManager(object):
         :param redo:
         :return:
         """
+        admin_id = parse_fields.get('adminId')
         word_list = product
         if not isinstance(word_list, (list, tuple)):
             word_list = [word_list]
@@ -724,20 +726,30 @@ class EsCommonSuggestManager(object):
         app_log.info('Save common suggest words, {}, {}'.format(word_list, index_name))
         body = []
         for word in word_list:
+            weight = None
+            if isinstance(word, dict):
+                weight = word.get('weight')
+                word = word['word']
+
             if not isinstance(word, (str, unicode)):
                 raise ValueError('{} is not string type.'.format(word))
 
-            input_value = pingyin_utils.get_pingyin_combination(word)
-            body.append(
-                {
-                    'id': word.encode('raw_unicode_escape'),
-                    'word': word,
-                    'suggest': {
-                        'input': input_value,
-                        'output': word
-                    }
+            input_value = pingyin_utils.get_pingyin_combination(word) + [word]
+            dsl = {
+                'id': word.encode('raw_unicode_escape'),
+                'word': word,
+                'suggest': {
+                    'input': input_value,
+                    'output': word
                 }
-            )
+            }
+
+            if weight is not None:
+                dsl['suggest']['weight'] = weight
+            if admin_id is not None:
+                dsl['id'] = admin_id + '-' + dsl['id']
+                dsl['suggest']['context'] = {'adminId': admin_id}
+            body.append(dsl)
         es_adapter.batch_create(es_config, body)
 
     def delete(self, es_config, index_name, doc_type, product, parse_fields, timestamp, redo):
@@ -753,13 +765,18 @@ class EsCommonSuggestManager(object):
         :return:
         """
         word = product['word']
+        word = word.encode('raw_unicode_escape')
+        admin_id = parse_fields.get('adminId')
+        if admin_id is not None:
+            word = admin_id + '-' + word
         app_log.info('Delete common suggest word, {}, {}'.format(word, index_name))
-        es_adapter.delete_by_field(es_config, None, 'word', [word])
+        es_adapter.batch_delete_by_ids(es_config, word)
 
-    def _get_suggest_dsl(self, query_params):
+    def _get_suggest_dsl(self, query_params, admin_id):
         """
         根据待查询的字段生成查询的dsl
         :param query_params:
+        :param admin_id
         :return:
         """
         suggest_qdl = {
@@ -776,6 +793,9 @@ class EsCommonSuggestManager(object):
         suggest_size = get_dict_value(query_params, 'size', DEFAULT_VALUE['suggest_size']['default'],
                                       DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
         suggest_qdl['completion_suggest']['completion']['size'] = int(suggest_size)
+
+        if admin_id is not None:
+            suggest_qdl['completion_suggest']['completion']['context'] = {'adminId': admin_id}
         return suggest_qdl
 
 
@@ -984,11 +1004,9 @@ class SearchPlatformDocManager(EsSearchManager):
         if not product:
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
-
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
-        # doc_id = bind_variable(es_config['id'], product)
         _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
         if not _bulk_body:
             return
@@ -1103,7 +1121,6 @@ class SearchPlatformDocManager(EsSearchManager):
         if not product:
             app_log.error('Search update input product is invalid')
             raise InvalidParamError()
-
         es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
@@ -1133,7 +1150,6 @@ class SearchPlatformDocManager(EsSearchManager):
         :return:
         """
         _bulk_body = []
-
         if not isinstance(product, (list, tuple, set)):
             batch_product_list = [product]
         else:
@@ -1185,17 +1201,14 @@ class SearchPlatformDocManager(EsSearchManager):
             app_log.error('Search delete input product is invalid')
             raise InvalidParamError()
         if product.get('ex_body_type') == 'scroll':
-            # 表示是删除scroll缓存
             return self.__delete_scroll_cache(es_config, index_name, doc_type, product, parse_fields)
         else:
             es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
             if not es_connection:
                 raise EsConnectionError()
-
             doc_id_list = parse_delete_doc_ids()
             _bulk_body = map(lambda _doc_id: {'delete': {'_index': index_name, '_type': doc_type, '_id': _doc_id}},
                              doc_id_list)
-
             if redo:
                 _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                          timestamp, 'delete')
