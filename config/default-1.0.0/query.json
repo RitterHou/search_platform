@@ -3259,6 +3259,37 @@
         "index": "b2b-market-shop-keyword-suggest"
       },
       "response": {}
+    },
+    {
+      "name": "product_title_data",
+      "desc": "商品标题数据，负责人：王伟",
+      "res_type": "common_suggest",
+      "http_method": "GET,POST,DELETE",
+      "url_format": "/suggest/shop/cloud/product/keyword",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/suggest/shop/cloud/product/keyword/[\\d\\D]+"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/suggest/shop/cloud/product/keyword/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "common_suggest_reference",
+        "index": "suggest-shop-cloud-product"
+      },
+      "response": {}
     }
   ]
 }
