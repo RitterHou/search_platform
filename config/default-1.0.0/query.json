@@ -3233,6 +3233,32 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "name": "b2b_market_shop_suggest",
+      "desc": "货源市场商品名称数据，负责人：白晓琳",
+      "res_type": "common_suggest",
+      "http_method": "GET,POST,DELETE",
+      "url_format": "suggest/b2bmarket/shop/keyword",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/suggest/b2bmarket/shop/keyword$"
+          }
+        ]
+      },
+      "data_parser": {},
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "common_suggest_reference",
+        "index": "b2b-market-shop-keyword-suggest"
+      },
+      "response": {}
     }
   ]
 }
