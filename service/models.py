@@ -736,7 +736,7 @@ class EsCommonSuggestManager(object):
 
             input_value = pingyin_utils.get_pingyin_combination(word) + [word]
             dsl = {
-                'id': word.encode('raw_unicode_escape'),
+                'id': self._encode_unicode(word),
                 'word': word,
                 'suggest': {
                     'input': input_value,
@@ -765,7 +765,7 @@ class EsCommonSuggestManager(object):
         :return:
         """
         word = product['word']
-        word = word.encode('raw_unicode_escape')
+        word = self._encode_unicode(word)
         admin_id = parse_fields.get('adminId')
         if admin_id is not None:
             word = admin_id + '-' + word
@@ -797,6 +797,16 @@ class EsCommonSuggestManager(object):
         if admin_id is not None:
             suggest_qdl['completion_suggest']['completion']['context'] = {'adminId': admin_id}
         return suggest_qdl
+
+    def _encode_unicode(self, word):
+        """
+        把Unicode编码为字符串编码
+        :param word:
+        :return:
+        """
+        if not isinstance(word, unicode):
+            raise RuntimeError('{} is not unicode type'.format(word))
+        word.encode('raw_unicode_escape').decode('utf-8', errors='ignore').encode('utf-8')
 
 
 class EsSuggestManager(object):
