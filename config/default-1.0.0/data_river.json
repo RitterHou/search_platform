@@ -2441,6 +2441,157 @@
               "add_admin_id_field": true
             }
           ]
+        },
+        {
+          "desc": "用户计次卡片数据初始化，负责人：张超珉",
+          "name": "user_count_card_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"usercountcard\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchCountCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryUserCountCard",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "_all": {
+                  "store": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "userCardId": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  },
+                  "cardId": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  },
+                  "tid": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  }
+                }
+              },
+              "index": "user-count-card",
+              "type": "Card",
+              "id": "{userCardId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
         }
       ]
     },
@@ -12586,9 +12737,99 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
+              "mapping": {
+                "_all": {
+                  "store": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "userCardId": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  },
+                  "cardId": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  },
+                  "tid": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  }
+                }
+              },
               "index": "user-count-card",
               "type": "Card",
-              "id": "{cardId}",
+              "id": "{userCardId}",
               "add_admin_id_field": true
             }
           ]
