@@ -12875,6 +12875,154 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "预约单数据变更，负责人：李健",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.com.qianmi.uc.conn.appointment.AppointmentChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "user_appointment_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "id": "id\":\"(?P<id>[\\d\\D]+?)\"",
+                "mqId": "mqId\":\"(?P<mqId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.conn.appointment.api.dubbo.es.AppointmentEsQueryProvider",
+            "request": {
+              "method": "queryDetailByIdsForEs",
+              "timeout": 20,
+              "body": {
+                "ids": "{id}",
+                "mqId": "{mqId}",
+                "requestIp": "search_platform"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "mapping": {
+                "_all": {
+                  "store": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "phoneNumber": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  },
+                  "appointmentId": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "fields": {
+                      "postfix": {
+                        "type": "string",
+                        "analyzer": "postfix"
+                      }
+                    }
+                  }
+                }
+              },
+              "index": "user-conn-appointment",
+              "type": "Appointment",
+              "id": "{appointmentId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }
