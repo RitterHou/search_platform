@@ -1839,7 +1839,10 @@ class ExtendQdslParser(object):
         if type_str == 'bool':
             return value_str == 'True' or value_str == 'true'
         elif type_str == 'num':
-            return float(value_str)
+            if value_str[0] == '~':
+                return 0 - float(value_str[1:])
+            else:
+                return float(value_str)
         else:
             return value_str
 
