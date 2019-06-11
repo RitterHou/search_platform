@@ -13087,7 +13087,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_vip",
+              "reference": "pc_es_cluster",
               "operation": "create",
               "index": "b2b-market-shop",
               "type": "Shop",
@@ -13155,7 +13155,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_vip",
+              "reference": "pc_es_cluster",
               "index": "b2b-market-shop",
               "type": "Shop",
               "id": "{id}"
@@ -13190,7 +13190,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "general_vip",
+              "reference": "pc_es_cluster",
               "index": "b2b-market-shop",
               "type": "Shop",
               "id": "{ids}",

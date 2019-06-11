@@ -3414,7 +3414,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "general_vip",
+        "reference": "pc_es_cluster",
         "index": "b2b-market-shop",
         "type": "Shop"
       },
