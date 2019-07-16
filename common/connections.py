@@ -86,7 +86,10 @@ class EsConnectionPool(object):
         """
         if host not in self.connection_cache:
             try:
-                connection = EsConnection(host.split(','), sniff_on_start=True)
+                connection = EsConnection(host.split(','),
+                                          sniff_on_start=True,
+                                          sniff_on_connection_fail=True,
+                                          sniffer_timeout=60)
             except TransportError as e:
                 app_log.error('create elasitcsearch connection fail, host={0}', e, host)
                 if 'Unable to sniff hosts' in str(e):
