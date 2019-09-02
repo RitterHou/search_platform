@@ -197,6 +197,8 @@
             "brandName.analyzed",
             "name.standard",
             "name.analyzed",
+            "skuBarCodes",
+            "skuBarCodes.postfix",
             "searchPinyins"
           ],
           "nest": {
