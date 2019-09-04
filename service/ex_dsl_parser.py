@@ -203,12 +203,16 @@ class ExtendQdslParser(object):
         :return:
         """
         fields_str = query_params.get('ex_fields')
-        if not fields_str:
+        exclude_fields_str = query_params.get('ex_exclude_fields')
+        if not fields_str and not exclude_fields_str:
             return {}
-        field_name_list = fields_str.split(',')
-        if field_name_list:
-            return {'_source': field_name_list}
-        return {}
+
+        dsl = {'_source': {}}
+        if fields_str and fields_str.split(','):
+            dsl['_source']['include'] = fields_str.split(',')
+        if exclude_fields_str and exclude_fields_str.split(','):
+            dsl['_source']['exclude'] = exclude_fields_str.split(',')
+        return dsl
 
     def get_script_fields_dsl(self, query_params):
         """
