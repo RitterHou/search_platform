@@ -2706,7 +2706,7 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_vip",
-        "index": "view-retail-trades",
+        "index": "view-retail-trades-new",
         "type": "Trade",
         "add_admin_id_field": true
       },
