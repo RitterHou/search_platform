@@ -2677,6 +2677,15 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+            {
+              "desc": "修改需要被反映到标准订单中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2730,6 +2739,19 @@
               "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
               "type": "Trade",
               "id": "{ids}",
               "id_process": {
@@ -3604,6 +3626,17 @@
               "id": "{tid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "desc": "同时把商城订单数据初始化到标准订单的索引中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
+              "type": "Trade",
+              "id": "{tid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -3666,6 +3699,16 @@
               "reference": "general_vip",
               "operation": "create",
               "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
+            },
+            {
+              "desc": "这里把收银订单的数据初始化到标准订单中，收银订单本身数据的初始化在q.searchPlatform.d2c.cash.tradeInit中",
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
@@ -4221,6 +4264,14 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+             {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
+              "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -4274,6 +4325,19 @@
               "reference": "general_vip",
               "operation": "delete",
               "index": "d2c-standard-trade-{hashcode}-{version}",
+              "type": "Trade",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "d2c-standard-trade-{hashcode}-{version}-new",
               "type": "Trade",
               "id": "{ids}",
               "id_process": {
