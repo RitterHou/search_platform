@@ -251,6 +251,12 @@ LOGGING = {
             'propagate': False,
             'level': 'INFO',
         },
+        # 新增dubbo的日志信息的打印
+        'dubbo': {
+            'handlers': ['app_logstash_log'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
         'error': {
             'handlers': ['app_logstash_log'],
             'propagate': False,
