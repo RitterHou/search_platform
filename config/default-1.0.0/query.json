@@ -1229,7 +1229,7 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_vip",
-        "index": "d2p-trade-{hashcode}-{version}",
+        "index": "d2p-trade-{hashcode}-{version}-new",
         "type": "Trade",
         "id": "{id}",
         "add_admin_id_field": true
@@ -2457,7 +2457,7 @@
       "destination": {
         "destination_type": "elasticsearch",
         "reference": "general_vip",
-        "index": "d2c-standard-trade-{hashcode}-{version}",
+        "index": "d2c-standard-trade-{hashcode}-{version}-new",
         "type": "Trade",
         "add_admin_id_field": true
       },
