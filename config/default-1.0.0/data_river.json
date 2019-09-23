@@ -5008,14 +5008,6 @@
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
               "index": "d2p-trade-{hashcode}-{version}-new",
               "type": "Trade",
               "id": "{id}",
@@ -5055,19 +5047,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
@@ -5349,16 +5328,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch",
               "reference": "general_vip",
