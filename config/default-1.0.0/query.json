@@ -3449,6 +3449,66 @@
         "type": "Item"
       },
       "response": {}
+    },
+    {
+      "desc": "市场入驻店铺订单数据查询，负责人：钱晨",
+      "name": "b2b_market_trade_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "b2b/market/trades",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2b/market/trades$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "pc_es_cluster",
+        "index": "b2b-market-trade",
+        "type": "Trade"
+      },
+      "response": {}
+    },
+    {
+      "desc": "市场入驻店铺退货单数据查询，负责人：钱晨",
+      "name": "b2b_market_return_order_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "/b2b/market/returnOrders",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2b/market/returnOrders$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "pc_es_cluster",
+        "index": "b2b-market-return-trade",
+        "type": "Trade"
+      },
+      "response": {}
     }
   ]
 }
