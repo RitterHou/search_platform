@@ -244,7 +244,7 @@
   },
   "notification": {
     "mq_reconnect_time": 180,
-    "mq_client_id": "search_platform",
+    "mq_client_id": "search_platform_temp",
     "rocket_mq_group": "search_platform"
   },
   "filter": {
