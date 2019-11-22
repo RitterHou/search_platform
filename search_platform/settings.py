@@ -14,11 +14,9 @@ import sys
 
 import os
 
-
 reload(sys)
 sys.setdefaultencoding('utf-8')
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -62,7 +60,6 @@ ROOT_URLCONF = 'search_platform.urls'
 
 WSGI_APPLICATION = 'search_platform.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
@@ -85,7 +82,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
@@ -115,8 +111,8 @@ LOGGING = {
     },
     'filters': {
         'sms_alarm_filter': {
-            '()': 'redislog.tdummy.filters.QmAlarmFilter',
-            'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
+            '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
+            'url': 'http://192.168.65.222:90/sms/sendSms.do',
             'phone_numbers': '15051885330,15195935889',
             'error_log_num': ERROR_LOG_NUM,
             'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
@@ -333,7 +329,6 @@ SERVICE_BASE_CONFIG = {
     'keywords_redis_host': 'redis://172.17.8.253:6379/1',
     'search_platform_host': 'http://192.168.65.222:18082'
 }
-
 
 # 测量结果ES别名
 MEASUERE_ALIAS = 'sp_measure-alias'
