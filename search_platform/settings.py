@@ -126,14 +126,6 @@ LOGGING = {
         }
     },
     'handlers': {
-        'logstash_logfile': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(os.path.dirname(__file__), '../logs', 'logstash.log'),
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 40,
-            'formatter': 'verbose',
-        },
         'django_logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -213,8 +205,8 @@ LOGGING = {
     },
     'loggers': {
         'logstash': {
-            'handlers': ['logstash_logfile'],
-            'propagate': True,
+            'handlers': ['app_logstash_log'],
+            'propagate': False,
             'level': 'DEBUG',
         },
         # 'app': {
