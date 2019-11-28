@@ -111,10 +111,10 @@ LOGGING = {
     },
     'filters': {
         'sms_alarm_filter': {
-            # '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
-            # 'url': 'http://192.168.65.222:90/sms/sendSms.do',
-            '()': 'redislog.tdummy.filters.QmAlarmFilter',
-            'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
+            '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
+            'url': 'http://192.168.65.222:90/sms/sendSms.do',
+            # '()': 'redislog.tdummy.filters.QmAlarmFilter',
+            # 'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
             'phone_numbers': '15051885330,15195935889',
             'error_log_num': ERROR_LOG_NUM,
             'error_log_repr_list': [
