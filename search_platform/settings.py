@@ -113,7 +113,7 @@ LOGGING = {
         'sms_alarm_filter': {
             '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
             'url': 'http://192.168.65.222:90/sms/sendSms.do',
-            'phone_numbers': '15195935889',
+            'phone_numbers': '15051885330,15195935889',
             'error_log_num': ERROR_LOG_NUM,
             'error_log_repr_list': [
                 'elasticsearch.exceptions.ConnectionError',
@@ -204,59 +204,11 @@ LOGGING = {
         },
     },
     'loggers': {
-        'logstash': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'DEBUG',
-        },
-        # 'app': {
-        #     'handlers': ['logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'error': {
-        #     'handlers': ['error_logfile'],
-        #     'propagate': True,
-        #     'level': 'ERROR',
-        # },
-        # 'interface': {
-        #     'handlers': ['interface_logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'listener': {
-        #     'handlers': ['listener_logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'debug': {
-        #     'handlers': ['debug_logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'query': {
-        #     'handlers': ['query_logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'django': {
-        #     'handlers': ['django_logfile'],
-        #     'propagate': True,
-        #     'level': 'DEBUG',
-        # },
-        # 'django.request': {
-        #     'handlers': ['django_logfile'],
-        #     'level': 'DEBUG',
-        #     'propagate': False,
-        # },
-
-        ####################################################
         'app': {
             'handlers': ['app_logstash_log'],
             'propagate': False,
             'level': 'INFO',
         },
-        # 新增dubbo的日志信息的打印
         'dubbo': {
             'handlers': ['app_logstash_log'],
             'propagate': False,
