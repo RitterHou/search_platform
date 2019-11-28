@@ -113,15 +113,27 @@ LOGGING = {
         'sms_alarm_filter': {
             '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
             'url': 'http://192.168.65.222:90/sms/sendSms.do',
-            'phone_numbers': '15051885330,15195935889',
+            'phone_numbers': '15195935889',
             'error_log_num': ERROR_LOG_NUM,
-            'error_log_repr_list': ['elasticsearch.exceptions.ConnectionError',
-                                    'elasticsearch.exceptions.ConnectionTimeout', 'DubboError', 'MsgQueueFullError',
-                                    'RedoMsgQueueFullError', 'FinalFailMsgQueueFullError'
+            'error_log_repr_list': [
+                'elasticsearch.exceptions.ConnectionError',
+                'elasticsearch.exceptions.ConnectionTimeout',
+                'DubboError',
+                'MsgQueueFullError',
+                'RedoMsgQueueFullError',
+                'FinalFailMsgQueueFullError'
             ]
         }
     },
     'handlers': {
+        'logstash_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(os.path.dirname(__file__), '../logs', 'logstash.log'),
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 40,
+            'formatter': 'verbose',
+        },
         'django_logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -200,6 +212,11 @@ LOGGING = {
         },
     },
     'loggers': {
+        'logstash': {
+            'handlers': ['logstash_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
         # 'app': {
         #     'handlers': ['logfile'],
         #     'propagate': True,
