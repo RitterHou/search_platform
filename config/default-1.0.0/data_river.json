@@ -14437,6 +14437,186 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "社区群信息数据初始化，负责人：时政",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.qmuc_micro_card.search.group.page",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_card_group_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.card.api.group.GroupEsPushProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryPage",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "operation": "create",
+              "index": "uc-card-group",
+              "type": "Group",
+              "id": "{groupId}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "社区群信息数据变更，负责人：时政",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.qmuc_micro_card.search.group.one",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_card_group_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "groupId": "groupId\":\"(?P<groupId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.card.api.group.GroupEsPushProvider",
+            "request": {
+              "method": "queryOneByGroupId",
+              "timeout": 10,
+              "body": {
+                "groupId": "{groupId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "index": "uc-card-group",
+              "type": "Group",
+              "id": "{groupId}"
+            }
+          ]
+        },
+        {
+          "name": "uc_card_group_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "product_vip",
+              "index": "uc-card-group",
+              "type": "Group",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
