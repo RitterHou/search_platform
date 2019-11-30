@@ -3539,6 +3539,36 @@
         "type": "Group"
       },
       "response": {}
+    },
+    {
+      "desc": "管理操作日志数据查询，负责人：高金",
+      "name": "admin_operation_log_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "/log/admin/operation",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/log/admin/operation$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "log_server_cluster",
+        "index": "admin-oplog-*",
+        "type": "SRV_LOG"
+      },
+      "response": {}
     }
   ]
 }

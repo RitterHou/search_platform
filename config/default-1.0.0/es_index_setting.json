@@ -2040,5 +2040,9 @@
         "auto_boost": true
       }
     }
+  },
+  "log_server_cluster": {
+    "host": "{log_server_es_host}",
+    "destination_type": "elasticsearch"
   }
 }
