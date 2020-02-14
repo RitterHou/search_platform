@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 from common.scripts import python_invoker
 from common.utils import get_dict_value_by_path, unbind_variable, COMBINE_SIGN, hash_encode
 from common.loggers import app_log
@@ -74,6 +76,17 @@ class RegexItemParser(ItemParser):
         return unbind_variable(expression, field_name, data)
 
 
+class DictItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name, parse_result):
+        """
+        解析JSON的字典元素
+        """
+
+        dict_key = item_config.get('key') or field_name
+        key, value = unbind_variable('"' + dict_key + '":{(?P<' + field_name + '>[\\d\\D]+?)}', field_name, data)
+        return key, json.loads('{' + value + '}')
+
+
 class PythonScriptItemParser(ItemParser):
     def parse_item(self, data, item_config, field_name, parse_result):
         """
@@ -132,14 +145,23 @@ class HashModulusItemParser(ItemParser):
         origin_field_name = item_config.get('origin_filed')
         hash_code = hash_encode(parse_result.get(origin_field_name), modulus)
         return field_name, hash_code
-_ITEM_PARSER_CONTAINER = {'regex': RegexItemParser(), 'fixed': FixedItemParser(), 'source': SourceItemParser(),
-                          'script' + COMBINE_SIGN + 'python': PythonScriptItemParser(),
-                          'hash_modulus': HashModulusItemParser()}
+
+
+_ITEM_PARSER_CONTAINER = {
+    'dict': DictItemParser(),
+    'regex': RegexItemParser(),
+    'fixed': FixedItemParser(),
+    'source': SourceItemParser(),
+    'script' + COMBINE_SIGN + 'python': PythonScriptItemParser(),
+    'hash_modulus': HashModulusItemParser()
+}
+
 data_parser = DataParser()
 item_parser = ItemParser()
 
 if __name__ == '__main__':
     import time
+
     parser_config = {
         "type": "regex",
         "fields": {
