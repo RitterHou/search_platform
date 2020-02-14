@@ -14617,6 +14617,243 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "名片小程序动态信息初始化，负责人：时政（以下notice皆代表动态）",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "q_qmuc_micro_card_search_notice_together_page",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_notice"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_notice_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.card.api.notice.NoticePolymerizeEsPushProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryNoticeByPage",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "uc-notice",
+              "type": "Notice",
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "名片小程序动态信息变更，负责人：时政（以下notice皆代表动态）",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_qmuc_micro_card_search_notice_together_one",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_notice"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_notice_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"optType\":\"DELETE\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "groupId": "groupId\":\"(?P<groupId>[\\d\\D]+?)\"",
+                "nid": "nid\":\"(?P<nid>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.card.api.notice.NoticePolymerizeEsPushProvider",
+            "request": {
+              "method": "queryOneByByGIdAndNId",
+              "timeout": 10,
+              "body": {
+                "groupId": "{groupId}",
+                "nid": "{nid}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "uc-notice",
+              "type": "Notice",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "uc_notice_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"DELETE\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "nid": "nid\":\"(?P<nid>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "uc-notice",
+              "type": "Notice",
+              "id": "{nid}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "名片小程序动态信息局部更新，负责人：时政（以下notice皆代表动态）",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_qmuc_micro_card_search_tab_one",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_notice"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_notice_update_partition",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"UPDATE\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "data": {
+                  "type": "dict"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "ids_same_prop_update",
+              "index": "uc-notice",
+              "type": "Notice"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
