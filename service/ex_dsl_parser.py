@@ -74,6 +74,8 @@ class ExtendQdslParser(object):
                                       'geo_distance': self.__get_agg_geo_distance_fragment,
                                       'cats': self.__get_agg_cats_fragment,
                                       'key_value': self.__get_agg_key_value_fragment,
+                                      'nested': self.__get_nested_agg_fragment,
+                                      'named_sub': self.__get_agg_named_sub_fragment,
                                       'sub': self.__get_agg_sub_fragment}
 
     def get_qdsl(self, query_params):
@@ -1789,6 +1791,107 @@ class ExtendQdslParser(object):
                 cur_agg_dsl = item_agg_dsl
 
         return cur_agg_dsl
+
+    def __get_agg_named_sub_fragment(self, field_name, field_str):
+        """
+        named sub Aggregation，包含了自定义命名的多层子聚合
+        ex_agg_name=named_sub(aggs:<ex_agg_spuId=terms()>|<ex_agg_skuId=terms()>)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+
+        def parse_aggs_value(_agg_str):
+            if not _agg_str:
+                return None
+            _, _nested_item_agg_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _agg_str)
+            return _nested_item_agg_str
+
+        if not field_name:
+            return None
+        agg_item_str_list = field_str.split(';')
+        item_agg_str_list = []
+        for agg_item_str in agg_item_str_list:
+            agg_item_key_value = agg_item_str.split(':', 1)
+            if len(agg_item_key_value) > 1:
+                if agg_item_key_value[0] == 'aggs':
+                    agg_str_list = agg_item_key_value[1].split('|')
+                    for agg_str in agg_str_list:
+                        cur_item_agg_str = parse_aggs_value(agg_str)
+                        if cur_item_agg_str:
+                            item_agg_str_list.append(cur_item_agg_str)
+        if not item_agg_str_list:
+            return {}
+        item_agg_dsl_list = []
+        for item_agg_str in item_agg_str_list:
+            item_field_name, item_field_str = item_agg_str.split('=')
+            item_field_name = item_field_name[len('eq_agg_'):]
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str)
+            item_agg_dsl_list.append(item_agg_dsl)
+        cur_agg_dsl = None
+        item_agg_dsl_list.reverse()
+        for item_agg_dsl in item_agg_dsl_list:
+            if not cur_agg_dsl:
+                cur_agg_dsl = item_agg_dsl
+            else:
+                item_agg_dsl.values()[0]['aggs'] = cur_agg_dsl
+                cur_agg_dsl = item_agg_dsl
+        return {'ex_agg_' + field_name + '_sub': cur_agg_dsl.values()[0]}
+
+    def __get_nested_agg_fragment(self, field_name, field_str):
+        """
+        nested aggregation，嵌套类型的聚合
+        ex_agg_payReceiptRecords=nested(aggs:<ex_agg_uniPaymentChannel=terms()>|<ex_agg_payAmount=sum()>)
+        :param field_name:
+        :param field_str:
+        :return:
+        """
+
+        def parse_aggs_value(_agg_str):
+            if not _agg_str:
+                return None
+            _, _nested_item_agg_str = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', _agg_str)
+            return _nested_item_agg_str
+
+        if not field_name:
+            return None
+        agg_item_str_list = field_str.split(';')
+        item_agg_str_list = []
+        for agg_item_str in agg_item_str_list:
+            agg_item_key_value = agg_item_str.split(':', 1)
+            if len(agg_item_key_value) > 1:
+                if agg_item_key_value[0] == 'aggs':
+                    agg_str_list = agg_item_key_value[1].split('|')
+                    for agg_str in agg_str_list:
+                        cur_item_agg_str = parse_aggs_value(agg_str)
+                        if cur_item_agg_str:
+                            item_agg_str_list.append(cur_item_agg_str)
+        if not item_agg_str_list:
+            return {}
+        item_agg_dsl_list = []
+        for item_agg_str in item_agg_str_list:
+            item_field_name, item_field_str = item_agg_str.split('=')
+            item_field_name = item_field_name[len('eq_agg_'):]
+            item_field_name = field_name + '.' + item_field_name  # 子字段前面加上field_name
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str)
+            item_agg_dsl_list.append(item_agg_dsl)
+        cur_agg_dsl = None
+        item_agg_dsl_list.reverse()
+        for item_agg_dsl in item_agg_dsl_list:
+            if not cur_agg_dsl:
+                cur_agg_dsl = item_agg_dsl
+            else:
+                item_agg_dsl.values()[0]['aggs'] = cur_agg_dsl
+                cur_agg_dsl = item_agg_dsl
+
+        return {
+            'ex_agg_' + field_name + '_nested': {
+                'nested': {
+                    'path': field_name
+                },
+                'aggs': cur_agg_dsl
+            }
+        }
 
     def __parse_single_input_str(self, single_query_str):
         """
