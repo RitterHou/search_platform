@@ -2671,7 +2671,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "purchase-view-trade",
         "type": "Trade",
         "id": "{tid}",
@@ -2819,7 +2819,7 @@
       "data_parser": {},
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "item-operation-log",
         "type": "Log",
         "id": "{id}"
@@ -3116,7 +3116,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "new_es_cluster_pc",
+        "reference": "common_es_cluster",
         "index": "direct-store-sku-{hashcode}",
         "type": "Sku",
         "spu_index": "direct-store-spu-{hashcode}",
@@ -3156,7 +3156,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "new_es_cluster_pc",
+        "reference": "common_es_cluster",
         "index": "direct-store-spu-{hashcode}",
         "type": "Spu",
         "add_admin_id_field": true
@@ -3194,7 +3194,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "new_es_cluster_pc",
+        "reference": "common_es_cluster",
         "index": "direct-store-sku-{hashcode}",
         "type": "Sku",
         "add_admin_id_field": true
@@ -3414,7 +3414,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "b2b-market-shop",
         "type": "Shop"
       },
@@ -3444,7 +3444,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "b2b-market-item",
         "type": "Item"
       },
@@ -3474,7 +3474,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "b2b-market-trade",
         "type": "Trade"
       },
@@ -3504,7 +3504,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "common_es_cluster",
         "index": "b2b-market-return-trade",
         "type": "Trade"
       },
