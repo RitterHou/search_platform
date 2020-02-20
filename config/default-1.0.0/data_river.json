@@ -12288,7 +12288,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "new_es_cluster_pc",
+              "reference": "general_experience",
               "index": "direct-store-spu-{hashcode}",
               "type": "Spu",
               "id": "{id}",
@@ -12355,7 +12355,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "new_es_cluster_pc",
+              "reference": "general_experience",
               "index": "direct-store-sku-{hashcode}",
               "type": "Sku",
               "id": "{id}",
@@ -12412,7 +12412,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "new_es_cluster_pc",
+              "reference": "general_experience",
               "index": "direct-store-spu-{hashcode}",
               "type": "Spu",
               "id": "{ids}",
@@ -12476,7 +12476,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "new_es_cluster_pc",
+              "reference": "general_experience",
               "index": "direct-store-sku-{hashcode}",
               "type": "Sku",
               "id": "{ids}",
@@ -13127,7 +13127,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "operation": "create",
               "index": "b2b-market-shop",
               "type": "Shop",
@@ -13204,7 +13204,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-shop",
               "type": "Shop",
               "id": "{id}"
@@ -13246,7 +13246,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-shop",
               "type": "Shop",
               "id": "{ids}",
@@ -13336,7 +13336,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -13828,7 +13828,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -14284,7 +14284,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-item",
               "type": "Item",
               "id": "{ids}",
@@ -14374,7 +14374,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -14592,7 +14592,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -14774,7 +14774,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-trade",
               "type": "Trade",
               "id": "{ids}",
@@ -14864,7 +14864,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -15076,7 +15076,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "mapping": {
                 "_all": {
                   "store": false
@@ -15252,7 +15252,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-return-trade",
               "type": "Trade",
               "id": "{ids}",
