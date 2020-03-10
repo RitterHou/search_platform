@@ -89,13 +89,14 @@ class ExtendQdslParser(object):
         dsl_qdsl = self.get_request_dsl_qdsl(query_params)
         script_qdsl = self.get_request_py_script_qdsl(query_params)
         hight_qdsl = self.get_highlight_dsl(query_params)
+        custom_hight_qdsl = self.get_custom_highlight_dsl(query_params)
         fields_qdsl = self.get_fields_dsl(query_params)
         script_fields_qdsl = self.get_script_fields_dsl(query_params)
         fielddata_fields_qdsl = self.get_fielddata_fields_dsl(query_params)
         filter_qdsl = self.get_filter_qdsl(query_params)
         return reduce(deep_merge, (
             query_qdsl, rescore_qdsl, dsl_qdsl, script_qdsl, hight_qdsl, fields_qdsl, script_fields_qdsl,
-            fielddata_fields_qdsl, filter_qdsl))
+            fielddata_fields_qdsl, filter_qdsl, custom_hight_qdsl))
 
     def get_rescore_qdsl(self, query_params):
         """
@@ -287,6 +288,35 @@ class ExtendQdslParser(object):
             highlight_query_tmpl['post_tags'] = [post_tags]
             highlight_dsl = {"highlight": {"fields": {multi_field_name: highlight_query_tmpl}}}
             sum_highlight_dsl = deep_merge(sum_highlight_dsl, highlight_dsl)
+        return sum_highlight_dsl
+
+    def get_custom_highlight_dsl(self, query_params):
+        """
+        获取自定义的高亮查询语法
+        ex_custom_highlight_title=highlight(pre_tags:<em>,post_tags:</em>)
+        :param query_params:
+        :return:
+        """
+        ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_custom_highlight_')
+        sum_highlight_dsl = {'highlight': {'fields': {}}}
+        for (key, value_list) in ex_query_params_dict.iteritems():
+            var_name, field_names = unbind_variable('ex_custom_highlight_(?P<field_names>[\\d\\D]+)', 'field_names',
+                                                    key)
+            temp, value = unbind_variable('\\((?P<value>[\\d\\D]+)\\)', 'value', value_list[0])
+            if value:
+                pre_tags = unbind_variable('pre_tags:(?P<pre_tags>[\\d\\D]+?),', 'pre_tags', value)[1] or \
+                           unbind_variable('pre_tags:(?P<pre_tags>[\\d\\D]+)', 'pre_tags', value)[1] or '<hl>'
+                post_tags = unbind_variable('post_tags:(?P<post_tags>[\\d\\D]+?),', 'post_tags', value)[1] or \
+                            unbind_variable('post_tags:(?P<post_tags>[\\d\\D]+)', 'post_tags', value)[1] or '</hl>'
+            else:
+                pre_tags = '<hl>'
+                post_tags = '</hl>'
+
+            for field_name in field_names.split(','):
+                sum_highlight_dsl['highlight']['fields'][field_name] = {
+                    'pre_tags': [pre_tags],
+                    'post_tags': [post_tags]
+                }
         return sum_highlight_dsl
 
     def get_highlight_field_to_origin(self, query_params, highlight_field_name):

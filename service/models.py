@@ -385,6 +385,17 @@ class EsProductManager(object):
         """
         if not doc or 'highlight' not in es_result_item:
             return
+
+        # 新增的highlight返回结果字段
+        for (key, value) in es_result_item['highlight'].iteritems():
+            for field_name, field_value in doc.iteritems():
+                if key.replace('.analyzed', '') == field_name and \
+                        isinstance(field_value, (unicode, str)) and \
+                        isinstance(value, list) and \
+                        len(value) > 0:
+                    doc[field_name] = value[0]
+                    break
+
         for (key, value) in es_result_item['highlight'].iteritems():
             if key == '_all':
                 continue
