@@ -15040,6 +15040,175 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "商圈大视图数据变更，负责人：沈春南",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_uc_circle_grandview_change",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "circle_grandview_change"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_circle_grandview_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.connection.grandview.api.dubbo.EsQueryProvider",
+            "request": {
+              "method": "findCircleInfoByIds",
+              "timeout": 10,
+              "body": {
+                "msgId": "{msgId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "mapping": {
+                "_all": {
+                  "enabled": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "uc-circle-grandview",
+              "type": "View",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "uc_circle_grandview_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "uc-circle-grandview",
+              "type": "View",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -3633,6 +3633,36 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "desc": "商圈大视图数据查询，负责人：沈春南",
+      "name": "uc_circle_grandview_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "b2c/circle/grandview",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2c/circle/grandview$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "uc-circle-grandview",
+        "type": "View"
+      },
+      "response": {}
     }
   ]
 }
