@@ -3663,6 +3663,66 @@
         "type": "View"
       },
       "response": {}
+    },
+    {
+      "desc": "账务对账卖出单据凭证信息查询，负责人：张双双",
+      "name": "acct_fin_reconciliation_sell_out_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "acct/finReconciliationSellOut",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/acct/finReconciliationSellOut$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "acct-sell-out",
+        "type": "Reconciliation"
+      },
+      "response": {}
+    },
+    {
+      "desc": "账务对账退款单据凭证信息查询，负责人：张双双",
+      "name": "acct_fin_reconciliation_refund_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "acct/finReconciliationRefund",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/acct/finReconciliationRefund$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "acct-refund",
+        "type": "Reconciliation"
+      },
+      "response": {}
     }
   ]
 }

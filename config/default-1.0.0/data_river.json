@@ -15209,6 +15209,218 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "账务对账卖出单据凭证信息变更，负责人：张双双",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_acct_finReconciliationSellOut_esSyn",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "acct"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "acct_fin_reconciliation_sell_out_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "finReconciliationSellOutId": "finReconciliationSellOutId\":\"(?P<finReconciliationSellOutId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.acct.query.payment.FinReconciliationSellOutQueryProvider",
+            "request": {
+              "method": "queryFinReconciliationSellOutInfoById",
+              "timeout": 10,
+              "body": {
+                "msgId": "{msgId}",
+                "finReconciliationSellOutId": "{finReconciliationSellOutId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "acct-sell-out",
+              "type": "Reconciliation",
+              "id": "{finReconciliationSellOutId}"
+            }
+          ]
+        },
+        {
+          "name": "acct_fin_reconciliation_sell_out_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "finReconciliationSellOutId\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "acct-sell-out",
+              "type": "Reconciliation",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "账务对账退款单据凭证信息变更，负责人：张双双",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_acct_finReconciliationRefund_esSyn",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "acct"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "acct_fin_reconciliation_refund_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "finReconciliationMerRefundNo": "finReconciliationMerRefundNo\":\"(?P<finReconciliationMerRefundNo>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.acct.query.payment.FinReconciliationRefundQueryProvider",
+            "request": {
+              "method": "queryFinReconciliationRefundInfoById",
+              "timeout": 10,
+              "body": {
+                "msgId": "{msgId}",
+                "finReconciliationMerRefundNo": "{finReconciliationMerRefundNo}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "acct-refund",
+              "type": "Reconciliation",
+              "id": "{finReconciliationMerRefundNo}"
+            }
+          ]
+        },
+        {
+          "name": "acct_fin_reconciliation_refund_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"optType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "finReconciliationMerRefundNo\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "acct-refund",
+              "type": "Reconciliation",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
