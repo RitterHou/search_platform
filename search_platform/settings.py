@@ -113,8 +113,6 @@ LOGGING = {
         'sms_alarm_filter': {
             '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
             'url': 'http://172.17.16.211:8080/sms/sendSms.do',
-            # '()': 'redislog.tdummy.filters.QmAlarmFilter',
-            # 'host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
             'phone_numbers': '15051885330,15195935889',
             'error_log_num': ERROR_LOG_NUM,
             'error_log_repr_list': [
@@ -125,7 +123,20 @@ LOGGING = {
                 'RedoMsgQueueFullError',
                 'FinalFailMsgQueueFullError'
             ]
-        }
+        },
+        'redis_alarm_filter': {
+            '()': 'redislog.tdummy.filters.QmRedisAlarmFilter',
+            'host': '172.17.8.198',
+            'db': 6,
+            'error_log_repr_list': [
+                'elasticsearch.exceptions.ConnectionError',
+                'elasticsearch.exceptions.ConnectionTimeout',
+                'DubboError',
+                'MsgQueueFullError',
+                'RedoMsgQueueFullError',
+                'FinalFailMsgQueueFullError'
+            ]
+        },
     },
     'handlers': {
         'django_logfile': {
@@ -220,7 +231,7 @@ LOGGING = {
             'handlers': ['app_logstash_log'],
             'propagate': False,
             'level': 'INFO',
-            'filters': ['sms_alarm_filter']
+            'filters': ['sms_alarm_filter', 'redis_alarm_filter']
         },
         'interface': {
             'handlers': ['interface_logstash_log'],
