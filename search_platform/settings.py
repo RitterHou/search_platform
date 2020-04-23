@@ -118,7 +118,7 @@ LOGGING = {
             'error_log_repr_list': [
                 'elasticsearch.exceptions.ConnectionError',
                 'elasticsearch.exceptions.ConnectionTimeout',
-                'DubboError',
+                # 'DubboError',
                 'MsgQueueFullError',
                 'RedoMsgQueueFullError',
                 'FinalFailMsgQueueFullError'
