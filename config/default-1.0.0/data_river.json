@@ -13842,10 +13842,10 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketViewQueryProvider",
+            "service_interface": "com.qianmi.d2p.order.api.b2bmkt.query.B2BMktTradeEsQueryProvider",
             "version": "1.0.0",
             "request": {
-              "method": "listTradeByCMID",
+              "method": "findByAdminId",
               "timeout": 10,
               "body": {
                 "pageNum": "{page_from}",
@@ -13989,9 +13989,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketViewQueryProvider",
+            "service_interface": "com.qianmi.d2p.order.api.b2bmkt.query.B2BMktTradeEsQueryProvider",
             "request": {
-              "method": "listTradeByIds",
+              "method": "findByIds",
               "timeout": 10,
               "body": {
                 "ids": "{ids}",
@@ -14164,10 +14164,10 @@
             "type": "iterator_get",
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
-            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketViewQueryProvider",
+            "service_interface": "com.qianmi.d2p.returnorder.api.b2bmkt.query.B2BMktReturnOrderEsQueryProvider",
             "version": "1.0.0",
             "request": {
-              "method": "listReturnOrderByCMID",
+              "method": "findByAdminId",
               "timeout": 10,
               "body": {
                 "pageNum": "{page_from}",
@@ -14308,9 +14308,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketViewQueryProvider",
+            "service_interface": "com.qianmi.d2p.returnorder.api.b2bmkt.query.B2BMktReturnOrderEsQueryProvider",
             "request": {
-              "method": "listReturnOrderByIds",
+              "method": "findByIds",
               "timeout": 10,
               "body": {
                 "ids": "{ids}",
