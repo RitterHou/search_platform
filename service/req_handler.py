@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -64,6 +66,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
+                               'uri': re.sub(r'A\d+', '', get_url(request)),
                                'srv_group': request.method,
                                'result_value': response}
             interface_log.print_log(json_log_record)
