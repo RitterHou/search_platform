@@ -205,6 +205,7 @@ LOGGING = {
             'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
             'host': '192.168.65.224',
             'key': 'LOGSTASH_APP_LOG',
+            'app_module': 'search_platform_test',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
             'is_interface_handler': False
         },
@@ -213,6 +214,7 @@ LOGGING = {
             'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
             'host': '192.168.65.224',
             'key': 'LOGSTASH_INTF_LOG',
+            'app_module': 'search_platform_test',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
         },
     },
