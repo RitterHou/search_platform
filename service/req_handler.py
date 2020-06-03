@@ -14,6 +14,8 @@ from common.utils import query_dict_to_normal_dict, local_host_name, format_time
 
 __author__ = 'liuzhaoming'
 
+uri_regex_compiled = re.compile(r'/[a-zA-Z]*\d+$')
+
 
 class RequestHandler(object):
     """
@@ -66,7 +68,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
-                               'uri': re.sub(r'/[a-zA-Z]*\d+$', '/', get_url(request)),
+                               'uri': uri_regex_compiled.sub('/', get_url(request)),
                                'srv_group': request.method,
                                'result_value': response}
             interface_log.print_log(json_log_record)
@@ -79,7 +81,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
-                               'uri': re.sub(r'/[a-zA-Z]*\d+$', '/', get_url(request)),
+                               'uri': uri_regex_compiled.sub('/', get_url(request)),
                                'srv_group': request.method,
                                'result_value': response}
             app_log.error('Handle http request error, {0}, {1}', e,
