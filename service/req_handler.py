@@ -66,7 +66,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
-                               'uri': re.sub(r'A\d+', '', get_url(request)),
+                               'uri': re.sub(r'/[a-zA-Z]*\d+$', '/', get_url(request)),
                                'srv_group': request.method,
                                'result_value': response}
             interface_log.print_log(json_log_record)
@@ -79,7 +79,7 @@ class RequestHandler(object):
                                'invoke_time': format_time(start_time), 'message': 'Http request handle: ',
                                'param_types': ['http_request'],
                                'param_values': [request_desc],
-                               'uri': re.sub(r'A\d+', '', get_url(request)),
+                               'uri': re.sub(r'/[a-zA-Z]*\d+$', '/', get_url(request)),
                                'srv_group': request.method,
                                'result_value': response}
             app_log.error('Handle http request error, {0}, {1}', e,
