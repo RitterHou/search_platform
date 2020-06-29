@@ -4,6 +4,8 @@ from kazoo.client import KazooClient
 from pykafka import KafkaClient
 import redis
 from elasticsearch import Elasticsearch, Transport, ElasticsearchException, TransportError
+# elasticsearch7.5.2版本的依赖通过直接引入库源码的方式实现
+import elasticsearch7
 from dubbo_client import ZookeeperRegistry, DubboClient, ApplicationConfig
 
 from common.utils import COMBINE_SIGN
@@ -16,6 +18,90 @@ BATCH_REQUEST_TIMEOUT = 30
 BATCH_TIMEOUT = 120000
 INDEX_REQUEST_TIMEOUT = 120
 INDEX_TIMEOUT = 120000
+
+
+class Es7Connection(elasticsearch7.Elasticsearch):
+    """
+    封装的ES7操作接口，添加了多个索引
+    """
+
+    def __init__(self, hosts=None, transport_class=elasticsearch7.Transport, **kwargs):
+        elasticsearch7.Elasticsearch.__init__(self, hosts, transport_class, **kwargs)
+        self.host_list = hosts
+        self.version = '7'  # 保存当前ES连接所对应的ES版本号7
+
+
+class Es7ConnectionPool(object):
+    """
+    ES连接管理池，用装饰器实现单例
+    """
+
+    # ES连接字典，对应：{‘192.168.0.1：9200’：Esconnection,‘172.168.0.1：9200’：EscConnection}
+    connection_cache = {}
+
+    # ES索引是否初始化，只初始化一次,key为'index|||type'
+    es_type_init_info_cache = {}
+
+    def __init__(self):
+        pass
+
+    def get_es_connection(self, host=None, es_config=None, create_index=True):
+        """
+        获取ES连接
+        :param host:
+        :param es_config:
+        :return:
+        """
+        from common.configs import config
+        _host = host or [es_config['host'] if es_config and 'host' in es_config else None][0]
+        _host = _host.format(**config.get_value('consts/custom_variables'))
+        conn = self.__create_connection(_host)
+
+        try:
+            if create_index and es_config and 'index' in es_config and 'mapping' in es_config \
+                    and es_config['mapping']:
+                index_key = ''.join((_host + COMBINE_SIGN, es_config['index']))
+                if index_key in self.es_type_init_info_cache[_host]:
+                    return conn
+                app_log.info('Cache doesnot have type key {0}', index_key)
+                if not conn.indices.exists(es_config['index']):
+                    app_log.info('Creates index {0}', es_config['index'])
+                    conn.indices.create(es_config['index'],
+                                        params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+                    conn.indices.put_mapping(body=es_config['mapping'],
+                                             index=es_config['index'], params={'request_timeout': INDEX_REQUEST_TIMEOUT,
+                                                                               'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+                self.es_type_init_info_cache[_host][index_key] = ''
+        except elasticsearch7.ElasticsearchException as e:
+            app_log.exception(e)
+
+        return conn
+
+    def __create_connection(self, host):
+        """
+        创建连接器，如果cache中存在该host的连接，则不再创建
+        :param host:
+        :return:
+        """
+        if host not in self.connection_cache:
+            try:
+                connection = Es7Connection(host.split(','),
+                                           sniff_on_start=True,
+                                           sniff_on_connection_fail=True,
+                                           sniffer_timeout=60)
+            except elasticsearch7.TransportError as e:
+                app_log.error('create elasitcsearch connection fail, host={0}', e, host)
+                if 'Unable to sniff hosts' in str(e):
+                    connection = Es7Connection(host.split(','), sniff_on_start=False)
+            self.connection_cache[host] = connection
+            self.es_type_init_info_cache[host] = {}
+        else:
+            connection = self.connection_cache[host]
+        return connection
+
+
+Es7ConnectionFactory = Es7ConnectionPool()
 
 
 class EsConnection(Elasticsearch):
