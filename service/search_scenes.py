@@ -3,7 +3,7 @@ import time
 from collections import OrderedDict
 from itertools import chain
 
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.loggers import app_log
 
 __author__ = 'liuzhaoming'
@@ -90,10 +90,23 @@ class SpuSearchBySku(object):
         total_start_time = time.time()
         start_time = time.time()
         spu_dsl = self.get_spu_sku_id_query_dsl(sku_dsl)
-        es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, es_search_params=es_search_params,
-                                         **es_cfg)
-        es_scan_result = tuple(es_scan_result)
-        app_log.info("spu by sku scan id spends {0}  {1}", time.time() - start_time, parse_fields)
+
+        # elasticsearch-1.5.2和elasticsearch-7.5.2使用的是不同的scan查询接口
+        if es_cfg.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            spu_dsl['_source'] = spu_dsl.pop('fields')
+            es_scan_result = es7_adapter.scan('1m', body=spu_dsl, preserve_order=True,
+                                              es_search_params=es_search_params, **es_cfg)
+            # 这里的格式搞的这么复杂纯粹是为了向前兼容
+            es_scan_result = map(lambda r: {'fields': {
+                'spuId': [r['_source']['spuId']] if 'spuId' in r['_source'] else None,
+                'skuId': [r['_source']['skuId']] if 'skuId' in r['_source'] else None,
+            }}, es_scan_result['hits']['hits'])
+        else:
+            es_scan_result = es_adapter.scan('1m', body=spu_dsl, preserve_order=True, es_search_params=es_search_params,
+                                             **es_cfg)
+            es_scan_result = tuple(es_scan_result)
+
+        # app_log.info("spu by sku scan id spends {0}  {1}", time.time()-start_time, parse_fields)
         start_time = time.time()
         build_start_time = time.time()
         # 限制SPU中聚合的SKU数目
@@ -124,52 +137,111 @@ class SpuSearchBySku(object):
 
         if 'spu_index' in es_cfg:
             spu_index = es_cfg['spu_index']
-            spu_index = spu_index.format(**parse_fields)
+            spu_index, _, _ = es_adapter.get_es_doc_keys({'index': spu_index}, kwargs=parse_fields)
         else:
             spu_index = es_cfg['index']
 
-        if 'spu_type' in es_cfg:
-            spu_type = es_cfg['spu_type']
-        else:
-            spu_type = es_adapter.get_spu_es_setting(parse_fields.get('adminId')).get('type')
-
         admin_id = parse_fields['adminId']
-        multi_search_body = [
-            {'index': spu_index, 'type': spu_type},
-            {'query': {'bool': {'must': [
-                {
-                    'terms': {
-                        'spuId': spu_id_list,
-                        'minimum_should_match': 1
-                    }
-                },
-                {
-                    'term': {
-                        '_adminId': admin_id
-                    }
-                }
-            ]}}, 'size': sku_dsl.get('size')},
-            {'index': es_cfg['index'], 'type': es_cfg['type']},
-            self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg, admin_id)]
-        if 'aggs' in sku_dsl:
-            # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
-            sku_dsl['size'] = 0
-            multi_search_body.extend(({'index': es_cfg['index'], 'type': es_cfg['type']}, sku_dsl))
-        multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
-        app_log.info("spu by sku multi search spends {0}  {1}", time.time() - start_time, parse_fields)
-        spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
-                                                delete_goods_field=aggs_sku_size > 0)
+        # 针对elasticsearch的不同版本，选择使用不同的数据查询逻辑
+        if es_cfg.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # elasticsearch-7.5.2的查询
+            spu_terms = []
+            for value in spu_id_list:
+                spu_terms.append({"term": {'spuId': value}})
 
-        self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
+            sku_terms = []
+            for value in sku_id_list:
+                sku_terms.append({"term": {'skuId': value}})
 
-        product_dict = {'root': spu_list, 'total': total_size}
-        if 'aggs' in sku_dsl:
-            aggs_search_response = multi_search_results['responses'][2]
-            aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
-            app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
-            return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
-        app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
-        return product_dict, None
+            multi_search_body = [
+                {'index': spu_index},
+                {'query': {'bool': {'must': [
+                    {
+                        "bool": {
+                            "minimum_should_match": 1,
+                            "should": spu_terms
+                        }
+                    },
+                    {
+                        'term': {
+                            '_adminId': admin_id
+                        }
+                    }
+                ]}}, 'size': sku_dsl.get('size')},
+                {'index': es_cfg['index']},
+                {'query': {'bool': {'must': [
+                    {
+                        "bool": {
+                            "minimum_should_match": 1,
+                            "should": sku_terms
+                        }
+                    },
+                    {
+                        'term': {
+                            '_adminId': admin_id
+                        }
+                    }
+                ]}}, 'size': len(sku_id_list)}
+            ]
+            if 'aggs' in sku_dsl:
+                # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
+                sku_dsl['size'] = 0
+                multi_search_body.extend(({'index': es_cfg['index']}, sku_dsl))
+            multi_search_results = es7_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
+            spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
+                                                    delete_goods_field=aggs_sku_size > 0)
+
+            self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
+
+            product_dict = {'root': spu_list, 'total': total_size}
+            if 'aggs' in sku_dsl:
+                aggs_search_response = multi_search_results['responses'][2]
+                aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
+                return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
+            return product_dict, None
+        else:
+            # elasticsearch-1.5.2的查询
+            if 'spu_type' in es_cfg:
+                spu_type = es_cfg['spu_type']
+            else:
+                spu_type = es_adapter.get_spu_es_setting(parse_fields.get('adminId')).get('type')
+
+            multi_search_body = [
+                {'index': spu_index, 'type': spu_type},
+                {'query': {'bool': {'must': [
+                    {
+                        'terms': {
+                            'spuId': spu_id_list,
+                            'minimum_should_match': 1
+                        }
+                    },
+                    {
+                        'term': {
+                            '_adminId': admin_id
+                        }
+                    }
+                ]}}, 'size': sku_dsl.get('size')},
+                {'index': es_cfg['index'], 'type': es_cfg['type']},
+                self.generate_sku_query_dsl(sku_dsl, sku_id_list, es_cfg, admin_id)]
+            if 'aggs' in sku_dsl:
+                # 如果原来的dsl带聚合，那么还需要额外做一次聚合操作
+                sku_dsl['size'] = 0
+                multi_search_body.extend(({'index': es_cfg['index'], 'type': es_cfg['type']}, sku_dsl))
+            multi_search_results = es_adapter.multi_search(multi_search_body, es_cfg['host'], es_cfg['index'], None)
+            # app_log.info("spu by sku multi search spends {0}  {1}", time.time() - start_time, parse_fields)
+            spu_list = self.parse_spu_search_result(multi_search_results, page_spu_sku_dict,
+                                                    delete_goods_field=aggs_sku_size > 0)
+
+            self.parse_sku_search_result(spu_list, args, multi_search_results, page_spu_sku_dict)
+
+            product_dict = {'root': spu_list, 'total': total_size}
+            if 'aggs' in sku_dsl:
+                aggs_search_response = multi_search_results['responses'][2]
+                aggs_dict = Aggregation.objects.parse_es_result(aggs_search_response, args)
+                # app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
+                return {'products': product_dict, 'aggregations': aggs_dict}, aggs_search_response
+            # app_log.info('spu by sku total spends {0}  {1}', time.time() - total_start_time, parse_fields)
+            return product_dict, None
 
     def generate_sku_query_dsl(self, sku_dsl, sku_id_list, es_cfg, admin_id):
         """
