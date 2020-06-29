@@ -6,7 +6,7 @@ import re
 from algorithm.section_partitions import equal_section_partitions
 from common.configs import config
 from common.connections import EsConnectionFactory
-from common.exceptions import InvalidParamError
+from common.exceptions import InvalidParamError, GenericError
 from common.loggers import query_log
 from common.scripts import python_invoker
 from common.utils import deep_merge, unbind_variable, get_dict_value
@@ -28,77 +28,84 @@ class ExtendQdslParser(object):
         self.section_regex_optimize = 'optimize:(?P<optimize>[\\w]+)'
         self.section_regex_size = 'size:(?P<size>[\\d]+)'
         self.highlight_query_tmpl = {"number_of_fragments": 0, "highlight_query": {"bool": {"must": []}}}
-        self.QUERY_QDSL_PARSER_DICT = {'term': self.__get_query_term_fragment,
-                                       'range': self.__get_query_range_fragment,
-                                       'date_range': self.__get_query_date_range_fragment,
-                                       'terms': self.__get_query_term_fragment,
-                                       'bterms': self.__get_query_bool_term_fragment,
-                                       'size_terms': self.__get_query_size_term_fragment,
-                                       'ids': self.__get_query_ids_fragment, 'match': self.__get_query_match_fragment,
-                                       'query_string': self.__get_query_querystring_fragment,
-                                       'multi_match': self.__get_query_multi_match_fragment,
-                                       'more_like_this': self.__get_query_more_like_this_fragment,
-                                       'prefix': self.__get_query_prefix_fragment,
-                                       'regexp': self.__get_query_regexp_fragment,
-                                       'span_first': self.__get_query_span_first_fragment,
-                                       'span_near': self.__get_query_span_near_fragment,
-                                       'wildcard': self.__get_query_wildcard_fragment,
-                                       'stock': self.__get_query_stock_fragment,
-                                       'nested': self.__get_query_nested_fragment,
-                                       'nested_multi': self.__get_query_nested_multi_fragment,
-                                       'ematch': self.__get_query_ematch_fragment,
-                                       'not': self.__get_query_not_fragment,
-                                       'or': self.__get_query_or_fragment,
-                                       'null': self.__get_query_null_fragment}
-        self.FILTER_QDSL_PARSER_DICT = {'geo_distance': self.__get_filter_geo_distance_fragment,
-                                        'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
-                                        'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
-                                        'null': self.__get_filter_null_fragment, }
-        self.AGGS_QDSL_PARSER_DICT = {'max': self.__get_agg_max_fragment,
-                                      'min': self.__get_agg_min_fragment,
-                                      'sum': self.__get_agg_sum_fragment,
-                                      'avg': self.__get_agg_avg_fragment,
-                                      'stats': self.__get_agg_stats_fragment,
-                                      'exstats': self.__get_agg_exstats_fragment,
-                                      'value_count': self.__get_agg_value_count_fragment,
-                                      'percentiles': self.__get_agg_percentiles_fragment,
-                                      'percentile_ranks': self.__get_agg_percentile_ranks_fragment,
-                                      'cardinality': self.__get_agg_cardinality_fragment,
-                                      'missing': self.__get_agg_missing_fragment,
-                                      'terms': self.__get_agg_terms_fragment,
-                                      'term': self.__get_agg_terms_fragment,
-                                      'range': self.__get_agg_range_fragment,
-                                      'date_range': self.__get_agg_date_range_fragment,
-                                      'histogram': self.__get_agg_histogram_fragment,
-                                      'date_histogram': self.__get_agg_date_histogram_fragment,
-                                      'geo_distance': self.__get_agg_geo_distance_fragment,
-                                      'cats': self.__get_agg_cats_fragment,
-                                      'key_value': self.__get_agg_key_value_fragment,
-                                      'nested': self.__get_nested_agg_fragment,
-                                      'named_sub': self.__get_agg_named_sub_fragment,
-                                      'sub': self.__get_agg_sub_fragment}
+        self.QUERY_QDSL_PARSER_DICT = {
+            'term': self.__get_query_term_fragment,
+            'range': self.__get_query_range_fragment,
+            'date_range': self.__get_query_date_range_fragment,
+            'terms': self.__get_query_term_fragment,
+            'bterms': self.__get_query_bool_term_fragment,
+            'size_terms': self.__get_query_size_term_fragment,
+            'ids': self.__get_query_ids_fragment,
+            'match': self.__get_query_match_fragment,
+            'query_string': self.__get_query_querystring_fragment,
+            'multi_match': self.__get_query_multi_match_fragment,
+            'more_like_this': self.__get_query_more_like_this_fragment,
+            'prefix': self.__get_query_prefix_fragment,
+            'regexp': self.__get_query_regexp_fragment,
+            'span_first': self.__get_query_span_first_fragment,
+            'span_near': self.__get_query_span_near_fragment,
+            'wildcard': self.__get_query_wildcard_fragment,
+            'stock': self.__get_query_stock_fragment,
+            'nested': self.__get_query_nested_fragment,
+            'nested_multi': self.__get_query_nested_multi_fragment,
+            'ematch': self.__get_query_ematch_fragment,
+            'not': self.__get_query_not_fragment,
+            'or': self.__get_query_or_fragment,
+            'null': self.__get_query_null_fragment,
+        }
+        self.FILTER_QDSL_PARSER_DICT = {
+            'geo_distance': self.__get_filter_geo_distance_fragment,
+            'geo_distance_range': self.__get_filter_geo_distance_range_fragment,
+            'geo_bounding_box': self.__get_filter_geo_bounding_box_fragment,
+            'null': self.__get_filter_null_fragment,
+        }
+        self.AGGS_QDSL_PARSER_DICT = {
+            'max': self.__get_agg_max_fragment,
+            'min': self.__get_agg_min_fragment,
+            'sum': self.__get_agg_sum_fragment,
+            'avg': self.__get_agg_avg_fragment,
+            'stats': self.__get_agg_stats_fragment,
+            'exstats': self.__get_agg_exstats_fragment,
+            'value_count': self.__get_agg_value_count_fragment,
+            'percentiles': self.__get_agg_percentiles_fragment,
+            'percentile_ranks': self.__get_agg_percentile_ranks_fragment,
+            'cardinality': self.__get_agg_cardinality_fragment,
+            'missing': self.__get_agg_missing_fragment,
+            'terms': self.__get_agg_terms_fragment,
+            'term': self.__get_agg_terms_fragment,
+            'range': self.__get_agg_range_fragment,
+            'date_range': self.__get_agg_date_range_fragment,
+            'histogram': self.__get_agg_histogram_fragment,
+            'date_histogram': self.__get_agg_date_histogram_fragment,
+            'geo_distance': self.__get_agg_geo_distance_fragment,
+            'cats': self.__get_agg_cats_fragment,
+            'key_value': self.__get_agg_key_value_fragment,
+            'nested': self.__get_nested_agg_fragment,
+            'named_sub': self.__get_agg_named_sub_fragment,
+            'sub': self.__get_agg_sub_fragment,
+        }
 
-    def get_qdsl(self, query_params):
+    def get_qdsl(self, query_params, es_config):
         """
         获取自定义查询的QDSL
         :param query_params:
         :return:
         """
-        query_qdsl = self.get_query_qdsl(query_params)
-        rescore_qdsl = self.get_rescore_qdsl(query_params)
-        dsl_qdsl = self.get_request_dsl_qdsl(query_params)
-        script_qdsl = self.get_request_py_script_qdsl(query_params)
-        hight_qdsl = self.get_highlight_dsl(query_params)
-        custom_hight_qdsl = self.get_custom_highlight_dsl(query_params)
-        fields_qdsl = self.get_fields_dsl(query_params)
-        script_fields_qdsl = self.get_script_fields_dsl(query_params)
-        fielddata_fields_qdsl = self.get_fielddata_fields_dsl(query_params)
-        filter_qdsl = self.get_filter_qdsl(query_params)
+        query_qdsl = self.get_query_qdsl(query_params, es_config)
+        rescore_qdsl = self.get_rescore_qdsl(query_params, es_config)
+        dsl_qdsl = self.get_request_dsl_qdsl(query_params, es_config)
+        script_qdsl = self.get_request_py_script_qdsl(query_params, es_config)
+        hight_qdsl = self.get_highlight_dsl(query_params, es_config)
+        custom_hight_qdsl = self.get_custom_highlight_dsl(query_params, es_config)
+        fields_qdsl = self.get_fields_dsl(query_params, es_config)
+        script_fields_qdsl = self.get_script_fields_dsl(query_params, es_config)
+        fielddata_fields_qdsl = self.get_fielddata_fields_dsl(query_params, es_config)
+        filter_qdsl = self.get_filter_qdsl(query_params, es_config)
         return reduce(deep_merge, (
             query_qdsl, rescore_qdsl, dsl_qdsl, script_qdsl, hight_qdsl, fields_qdsl, script_fields_qdsl,
             fielddata_fields_qdsl, filter_qdsl, custom_hight_qdsl))
 
-    def get_rescore_qdsl(self, query_params):
+    def get_rescore_qdsl(self, query_params, es_config):
         """
         rescore用于对得到的结果根据条件进行重新排序
         :param query_params:
@@ -123,7 +130,7 @@ class ExtendQdslParser(object):
             for sub_query in sub_queries:
                 _, sub_query = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', sub_query)
                 item_name, item_value = sub_query.split('=')
-                item_query_dsl = self.get_query_qdsl_single_fragment(item_name[len('ex_q_'):], item_value)
+                item_query_dsl = self.get_query_qdsl_single_fragment(item_name[len('ex_q_'):], item_value, es_config)
 
                 sub_query_dsl = {
                     "query": {
@@ -135,19 +142,20 @@ class ExtendQdslParser(object):
                 sub_query_dsls.append(sub_query_dsl)
             return {'rescore': sub_query_dsls}
 
-    def get_agg_qdsl(self, query_params):
+    def get_agg_qdsl(self, query_params, es_config):
         """
         获取自定义的聚合DSL
         :param query_params:
         :return:
         """
         # 价格自动分区aggs
-        section_agg_statis_dsl = self.get_section_agg_statis_dsl(query_params)
+        section_agg_statis_dsl = self.get_section_agg_statis_dsl(query_params, es_config)
 
         # 通用聚合
         ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_agg_')
         agg_qdsl_list = filter(lambda item: item, map(
-            lambda (field_name, filed_value_list): self.get_agg_qdsl_list_fragment(field_name, filed_value_list),
+            lambda (field_name, filed_value_list): self.get_agg_qdsl_list_fragment(field_name, filed_value_list,
+                                                                                   es_config),
             ex_query_params_dict.iteritems()))
         ex_aggs_dsl = {}
         for agg_dsl in agg_qdsl_list:
@@ -155,7 +163,7 @@ class ExtendQdslParser(object):
 
         return deep_merge({'aggs': ex_aggs_dsl}, section_agg_statis_dsl)
 
-    def get_section_agg_statis_dsl(self, query_params):
+    def get_section_agg_statis_dsl(self, query_params, es_config):
         """
         返回section统计字段，主要是统计平均值、方差等信息
         ex_section_salePrice=section(optimize:true,size:6)
@@ -199,7 +207,7 @@ class ExtendQdslParser(object):
             sum_agg_range_dsl = deep_merge(sum_agg_range_dsl, agg_range_dsl)
         return sum_agg_range_dsl
 
-    def get_fields_dsl(self, query_params):
+    def get_fields_dsl(self, query_params, es_config):
         """
         获取fields查询dsl，格式为：ex_fields=spuId,salePrice,skuId
         :param query_params:
@@ -217,7 +225,7 @@ class ExtendQdslParser(object):
             dsl['_source']['exclude'] = exclude_fields_str.split(',')
         return dsl
 
-    def get_script_fields_dsl(self, query_params):
+    def get_script_fields_dsl(self, query_params, es_config):
         """
         Script field 查询  格式为：ex_script_field_属性名=doc[salePrice].value*2
         :param query_params:
@@ -232,7 +240,7 @@ class ExtendQdslParser(object):
                 script_fields_sub_dsl[field_name] = {'script': script_str}
         return {'script_fields': script_fields_sub_dsl} if script_fields_sub_dsl else {}
 
-    def get_fielddata_fields_dsl(self, query_params):
+    def get_fielddata_fields_dsl(self, query_params, es_config):
         """
         fielddata_fields 缓存（不对外提供）
         :param query_params:
@@ -246,7 +254,7 @@ class ExtendQdslParser(object):
             return {'fielddata_fields': field_name_list}
         return {}
 
-    def get_highlight_dsl(self, query_params):
+    def get_highlight_dsl(self, query_params, es_config):
         """
         获取高亮查询DSL, url高亮的查询语法为：
         ex_highlight_title=highlight(q:kkkkyyy,pre_tags:<em>,post_tags:</em>,multi_field:title.standard)
@@ -290,7 +298,7 @@ class ExtendQdslParser(object):
             sum_highlight_dsl = deep_merge(sum_highlight_dsl, highlight_dsl)
         return sum_highlight_dsl
 
-    def get_custom_highlight_dsl(self, query_params):
+    def get_custom_highlight_dsl(self, query_params, es_config):
         """
         获取自定义的高亮查询语法
         ex_custom_highlight_title=highlight(pre_tags:<em>,post_tags:</em>)
@@ -336,7 +344,7 @@ class ExtendQdslParser(object):
                 return field_name
         query_log.error('Fail to get highlight field to origin : {0}', highlight_field_name)
 
-    def get_query_qdsl(self, query_params):
+    def get_query_qdsl(self, query_params, es_config):
         """
         获取所有额外查询的qdsl
         :param query_params:
@@ -344,26 +352,47 @@ class ExtendQdslParser(object):
         """
         ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_q_')
         qdsl_must_list = filter(lambda item: item, map(
-            lambda (field_name, filed_value_list): self.get_query_qdsl_list_fragment(field_name, filed_value_list),
+            lambda (field_name, filed_value_list): self.get_query_qdsl_list_fragment(field_name, filed_value_list,
+                                                                                     es_config),
             ex_query_params_dict.iteritems()))
         return {'query': {'bool': {'must': qdsl_must_list}}} if qdsl_must_list else {}
 
-    def get_filter_qdsl(self, query_params):
+    def get_filter_qdsl(self, query_params, es_config):
         """
+        filter在7.x版本中已经被完全废弃，只能把filter兼容的改为query
         获取所有filter查询的dsl
         :param query_params:
         :return:
         """
         ex_query_params_dict = self.get_query_params_by_prefix(query_params, 'ex_f_')
         qdsl_must_list = filter(lambda item: item, map(
-            lambda (field_name, filed_value_list): self.get_filter_qdsl_list_fragment(field_name, filed_value_list),
+            lambda (field_name, filed_value_list): self.get_filter_qdsl_list_fragment(field_name, filed_value_list,
+                                                                                      es_config),
             ex_query_params_dict.iteritems()))
-        return {'query': {
-            'bool': {'must': [{'filtered': {'filter': {'bool': {'must': qdsl_must_list}}}}]}}} if qdsl_must_list else {}
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 因为elasticsearch7不再支持filtered，所以在这里用query进行替换兼容
+            return {'query': {'bool': {'must': qdsl_must_list}}} if qdsl_must_list else {}
+        else:
+            return {
+                'query': {
+                    'bool': {
+                        'must': [{
+                            'filtered': {
+                                'filter': {
+                                    'bool': {
+                                        'must': qdsl_must_list
+                                    }
+                                }
+                            }
+                        }]
+                    }
+                }
+            } if qdsl_must_list else {}
 
-    def get_request_dsl_qdsl(self, query_params):
+    def get_request_dsl_qdsl(self, query_params, es_config):
         """
         处理客户端请求中的DSL，输入格式为: ex_dsl :  tmpl={json},param={json}
+        示例：GET /view/retail/trades/?ex_dsl=tmpl:({"query":{"bool":{"must":[{"term":{"tid":"{tid}"}}]}}}),param:({"tid":"TC18110611104025875470"})&ex_fields=tid
         :param query_params:
         :return:
         """
@@ -378,9 +407,15 @@ class ExtendQdslParser(object):
             param_dict = json.loads(param_str)
             bind_variable = lambda match_obj: match_obj.group(0).format(**param_dict)
             dsl_tmpl = self.variable_name_pattern.sub(bind_variable, dsl_tmpl)
-        return json.loads(dsl_tmpl)
+        dsl = json.loads(dsl_tmpl)
 
-    def get_request_py_script_qdsl(self, query_params):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 处理DSL在elasticsearch7中的兼容性问题
+            pass
+
+        return dsl
+
+    def get_request_py_script_qdsl(self, query_params, es_config):
         """
         处理客户端请求中的python脚本,输入格式为：  ex_script_py   :  script_data_parsers.parse_skuids_from_pc_mq_msg
         脚本的输入参数为request
@@ -394,7 +429,7 @@ class ExtendQdslParser(object):
         if function:
             return function(query_params)
 
-    def get_query_qdsl_list_fragment(self, field_name, filed_value_list):
+    def get_query_qdsl_list_fragment(self, field_name, filed_value_list, es_config):
         """
         获取符合查询条件QDSL，前台获取到是参数list
         :param field_name:
@@ -403,14 +438,15 @@ class ExtendQdslParser(object):
         """
         field_name = field_name[len('ex_q_'):]
         qdsl_fragment_list = filter(lambda item: item,
-                                    map(lambda input_str: self.get_query_qdsl_single_fragment(field_name, input_str),
+                                    map(lambda input_str: self.get_query_qdsl_single_fragment(field_name, input_str,
+                                                                                              es_config),
                                         filed_value_list))
         if len(qdsl_fragment_list) == 1:
             return qdsl_fragment_list[0]
         elif len(qdsl_fragment_list) > 1:
             return {'bool': {'should': qdsl_fragment_list, 'minimum_should_match': 1}}
 
-    def get_filter_qdsl_list_fragment(self, field_name, filed_value_list):
+    def get_filter_qdsl_list_fragment(self, field_name, filed_value_list, es_config):
         """
         获取符合过滤条件QDSL，前台获取到是参数list
         :param field_name:
@@ -419,14 +455,15 @@ class ExtendQdslParser(object):
         """
         field_name = field_name[len('ex_f_'):]
         qdsl_fragment_list = filter(lambda item: item,
-                                    map(lambda input_str: self.get_filter_qdsl_single_fragment(field_name, input_str),
+                                    map(lambda input_str: self.get_filter_qdsl_single_fragment(field_name, input_str,
+                                                                                               es_config),
                                         filed_value_list))
         if len(qdsl_fragment_list) == 1:
             return qdsl_fragment_list[0]
         elif len(qdsl_fragment_list) > 1:
             return {'bool': {'should': qdsl_fragment_list, 'minimum_should_match': 1}}
 
-    def get_agg_qdsl_list_fragment(self, field_name, filed_value_list):
+    def get_agg_qdsl_list_fragment(self, field_name, filed_value_list, es_config):
         """
         获取符合聚合DSL，前台获取到是参数list
         :param field_name:
@@ -435,14 +472,15 @@ class ExtendQdslParser(object):
         """
         field_name = field_name[len('ex_agg_'):]
         qdsl_fragment_list = filter(lambda item: item,
-                                    map(lambda input_str: self.get_agg_qdsl_single_fragment(field_name, input_str),
+                                    map(lambda input_str: self.get_agg_qdsl_single_fragment(field_name, input_str,
+                                                                                            es_config),
                                         filed_value_list))
         if len(qdsl_fragment_list) == 1:
             return qdsl_fragment_list[0]
         elif len(qdsl_fragment_list) > 1:
             return reduce(deep_merge, qdsl_fragment_list)
 
-    def get_query_qdsl_single_fragment(self, field_name, input_str):
+    def get_query_qdsl_single_fragment(self, field_name, input_str, es_config):
         """
         获取单个查询条件QDSL
         :param field_name:
@@ -457,9 +495,9 @@ class ExtendQdslParser(object):
         if op_type not in self.QUERY_QDSL_PARSER_DICT:
             query_log.warning('Get query qdsl fragment has not support op type {0}', op_type)
             return None
-        return self.QUERY_QDSL_PARSER_DICT[op_type](field_name, field_str)
+        return self.QUERY_QDSL_PARSER_DICT[op_type](field_name, field_str, es_config)
 
-    def get_filter_qdsl_single_fragment(self, field_name, input_str):
+    def get_filter_qdsl_single_fragment(self, field_name, input_str, es_config):
         """
         获取单个过滤条件QDSL
         :param field_name:
@@ -472,9 +510,9 @@ class ExtendQdslParser(object):
         if op_type not in self.FILTER_QDSL_PARSER_DICT:
             query_log.warning('Get filter qdsl fragment has not support op type {0}', op_type)
             return None
-        return self.FILTER_QDSL_PARSER_DICT[op_type](field_name, field_str)
+        return self.FILTER_QDSL_PARSER_DICT[op_type](field_name, field_str, es_config)
 
-    def get_agg_qdsl_single_fragment(self, field_name, input_str):
+    def get_agg_qdsl_single_fragment(self, field_name, input_str, es_config):
         """
         获取单个聚合DSL
         :param field_name:
@@ -487,7 +525,7 @@ class ExtendQdslParser(object):
         if op_type not in self.AGGS_QDSL_PARSER_DICT:
             query_log.warning('Get agg qdsl fragment has not support op type {0}', op_type)
             return None
-        return self.AGGS_QDSL_PARSER_DICT[op_type](field_name, field_str)
+        return self.AGGS_QDSL_PARSER_DICT[op_type](field_name, field_str, es_config)
 
     def get_query_params_by_prefix(self, query_params, prefix_str):
         """
@@ -500,7 +538,7 @@ class ExtendQdslParser(object):
                      query_params.iterkeys() if
                      query_param_name.startswith(prefix_str)))
 
-    def __get_query_bool_term_fragment(self, field_name, field_str):
+    def __get_query_bool_term_fragment(self, field_name, field_str, es_config):
         """
         针对ES 2.0版本terms不再支持minimum_should_match属性，改用bool查询进行拼接
         支持字段null查询，null用'\null\'表示
@@ -532,7 +570,7 @@ class ExtendQdslParser(object):
             }
         }
 
-    def __get_query_term_fragment(self, field_name, field_str):
+    def __get_query_term_fragment(self, field_name, field_str, es_config):
         """
         term查询解析
         :param field_name:
@@ -540,14 +578,26 @@ class ExtendQdslParser(object):
         :return:
         """
         term_values = self.__parse_single_input_str(field_str)
-        return {
-            "terms": {
-                field_name: list(term_values),
-                "minimum_should_match": 1
-            }
-        }
 
-    def __get_query_size_term_fragment(self, field_name, field_str):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            terms = []
+            for value in list(term_values):
+                terms.append({"term": {field_name: value}})
+            return {
+                "bool": {
+                    "minimum_should_match": 1,
+                    "should": terms
+                }
+            }
+        else:
+            return {
+                "terms": {
+                    field_name: list(term_values),
+                    "minimum_should_match": 1
+                }
+            }
+
+    def __get_query_size_term_fragment(self, field_name, field_str, es_config):
         """
         terms查询，可以指定匹配条件数目, 不指定size参数或者指定size为0表示全匹配,
         ex_q_kkkk=size_terms(value:a,b,c;size:0)
@@ -562,21 +612,32 @@ class ExtendQdslParser(object):
             search_item_key_value = search_item_str.split(':')
             if len(search_item_key_value) > 1:
                 if search_item_key_value[0] == 'value':
-                    term_values = self.__parse_single_input_str(field_str)
+                    term_values = self.__parse_single_input_str(search_item_key_value[1])
                 elif search_item_key_value[0] == 'size':
                     term_size = int(search_item_key_value[1])
 
-        if term_size > list(term_values) or term_size == 0:
-            term_size = len(term_values)
+        if term_size > len(list(term_values)) or term_size == 0:
+            term_size = len(list(term_values))
 
-        return {
-            "terms": {
-                field_name: list(term_values),
-                "minimum_should_match": term_size
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            terms = []
+            for value in list(term_values):
+                terms.append({"term": {field_name: value}})
+            return {
+                "bool": {
+                    "minimum_should_match": term_size,
+                    "should": terms
+                }
             }
-        }
+        else:
+            return {
+                "terms": {
+                    field_name: list(term_values),
+                    "minimum_should_match": term_size
+                }
+            }
 
-    def __get_query_ids_fragment(self, field_name, field_str):
+    def __get_query_ids_fragment(self, field_name, field_str, es_config):
         """
         ids查询
         :param field_name:
@@ -590,7 +651,7 @@ class ExtendQdslParser(object):
             }
         }
 
-    def __get_query_range_fragment(self, field_name, field_str):
+    def __get_query_range_fragment(self, field_name, field_str, es_config):
         """
         范围查询
         :param field_name:
@@ -604,7 +665,7 @@ class ExtendQdslParser(object):
 
         return {'bool': {'should': range_qdsl_list, 'minimum_should_match': 1}}
 
-    def __get_query_date_range_fragment(self, field_name, field_str):
+    def __get_query_date_range_fragment(self, field_name, field_str, es_config):
         """
         时间范围查询,时间格式:"2012-01-01" "2012-01-01T00:00:00+01:00" "2011-12-31T23:00:00" "now"
         为了和时间的"-"区分,区间的分隔符为"--"
@@ -627,7 +688,7 @@ class ExtendQdslParser(object):
             range_qsdl_item['lt'] = ceiling_value
         return range_qsdl_item
 
-    def __get_query_querystring_fragment(self, field_name, field_str):
+    def __get_query_querystring_fragment(self, field_name, field_str, es_config):
         """
         query_string 查询
         :param field_name:
@@ -665,7 +726,7 @@ class ExtendQdslParser(object):
                 'Query_string search don\'t has query string, {0} , {1}'.format(field_name, field_str))
         return {"query_string": query_string_dsl}
 
-    def __get_query_match_fragment(self, field_name, field_str):
+    def __get_query_match_fragment(self, field_name, field_str, es_config):
         """
         match 查询
         :param field_name:
@@ -680,7 +741,7 @@ class ExtendQdslParser(object):
             }
         }
 
-    def __get_query_ematch_fragment(self, field_name, field_str):
+    def __get_query_ematch_fragment(self, field_name, field_str, es_config):
         """
         ematch(扩展match) 查询
         格式为：ex_q_kkk=ematch(query:abcdefg;minimum_should_match:2;operator:and)
@@ -706,7 +767,7 @@ class ExtendQdslParser(object):
 
         return {"match": {field_name: match_dsl}}
 
-    def __get_query_stock_fragment(self, field_name, field_str):
+    def __get_query_stock_fragment(self, field_name, field_str, es_config):
         """
         获取库存查询接口，库存查询参数为：
         ex_q_stock=stock(range:-10,20-60,70-;region:nanjing,field:stock)，
@@ -736,17 +797,18 @@ class ExtendQdslParser(object):
 
         if not region:
             # 表示是重量库存
-            range_dsl = self.__get_query_range_fragment('{0}.{1}'.format(field_name, stock_num_field), range_str)
+            range_dsl = self.__get_query_range_fragment('{0}.{1}'.format(field_name, stock_num_field), range_str,
+                                                        es_config)
             return {"nested": {"path": field_name, "query": range_dsl}}
         else:
             # 表示区域库存
             range_dsl = self.__get_query_range_fragment('{0}.regions.{1}'.format(field_name, stock_num_field),
-                                                        range_str)
+                                                        range_str, es_config)
             return {
                 "nested": {"path": field_name,
                            "query": {"nested": {"path": field_name + '.regions', "query": range_dsl}}}}
 
-    def __get_query_nested_fragment(self, field_name, field_str):
+    def __get_query_nested_fragment(self, field_name, field_str, es_config):
         """
         嵌套文档查询
         ex_q_kkk=nested(field:a|b;query:<>)
@@ -792,11 +854,12 @@ class ExtendQdslParser(object):
         if not nested_item_query_str or not path_fields:
             return {}
         path_fields = [field_name] + path_fields
-        nested_item_query_dsl = self.get_query_qdsl_single_fragment('.'.join(path_fields), nested_item_query_str)
+        nested_item_query_dsl = self.get_query_qdsl_single_fragment('.'.join(path_fields), nested_item_query_str,
+                                                                    es_config)
 
         return compute_nested_path_dsl(path_fields, 1, nested_item_query_dsl)
 
-    def __get_query_nested_multi_fragment(self, field_name, field_str):
+    def __get_query_nested_multi_fragment(self, field_name, field_str, es_config):
         """
         嵌套文档多个子查询，只支持一级子查询
         ex_q_userInfo=nested_multi(field:gender;query:<terms(未知)>|field:birthday;query:<range(-1551756022810)>)
@@ -825,11 +888,11 @@ class ExtendQdslParser(object):
                 return {}
 
             nested_item_query_dsl = self.get_query_qdsl_single_fragment(field_name + '.' + field,
-                                                                        nested_item_query_str)
+                                                                        nested_item_query_str, es_config)
             sub_queries.append(nested_item_query_dsl)
         return {"nested": {"path": field_name, "query": {"bool": {"must": sub_queries}}}}
 
-    def __get_query_multi_match_fragment(self, field_name, field_str):
+    def __get_query_multi_match_fragment(self, field_name, field_str, es_config):
         """
         multi_match match 查询
         ex_q_title,salePrice,cats = multi_match(query:abcdefg;fields:title,salePrice;type:most_fields;operator:and)
@@ -859,7 +922,7 @@ class ExtendQdslParser(object):
                 'Multi-match search don\'t has query string, {0} , {1}'.format(field_name, field_str))
         return {"multi_match": multi_match_dsl}
 
-    def __get_query_more_like_this_fragment(self, field_name, field_str):
+    def __get_query_more_like_this_fragment(self, field_name, field_str, es_config):
         """
         more_like_this 查询
         格式为：ex_q_title,salePrice,cats=more_like_this(like_text:华为手机)
@@ -889,9 +952,12 @@ class ExtendQdslParser(object):
                 else:
                     more_like_this_dsl[search_item_key_value[0]] = search_item_key_value[1]
 
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            more_like_this_dsl['like'] = more_like_this_dsl.pop('like_text')
+
         return {"more_like_this": more_like_this_dsl}
 
-    def __get_query_prefix_fragment(self, field_name, field_str):
+    def __get_query_prefix_fragment(self, field_name, field_str, es_config):
         """
         根据前缀查询
         ex_q_title=prefix(prefix:华为手机;boost:1.0)
@@ -914,9 +980,15 @@ class ExtendQdslParser(object):
             # 没有prefix关键词，抛出异常
             raise InvalidParamError(
                 'Prefix search don\'t has query string, {0} , {1}'.format(field_name, field_str))
+
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            value = prefix_dsl[field_name]
+            prefix_value = value.get('value') or value.get('prefix')
+            prefix_dsl = {field_name: prefix_value}
+
         return {"prefix": prefix_dsl}
 
-    def __get_query_regexp_fragment(self, field_name, field_str):
+    def __get_query_regexp_fragment(self, field_name, field_str, es_config):
         """
         根据正则表达式查询
         Ex_q__属性名=regexp(value:华为*手机;flags:ALL;max_determinized_states:20000;boost:2.0)
@@ -941,7 +1013,7 @@ class ExtendQdslParser(object):
                 'Regexp search don\'t has value string, {0} , {1}'.format(field_name, field_str))
         return {"regexp": regexp_dsl}
 
-    def __get_query_span_first_fragment(self, field_name, field_str):
+    def __get_query_span_first_fragment(self, field_name, field_str, es_config):
         """
         Span_first
         Span_first 只允许返回在字段前几个位置上匹配查询条件的文档
@@ -969,7 +1041,7 @@ class ExtendQdslParser(object):
                 'Span first search don\'t has value string, {0} , {1}'.format(field_name, field_str))
         return {"span_first": span_first_dsl}
 
-    def __get_query_span_near_fragment(self, field_name, field_str):
+    def __get_query_span_near_fragment(self, field_name, field_str, es_config):
         """
         span_near 查询
         格式为：ex_q_title=span_near(value:华为,手机;slop:10;in_order:true;collect_payloads:false)
@@ -1001,7 +1073,7 @@ class ExtendQdslParser(object):
 
         return {"span_near": span_near_dsl}
 
-    def __get_query_wildcard_fragment(self, field_name, field_str):
+    def __get_query_wildcard_fragment(self, field_name, field_str, es_config):
         """
         根据通配符查询
         和term查询类似，不过可以使用通配符
@@ -1027,7 +1099,7 @@ class ExtendQdslParser(object):
                 'Wildcard search don\'t has value string, {0} , {1}'.format(field_name, field_str))
         return {"wildcard": wildcard_dsl}
 
-    def __get_filter_geo_distance_fragment(self, field_name, field_str):
+    def __get_filter_geo_distance_fragment(self, field_name, field_str, es_config):
         """
         距离查询
         Geo Distance Filter
@@ -1038,20 +1110,37 @@ class ExtendQdslParser(object):
         """
         if not field_str or not field_name:
             return None
-        search_item_str_list = field_str.split(';')
-        geo_distance_filter_dsl = {field_name: {}}
-        for search_item_str in search_item_str_list:
-            search_item_key_value = search_item_str.split(':')
-            if len(search_item_key_value) > 1:
-                if search_item_key_value[0] == 'boost':
-                    geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
-                elif search_item_key_value[0] == 'location':
-                    geo_distance_filter_dsl[field_name] = str(search_item_key_value[1])
-                else:
-                    geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
-        return {"geo_distance": geo_distance_filter_dsl}
 
-    def __get_filter_geo_distance_range_fragment(self, field_name, field_str):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            location, distance = None, None
+            if field_str:
+                search_item_str_list = field_str.split(';')
+                for search_item_str in search_item_str_list:
+                    search_item_key_value = search_item_str.split(':')
+                    if len(search_item_key_value) > 1:
+                        if search_item_key_value[0] == 'location':
+                            location = search_item_key_value[1]
+                        elif search_item_key_value[0] == 'distance':
+                            distance = search_item_key_value[1]
+
+            if location is None or distance is None:
+                raise InvalidParamError('Location or distance should\'t be null')
+            return {"bool": {"filter": {"geo_distance": {"distance": distance, field_name: location}}}}
+        else:
+            search_item_str_list = field_str.split(';')
+            geo_distance_filter_dsl = {field_name: {}}
+            for search_item_str in search_item_str_list:
+                search_item_key_value = search_item_str.split(':')
+                if len(search_item_key_value) > 1:
+                    if search_item_key_value[0] == 'boost':
+                        geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
+                    elif search_item_key_value[0] == 'location':
+                        geo_distance_filter_dsl[field_name] = str(search_item_key_value[1])
+                    else:
+                        geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
+            return {"geo_distance": geo_distance_filter_dsl}
+
+    def __get_filter_geo_distance_range_fragment(self, field_name, field_str, es_config):
         """
         距离范围查询
         Geo Distance Range Filter
@@ -1060,6 +1149,9 @@ class ExtendQdslParser(object):
         :param field_str:
         :return:
         """
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            raise GenericError('<ex_f_distance=geo_distance_range()> not support elasticsearch7')
+
         if not field_str or not field_name:
             return None
         search_item_str_list = field_str.split(';')
@@ -1075,7 +1167,7 @@ class ExtendQdslParser(object):
                     geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
         return {"geo_distance_range": geo_distance_filter_dsl}
 
-    def __get_filter_geo_bounding_box_fragment(self, field_name, field_str):
+    def __get_filter_geo_bounding_box_fragment(self, field_name, field_str, es_config):
         """
         Geo Bounding box Filter
         地理位置矩形查询
@@ -1086,18 +1178,36 @@ class ExtendQdslParser(object):
         """
         if not field_str or not field_name:
             return None
-        search_item_str_list = field_str.split(';')
-        geo_distance_filter_dsl = {field_name: {}}
-        for search_item_str in search_item_str_list:
-            search_item_key_value = search_item_str.split(':')
-            if len(search_item_key_value) > 1:
-                if search_item_key_value[0] == 'boost':
-                    geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
-                else:
-                    geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
-        return {"geo_bounding_box": geo_distance_filter_dsl}
 
-    def __get_filter_null_fragment(self, field_name, field_str):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            top_left, bottom_right = None, None
+            if field_str:
+                search_item_str_list = field_str.split(';')
+                for search_item_str in search_item_str_list:
+                    search_item_key_value = search_item_str.split(':')
+                    if len(search_item_key_value) > 1:
+                        if search_item_key_value[0] == 'top_left':
+                            top_left = search_item_key_value[1]
+                        elif search_item_key_value[0] == 'bottom_right':
+                            bottom_right = search_item_key_value[1]
+
+            if top_left is None or bottom_right is None:
+                raise InvalidParamError('Top left or bottom right should\'t be null')
+            return {"bool": {"filter": {
+                "geo_bounding_box": {field_name: {"top_left": top_left, "bottom_right": bottom_right}}}}}
+        else:
+            search_item_str_list = field_str.split(';')
+            geo_distance_filter_dsl = {field_name: {}}
+            for search_item_str in search_item_str_list:
+                search_item_key_value = search_item_str.split(':')
+                if len(search_item_key_value) > 1:
+                    if search_item_key_value[0] == 'boost':
+                        geo_distance_filter_dsl[search_item_key_value[0]] = float(search_item_key_value[1])
+                    else:
+                        geo_distance_filter_dsl[search_item_key_value[0]] = search_item_key_value[1]
+            return {"geo_bounding_box": geo_distance_filter_dsl}
+
+    def __get_filter_null_fragment(self, field_name, field_str, es_config):
         """
         null 过滤，格式为：ex_f_属性名=null(flag:false),
         false主要是决定是null还是not null， true表示是null查询；false表示not null查询。默认为false
@@ -1117,13 +1227,19 @@ class ExtendQdslParser(object):
                 search_item_key_value = search_item_str.split(':')
                 if len(search_item_key_value) > 1 and search_item_key_value[0] == 'flag':
                     flag = search_item_key_value[1].lower() == 'true'
-        if flag:
-            return {"missing": {"field": field_name}}
-        else:
-            # return {field_name + "_null": {"filter": {"exists": {"field": field_name}}}}
-            return {"exists": {"field": field_name}}
 
-    def __get_query_not_fragment(self, field_name, field_str):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            if flag:
+                return {"bool": {"must_not": {"exists": {"field": field_name}}}}
+            else:
+                return {"bool": {"must": {"exists": {"field": field_name}}}}
+        else:
+            if flag:
+                return {"missing": {"field": field_name}}
+            else:
+                return {"exists": {"field": field_name}}
+
+    def __get_query_not_fragment(self, field_name, field_str, es_config):
         """
         not查询
         ex_q_not=not(query:<>)
@@ -1159,12 +1275,12 @@ class ExtendQdslParser(object):
         for item_query_str in item_query_str_list:
             field_name, field_str = item_query_str.split('=')
             field_name = field_name[len('eq_q_'):]
-            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str, es_config)
             item_query_dsl_list.append(item_query_dsl)
 
         return {'bool': {'must_not': item_query_dsl_list}}
 
-    def __get_query_or_fragment(self, field_name, field_str):
+    def __get_query_or_fragment(self, field_name, field_str, es_config):
         """
         or查询
         ex_q_or=or(query:<>)
@@ -1198,12 +1314,12 @@ class ExtendQdslParser(object):
         for item_query_str in item_query_str_list:
             field_name, field_str = item_query_str.split('=')
             field_name = field_name[len('eq_q_'):]
-            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str)
+            item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str, es_config)
             item_query_dsl_list.append(item_query_dsl)
 
         return {'bool': {'should': item_query_dsl_list}}
 
-    def __get_query_null_fragment(self, field_name, field_str):
+    def __get_query_null_fragment(self, field_name, field_str, es_config):
         """
         null 查询，使用filtered query实现, 功能同 __get_filter_null_fragment
         格式为：ex_q_属性名=null(flag:false),
@@ -1224,12 +1340,19 @@ class ExtendQdslParser(object):
                 search_item_key_value = search_item_str.split(':')
                 if len(search_item_key_value) > 1 and search_item_key_value[0] == 'flag':
                     flag = search_item_key_value[1].lower() == 'true'
-        if flag:
-            return {"filtered": {"filter": {"missing": {"field": field_name}}}}
-        else:
-            return {"filtered": {"filter": {"exists": {"field": field_name}}}}
 
-    def __get_agg_max_fragment(self, field_name, field_str):
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            if flag:
+                return {"bool": {"must_not": {"exists": {"field": field_name}}}}
+            else:
+                return {"bool": {"must": {"exists": {"field": field_name}}}}
+        else:
+            if flag:
+                return {"filtered": {"filter": {"missing": {"field": field_name}}}}
+            else:
+                return {"filtered": {"filter": {"exists": {"field": field_name}}}}
+
+    def __get_agg_max_fragment(self, field_name, field_str, es_config):
         """
         agg max聚合
         ex_agg_title=max(script:doc.price.value)
@@ -1250,7 +1373,7 @@ class ExtendQdslParser(object):
                     del agg_max_dsl['max']['field']
         return {aggs_key: agg_max_dsl}
 
-    def __get_agg_min_fragment(self, field_name, field_str):
+    def __get_agg_min_fragment(self, field_name, field_str, es_config):
         """
         agg min聚合
         ex_agg_title=min(script:doc.price.value)
@@ -1271,7 +1394,7 @@ class ExtendQdslParser(object):
                     del agg_min_dsl['min']['field']
         return {aggs_key: agg_min_dsl}
 
-    def __get_agg_sum_fragment(self, field_name, field_str):
+    def __get_agg_sum_fragment(self, field_name, field_str, es_config):
         """
         agg sum聚合
         ex_agg_title=sum(script:doc.price.value)
@@ -1292,7 +1415,7 @@ class ExtendQdslParser(object):
                     del agg_sum_dsl['sum']['field']
         return {aggs_key: agg_sum_dsl}
 
-    def __get_agg_avg_fragment(self, field_name, field_str):
+    def __get_agg_avg_fragment(self, field_name, field_str, es_config):
         """
         agg avg
         ex_agg_title=avg(script:doc.price.value)
@@ -1313,7 +1436,7 @@ class ExtendQdslParser(object):
                     del agg_avg_dsl['avg']['field']
         return {aggs_key: agg_avg_dsl}
 
-    def __get_agg_stats_fragment(self, field_name, field_str):
+    def __get_agg_stats_fragment(self, field_name, field_str, es_config):
         """
         agg stats
         ex_agg_title=stats(script:doc.price.value)
@@ -1334,7 +1457,7 @@ class ExtendQdslParser(object):
                     del agg_stats_dsl['stats']['field']
         return {aggs_key: agg_stats_dsl}
 
-    def __get_agg_exstats_fragment(self, field_name, field_str):
+    def __get_agg_exstats_fragment(self, field_name, field_str, es_config):
         """
         agg extended_stats
         ex_agg_title=exstats(script:doc.price.value)
@@ -1355,7 +1478,7 @@ class ExtendQdslParser(object):
                     del agg_exstats_dsl['extended_stats']['field']
         return {aggs_key: agg_exstats_dsl}
 
-    def __get_agg_value_count_fragment(self, field_name, field_str):
+    def __get_agg_value_count_fragment(self, field_name, field_str, es_config):
         """
         agg value count
         ex_agg_title=value_count(script:doc.price.value)
@@ -1376,7 +1499,7 @@ class ExtendQdslParser(object):
                     del agg_value_count_dsl['value_count']['field']
         return {aggs_key: agg_value_count_dsl}
 
-    def __get_agg_percentiles_fragment(self, field_name, field_str):
+    def __get_agg_percentiles_fragment(self, field_name, field_str, es_config):
         """
         agg value count
         ex_agg_title=percentiles(script:doc.price.value)
@@ -1400,7 +1523,7 @@ class ExtendQdslParser(object):
                                                                          search_item_key_value[1].split(','))
         return {aggs_key: agg_percentiles_dsl}
 
-    def __get_agg_percentile_ranks_fragment(self, field_name, field_str):
+    def __get_agg_percentile_ranks_fragment(self, field_name, field_str, es_config):
         """
         Percentile Ranks Aggregation
         根据数值查询百分比
@@ -1425,7 +1548,7 @@ class ExtendQdslParser(object):
                                                                             search_item_key_value[1].split(','))
         return {aggs_key: agg_percentiles_dsl}
 
-    def __get_agg_cardinality_fragment(self, field_name, field_str):
+    def __get_agg_cardinality_fragment(self, field_name, field_str, es_config):
         """
         Cardinality Aggregation
         查询不同值的数码，类似于数据库的distinct
@@ -1446,7 +1569,7 @@ class ExtendQdslParser(object):
                     agg_cardinality_dsl['cardinality']['precision_threshold'] = float(search_item_key_value[1])
         return {aggs_key: agg_cardinality_dsl}
 
-    def __get_agg_missing_fragment(self, field_name, field_str):
+    def __get_agg_missing_fragment(self, field_name, field_str, es_config):
         """
         Missing Aggregation
         统计字段为null或者没有该字段的doc数目
@@ -1461,7 +1584,7 @@ class ExtendQdslParser(object):
         agg_missing_dsl = {"missing": {"field": field_name}}
         return {aggs_key: agg_missing_dsl}
 
-    def __get_agg_terms_fragment(self, field_name, field_str):
+    def __get_agg_terms_fragment(self, field_name, field_str, es_config):
         """
         Terms Aggregation
         对字段进行词条统计
@@ -1491,9 +1614,14 @@ class ExtendQdslParser(object):
                 else:
                     agg_terms_dsl['terms'][search_item_key_value[0]] = search_item_key_value[1]
 
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            if 'size' in agg_terms_dsl['terms'] and int(agg_terms_dsl['terms']['size']) == 0:
+                # 参考：https://github.com/elastic/elasticsearch/issues/18838
+                agg_terms_dsl['terms']['size'] = 2147483647
+
         return {aggs_key: agg_terms_dsl}
 
-    def __get_agg_range_fragment(self, field_name, field_str):
+    def __get_agg_range_fragment(self, field_name, field_str, es_config):
         """
         Range Aggregation
         范围统计
@@ -1541,7 +1669,7 @@ class ExtendQdslParser(object):
 
         return {aggs_key: agg_range_dsl}
 
-    def __get_agg_date_range_fragment(self, field_name, field_str):
+    def __get_agg_date_range_fragment(self, field_name, field_str, es_config):
         """
         14. Date Range Aggregation
         时间范围统计
@@ -1589,7 +1717,7 @@ class ExtendQdslParser(object):
 
         return {aggs_key: agg_date_range_dsl}
 
-    def __get_agg_histogram_fragment(self, field_name, field_str):
+    def __get_agg_histogram_fragment(self, field_name, field_str, es_config):
         """
         Histogram Aggregation
         直方图统计，
@@ -1638,7 +1766,7 @@ class ExtendQdslParser(object):
 
         return {aggs_key: agg_histogram_dsl}
 
-    def __get_agg_date_histogram_fragment(self, field_name, field_str):
+    def __get_agg_date_histogram_fragment(self, field_name, field_str, es_config):
         """
         Date Histogram Aggregation
         时间直方图统计
@@ -1664,12 +1792,14 @@ class ExtendQdslParser(object):
                         agg_date_histogram_dsl['date_histogram']['order'] = {order_item_list[0]: order_item_list[1]}
                 elif search_item_key_value[0] == 'keyed':
                     agg_date_histogram_dsl['date_histogram']['keyed'] = bool(search_item_key_value[1])
+                elif search_item_key_value[0] == 'offset':
+                    agg_date_histogram_dsl['date_histogram']['offset'] = search_item_key_value[1]
                 else:
                     agg_date_histogram_dsl['date_histogram'][search_item_key_value[0]] = search_item_key_value[1]
 
         return {aggs_key: agg_date_histogram_dsl}
 
-    def __get_agg_geo_distance_fragment(self, field_name, field_str):
+    def __get_agg_geo_distance_fragment(self, field_name, field_str, es_config):
         """
         Geo Distance Aggregation
         地理距离统计
@@ -1710,9 +1840,13 @@ class ExtendQdslParser(object):
                 else:
                     agg_date_range_dsl['geo_distance'][search_item_key_value[0]] = search_item_key_value[1]
 
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            agg_date_range_dsl['geo_distance'].pop('min_doc_count')
+            agg_date_range_dsl['geo_distance'].pop('distance_type')
+
         return {aggs_key: agg_date_range_dsl}
 
-    def __get_agg_cats_fragment(self, field_name, field_str):
+    def __get_agg_cats_fragment(self, field_name, field_str, es_config):
         """
         聚合商品类目路径，一次聚合出所有层级的类目
         ex_agg_cats=cats(depth:3)
@@ -1735,7 +1869,7 @@ class ExtendQdslParser(object):
                     break
         return {aggs_key: qdsl_parser.get_catpath_agg_qdl(depth)['cats']}
 
-    def __get_agg_key_value_fragment(self, field_name, field_str):
+    def __get_agg_key_value_fragment(self, field_name, field_str, es_config):
         """
         key value聚合，聚合的数据格式为：
         "specs": [
@@ -1772,7 +1906,7 @@ class ExtendQdslParser(object):
             }}
         }
 
-    def __get_agg_sub_fragment(self, field_name, field_str):
+    def __get_agg_sub_fragment(self, field_name, field_str, es_config):
         """
         sub Aggregation，多层子聚合
         ex_q_sub=sub(aggs:<ex_agg_spuId=terms()>|<ex_agg_skuId=terms()>)
@@ -1789,7 +1923,6 @@ class ExtendQdslParser(object):
 
         if not field_name:
             return None
-
         agg_item_str_list = field_str.split(';')
         item_agg_str_list = []
         for agg_item_str in agg_item_str_list:
@@ -1803,14 +1936,12 @@ class ExtendQdslParser(object):
                             item_agg_str_list.append(cur_item_agg_str)
         if not item_agg_str_list:
             return {}
-
         item_agg_dsl_list = []
         for item_agg_str in item_agg_str_list:
             field_name, field_str = item_agg_str.split('=')
             field_name = field_name[len('eq_agg_'):]
-            item_agg_dsl = self.get_agg_qdsl_single_fragment(field_name, field_str)
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(field_name, field_str, es_config)
             item_agg_dsl_list.append(item_agg_dsl)
-
         cur_agg_dsl = None
         item_agg_dsl_list.reverse()
         for item_agg_dsl in item_agg_dsl_list:
@@ -1819,10 +1950,9 @@ class ExtendQdslParser(object):
             else:
                 item_agg_dsl.values()[0]['aggs'] = cur_agg_dsl
                 cur_agg_dsl = item_agg_dsl
-
         return cur_agg_dsl
 
-    def __get_agg_named_sub_fragment(self, field_name, field_str):
+    def __get_agg_named_sub_fragment(self, field_name, field_str, es_config):
         """
         named sub Aggregation，包含了自定义命名的多层子聚合
         ex_agg_name=named_sub(aggs:<ex_agg_spuId=terms()>|<ex_agg_skuId=terms()>)
@@ -1856,7 +1986,7 @@ class ExtendQdslParser(object):
         for item_agg_str in item_agg_str_list:
             item_field_name, item_field_str = item_agg_str.split('=')
             item_field_name = item_field_name[len('eq_agg_'):]
-            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str)
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str, es_config)
             item_agg_dsl_list.append(item_agg_dsl)
         cur_agg_dsl = None
         item_agg_dsl_list.reverse()
@@ -1868,7 +1998,7 @@ class ExtendQdslParser(object):
                 cur_agg_dsl = item_agg_dsl
         return {'ex_agg_' + field_name + '_sub': cur_agg_dsl.values()[0]}
 
-    def __get_nested_agg_fragment(self, field_name, field_str):
+    def __get_nested_agg_fragment(self, field_name, field_str, es_config):
         """
         nested aggregation，嵌套类型的聚合
         ex_agg_payReceiptRecords=nested(aggs:<ex_agg_uniPaymentChannel=terms()>|<ex_agg_payAmount=sum()>)
@@ -1903,7 +2033,7 @@ class ExtendQdslParser(object):
             item_field_name, item_field_str = item_agg_str.split('=')
             item_field_name = item_field_name[len('eq_agg_'):]
             item_field_name = field_name + '.' + item_field_name  # 子字段前面加上field_name
-            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str)
+            item_agg_dsl = self.get_agg_qdsl_single_fragment(item_field_name, item_field_str, es_config)
             item_agg_dsl_list.append(item_agg_dsl)
         cur_agg_dsl = None
         item_agg_dsl_list.reverse()
