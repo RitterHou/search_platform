@@ -101,13 +101,15 @@ class QdslParser(object):
             chain(self.parse_owner_filter(es_config, query_params))
         )
 
+        # 基础的查询DSL
         product_query_qdsl = reduce(lambda dict_1, dict_2: dict(dict_1, **dict_2),
                                     filter(lambda item: item,
                                            [{'query': {'bool': {'must': must_bool_query_qdsl_list,
                                                                 'must_not': must_not_query_dsl_list}}},
                                             self.parse_page_param(from_num, size_num),
-                                            self.parse_sort_params(sort)]))
-        extend_query_qdsl = extend_parser.get_qdsl(query_params)
+                                            self.parse_sort_params(sort, es_config)]))
+        # 扩展查询DSL
+        extend_query_qdsl = extend_parser.get_qdsl(query_params, es_config)
         return deep_merge(product_query_qdsl, extend_query_qdsl)
 
     def parse_owner_filter(self, es_config, query_params):
@@ -120,11 +122,11 @@ class QdslParser(object):
         # 1表示只查询自营商品，也是默认值；0表示关闭自营查询过滤，即查询所有的数据
         owner_filter = get_dict_value(query_params, 'ownerFilter', 1)
         owner_filter = int(owner_filter)
-        es_reference = es_config['reference']
-        if owner_filter == 0 and (
-                        es_reference.startswith('spu_') or
-                        es_reference.startswith('product_') or
-                        es_config['index'].startswith('direct-store-')
+        es_reference = es_config.get('reference')
+        if owner_filter == 0 and es_reference and (
+                es_reference.startswith('spu_') or
+                es_reference.startswith('product_') or
+                es_config['index'].startswith('direct-store-')
         ):
             # 确实要查询，不做任何限制
             return []
@@ -253,8 +255,8 @@ class QdslParser(object):
             return []
         boost = config.get_value('/consts/query/query_string/score/boost') or 1.0
         return [{'bool': {'boost': boost, 'should':
-            [{'match': {'brand.standard': {'query': query_string, 'type': 'phrase'}}},
-             {'match': {'title.standard': {'query': query_string, 'type': 'phrase'}}},
+            [{'match_phrase': {'brand.standard': {'query': query_string}}},
+             {'match_phrase': {'title.standard': {'query': query_string}}},
              {"match_all": {"boost": 0.01}}],
                           "minimum_should_match": 0}}]
 
@@ -292,10 +294,11 @@ class QdslParser(object):
         """
         return {'from': from_num, 'size': size_num}
 
-    def parse_sort_params(self, sort):
+    def parse_sort_params(self, sort, es_config):
         """
         生成排序QDSL
         :param sort:
+        :param es_config:
         :return:
         """
         if not sort or not sort.strip():
@@ -308,9 +311,9 @@ class QdslParser(object):
             sort_item_list = sort.split('_')
         else:
             sort_item_list = sort.split(';')
-        return {'sort': [self.parse_sort_param_item(item) for item in sort_item_list if item]}
+        return {'sort': [self.parse_sort_param_item(item, es_config) for item in sort_item_list if item]}
 
-    def parse_sort_param_item(self, sort_item):
+    def parse_sort_param_item(self, sort_item, es_config):
         """
         单个排序字段进行处理，字段和顺序用":"分割，price:1 示例表示：价格升序
         sort=price:1_stock:0
@@ -318,6 +321,7 @@ class QdslParser(object):
         Sort=price:1;stock:order(0)
         Sort=price:1; script:script(),type(),order();geodistance:location(48.8, 2.35),unit(km),order(0)
         :param sort_item:
+        :param es_config:
         :return:
         """
         sort_field_id, sort_seq_id = sort_item.strip().split(':', 1)
@@ -338,6 +342,13 @@ class QdslParser(object):
             distance_type = unbind_variable('distancetype\\((?P<distancetype>[\\d\\D]+?)\\)', 'distancetype',
                                             sort_seq_id)[1] or 'sloppy_arc'
 
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+                # 在ES7中sloppy_arc已被废弃
+                # https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-request-body.html#geo-sorting
+                # https://github.com/elastic/elasticsearch/issues/15616#issuecomment-167855618
+                if distance_type == 'sloppy_arc':
+                    distance_type = 'arc'
+
             _location = location.split(',')
             return {
                 "_geo_distance": {
@@ -351,6 +362,9 @@ class QdslParser(object):
                     "distance_type": distance_type
                 }
             }
+        if sort_field_id == '_score':
+            # 针对_score字段做特殊处理，https://github.com/elastic/elasticsearch/issues/17392
+            return {self.global_id_to_field(sort_field_id): {"order": order}}
         return {self.global_id_to_field(sort_field_id): {"order": order, "unmapped_type": "double"}}
 
     def parse_basic_conditions(self, basic_conditions):
@@ -545,6 +559,16 @@ class QdslParser(object):
     # 聚合QDSL解析相关函数 start
     ###########################################################################################
     def get_agg_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None):
+        """
+        单纯的生成聚合DSL
+        :param es_config:
+        :param index:
+        :param type:
+        :param query_params:
+        :param parse_fields:
+        :param es_connection:
+        :return:
+        """
         ignore_default_agg_str = get_dict_value(query_params, 'ignore_default_agg')
         ignore_default_agg = (ignore_default_agg_str.lower() == 'true')
         if not ignore_default_agg:
@@ -560,7 +584,7 @@ class QdslParser(object):
         qdsl = self.get_product_query_qdsl(es_config, index, type, query_params, parse_fields, es_connection)
         qdsl['aggs'] = cur_agg_qdl
         qdsl['size'] = 0
-        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
+        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params, es_config))
         return qdsl
 
     def parse_catpath_agg_condition(self, cats_str):
@@ -650,6 +674,17 @@ class QdslParser(object):
     ###########################################################################################
     def get_search_qdl(self, es_config, index, type, query_params, parse_fields, es_connection=None,
                        ignore_default_agg=False):
+        """
+        这里的获取search_qdsl包含了 [查询] 和 [聚合] 两种的DSL的生成
+        :param es_config:
+        :param index:
+        :param type:
+        :param query_params:
+        :param parse_fields:
+        :param es_connection:
+        :param ignore_default_agg:
+        :return:
+        """
         res_str = get_dict_value(query_params, 'res')
         if not res_str:
             res_str = 'products,aggregations'
@@ -669,7 +704,7 @@ class QdslParser(object):
             else:
                 cur_agg_qdl = {}
             qdsl['aggs'] = cur_agg_qdl
-        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params))
+        qdsl = deep_merge(qdsl, extend_parser.get_agg_qdsl(query_params, es_config))
         if 'products' not in res_list:
             qdsl['size'] = 0
 
