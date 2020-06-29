@@ -7,9 +7,9 @@ from itertools import chain
 from algorithm.content_based_recom import content_recom
 from algorithm.like_query_string import like_str_algorithm
 from algorithm.section_partitions import equal_section_partitions
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.configs import config
-from common.connections import EsConnectionFactory
+from common.connections import EsConnectionFactory, Es7ConnectionFactory
 from common.exceptions import InvalidParamError, EsConnectionError
 from common.loggers import debug_log, query_log as app_log
 from common.pingyin_utils import pingyin_utils
@@ -43,6 +43,10 @@ def get_es_search_params(es_config, index_name, doc_type, args, parse_fields=Non
     "处理preference, restful入参为：search_preference=kk"
     preference = args.get("search_preference")
     if preference in ['_primary', '_primary_first', '_local', '_only_nodes']:
+        # _primary和_primary_first已经被废弃
+        # 参见：https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-preference.html
+        if preference in ['_primary', '_primary_first']:
+            preference = get_day_and_hour()  # 利用小时替代
         params['preference'] = preference
     elif preference == '_auto' and parse_fields and parse_fields.get('adminId'):
         cur_time_str = get_day_and_hour()
@@ -58,7 +62,13 @@ class EsModel(object):
 
 
 class EsProductManager(object):
-    connection_pool = EsConnectionFactory
+    """
+    搜索引擎商品HTTP操作模块接口
+    """
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -67,11 +77,15 @@ class EsProductManager(object):
         :param args:
         :return:
         """
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
         if not es_connection:
             raise EsConnectionError()
         start_time = time.time()
         qdsl = qdsl_parser.get_product_query_qdsl(es_config, index_name, doc_type, args, parse_fields, es_connection)
+        # Elasticsearch7返回所有的数据条数
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            qdsl['track_total_hits'] = True
         qdsl_end_time = time.time()
         app_log.info('Get product dsl finish, spend time {4}, index={0} , type={1} , args={2}, dsl={3}', index_name,
                      doc_type, args, qdsl, qdsl_end_time - start_time)
@@ -87,8 +101,12 @@ class EsProductManager(object):
                 es_result = self.__scan_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
             else:
                 es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
-                es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
-                                                 **es_search_params)
+                es_result = es_connection.search(
+                    index=index_name,
+                    doc_type=doc_type if doc_type != 'None' else None,
+                    body=qdsl,
+                    **es_search_params
+                )
             es_end_time = time.time()
             app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
                          es_end_time - qdsl_end_time)
@@ -113,7 +131,8 @@ class EsProductManager(object):
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
 
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
         # doc_id = bind_variable(es_config['id'], product)
@@ -123,8 +142,17 @@ class EsProductManager(object):
         if redo:
             _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                      timestamp)
-        es_bulk_result = es_connection.bulk(_bulk_body,
-                                            params={'request_timeout': BATCH_REQUEST_TIMEOUT, 'timeout': BATCH_TIMEOUT})
+
+        # 对elasticsearch7版本进行兼容
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            es_bulk_result = es_connection.bulk(_bulk_body,
+                                                params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                        'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+        else:
+            es_bulk_result = es_connection.bulk(_bulk_body,
+                                                params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                        'timeout': BATCH_TIMEOUT})
+
         return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def _filter_has_update_doc(self, es_config, index_name, doc_type, es_connection, _bulk_body, timestamp,
@@ -232,7 +260,8 @@ class EsProductManager(object):
             app_log.error('Product update input product is invalid')
             raise InvalidParamError()
 
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
         if parse_fields and 'id' in parse_fields and parse_fields['id']:
@@ -244,8 +273,15 @@ class EsProductManager(object):
         if redo:
             _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                      timestamp, 'update')
-        es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
-                                                                'timeout': BATCH_TIMEOUT})
+
+        # 对elasticsearch7版本进行兼容
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+        else:
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': BATCH_TIMEOUT})
+
         return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def _build_update_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp, doc_id=None):
@@ -316,7 +352,8 @@ class EsProductManager(object):
             # 表示是删除scroll缓存
             return self.__delete_scroll_cache(es_config, index_name, doc_type, product, parse_fields)
         else:
-            es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+            connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+            es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
             if not es_connection:
                 raise EsConnectionError()
 
@@ -327,8 +364,15 @@ class EsProductManager(object):
             if redo:
                 _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                          timestamp, 'delete')
-            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
-                                                                    'timeout': BATCH_TIMEOUT})
+
+            # 对elasticsearch7版本进行兼容
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+                es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                        'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+            else:
+                es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                        'timeout': BATCH_TIMEOUT})
+
             return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def parse_es_result(self, es_result, args):
@@ -340,6 +384,8 @@ class EsProductManager(object):
         multi_field_dict = {}
         if 'hits' in es_result and es_result['hits'] and 'hits' in es_result['hits']:
             total = es_result['hits']['total']
+            if isinstance(total, dict):
+                total = total['value']  # 兼容es7版本的返回格式
             doc_list = es_result['hits']['hits']
             product_list = map(lambda doc: self.parse_es_result_item(doc, args, multi_field_dict), doc_list)
         elif '_source' in es_result:
@@ -427,9 +473,14 @@ class EsProductManager(object):
         :return:
         """
         scroll_time = args.get('scroll_time') or config.get_value('/consts/query/scroll_time')
-        return es_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
-                                 scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
-                                 host=es_config.get('host'))
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            return es7_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
+                                      scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                      host=es_config.get('host'))
+        else:
+            return es_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
+                                     scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                     host=es_config.get('host'))
 
     def __scan_search(self, qdsl, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -443,8 +494,12 @@ class EsProductManager(object):
         :return:
         """
         scroll_time = args.get('scroll_time') or config.get_value('/consts/query/scroll_time')
-        iter_es_scan_result = es_adapter.scan(scroll_time, qdsl, index=index_name, doc_type=doc_type,
-                                              host=es_config.get('host'))
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            iter_es_scan_result = es7_adapter.scan(scroll_time, qdsl, index=index_name, doc_type=doc_type,
+                                                   host=es_config.get('host'))
+        else:
+            iter_es_scan_result = es_adapter.scan(scroll_time, qdsl, index=index_name, doc_type=doc_type,
+                                                  host=es_config.get('host'))
         es_result = {'hits': {'hits': []}}
         iter_es_scan_result = list(iter_es_scan_result)
         for item_scan_result in iter_es_scan_result:
@@ -463,12 +518,19 @@ class EsProductManager(object):
         :param parse_fields:
         :return:
         """
-        return es_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
-                                        host=es_config.get('host'))
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            return es7_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                             host=es_config.get('host'))
+        else:
+            return es_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                            host=es_config.get('host'))
 
 
 class EsAggManager(object):
-    connection_pool = EsConnectionFactory
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     @debug_log.debug('EsAggManager.get::')
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
@@ -480,10 +542,14 @@ class EsAggManager(object):
         :param args:
         :return:
         """
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_agg_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection)
         app_log.info('Get agg dsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
-        es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl)
+        es_result = es_connection.search(
+            index=index_name,
+            doc_type=doc_type if doc_type != 'None' else None,
+            body=qdsl)
         result = self.parse_es_result(es_result, args)
         range_result = self.get_agg_range_result(es_config, index_name, doc_type, args, es_result, qdsl)
         if range_result:
@@ -534,7 +600,8 @@ class EsAggManager(object):
         start_time = time.time()
         if 'aggregations' not in es_result or not es_result['aggregations']:
             return
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
         agg_range_qdsl = extend_parser.get_section_agg_range_dsl(args, es_result['aggregations'])
         if not agg_range_qdsl:
             return
@@ -544,7 +611,10 @@ class EsAggManager(object):
         cur_qdsl = deep_merge(qdsl if qdsl else {}, agg_range_qdsl)
         app_log.info('Get agg range qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      cur_qdsl)
-        es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=cur_qdsl)
+        es_result = es_connection.search(
+            index=index_name,
+            doc_type=doc_type if doc_type != 'None' else None,
+            body=cur_qdsl)
         result = self.parse_es_agg_range_result(es_result, args)
         app_log.info('EsAggManager get agg range return is {0}', result)
         debug_log.print_log('get_agg_range_result spends {0}'.format(time.time() - start_time))
@@ -562,6 +632,8 @@ class EsAggManager(object):
             return
         ex_query_params_dict = extend_parser.get_query_params_by_prefix(query_params, 'ex_section_')
         total_doc_count = es_result['hits']['total']
+        if isinstance(total_doc_count, dict):
+            total_doc_count = total_doc_count['value']
         agg_range_result = {}
         for (key, value_list) in ex_query_params_dict.iteritems():
             value = value_list[0]
@@ -689,7 +761,10 @@ class EsCommonSuggestManager(object):
     """
     通用的搜索引擎suggester
     """
-    connection_pool = EsConnectionFactory
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -702,20 +777,54 @@ class EsCommonSuggestManager(object):
         :return:
         """
         admin_id = parse_fields.get('adminId')
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = self._get_suggest_dsl(args, admin_id)
-        app_log.info('Get common suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                     qdsl)
-        try:
-            es_result = es_connection.suggest(index=index_name, body=qdsl)
-            es_result = es_result['completion_suggest'][0]['options']
-            result = []
-            for value in es_result:
-                result.append(value['text'])
-            return result
-        except Exception as e:
-            app_log.error('Get common suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
-            return []
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 兼容elasticsearch7.5.2的suggester操作
+            word = get_dict_value(args, 'q')
+            suggest_size = get_dict_value(args, 'size', DEFAULT_VALUE['suggest_size']['default'],
+                                          DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
+            qdsl = {
+                'suggest': {
+                    'completion_suggest': {
+                        'prefix': word,
+                        'completion': {
+                            'field': 'suggest',
+                            'size': int(suggest_size)
+                        }
+                    }
+                }
+            }
+            if admin_id is not None:
+                qdsl['suggest']['completion_suggest']['completion']['contexts'] = {
+                    'adminId': [admin_id]
+                }
+            try:
+                es_result = es_connection.search(index=index_name, body=qdsl)
+                options = es_result['suggest']['completion_suggest'][0]['options']
+                result = []
+                for option in options:
+                    result.append(option['_source']['output'])
+                return result
+            except Exception as e:
+                app_log.error('Get elasticsearch-7.5.2 suggest error, index={0} , args={1}',
+                              e, index_name, args)
+                return []
+        else:
+            qdsl = self._get_suggest_dsl(args, admin_id)
+            app_log.info('Get common suggest es1.5.2 qdsl index={0} , type={1} , args={2}, qdsl={3}',
+                         index_name, doc_type, args, qdsl)
+            try:
+                es_result = es_connection.suggest(index=index_name, body=qdsl)
+                es_result = es_result['completion_suggest'][0]['options']
+                result = []
+                for value in es_result:
+                    result.append(value['text'])
+                return result
+            except Exception as e:
+                app_log.error('Get common suggest es1.5.2 error, index={0} , type={1} , args={2}',
+                              e, index_name, doc_type, args)
+                return []
 
     def save(self, es_config, index_name, doc_type, product, parse_fields, timestamp, redo=False):
         """
@@ -735,33 +844,63 @@ class EsCommonSuggestManager(object):
             word_list = [word_list]
 
         app_log.info('Save common suggest words, {}, {}'.format(word_list, index_name))
-        body = []
-        for word in word_list:
-            weight = None
-            if isinstance(word, dict):
-                weight = word.get('weight')
-                word = word['word']
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 兼容elasticsearch7.5.2的suggester操作
+            body = []
+            for word in word_list:
+                weight = None
+                if isinstance(word, dict):
+                    weight = word.get('weight')
+                    word = word['word']
 
-            if not isinstance(word, (str, unicode)):
-                raise ValueError('{} is not string type.'.format(word))
+                if not isinstance(word, (str, unicode)):
+                    raise ValueError('{} is not string type.'.format(word))
 
-            input_value = pingyin_utils.get_pingyin_combination(word) + [word]
-            dsl = {
-                'id': self._encode_unicode(word),
-                'word': word,
-                'suggest': {
-                    'input': input_value,
+                input_value = pingyin_utils.get_pingyin_combination(word) + [word]
+                dsl = {
+                    'id': self._encode_unicode(word),
+                    'word': word,
+                    'suggest': {
+                        'input': input_value
+                    },
                     'output': word
                 }
-            }
 
-            if weight is not None:
-                dsl['suggest']['weight'] = weight
-            if admin_id is not None:
-                dsl['id'] = admin_id + '-' + dsl['id']
-                dsl['suggest']['context'] = {'adminId': admin_id}
-            body.append(dsl)
-        es_adapter.batch_create(es_config, body)
+                if weight is not None:
+                    dsl['suggest']['weight'] = weight
+                if admin_id is not None:
+                    dsl['id'] = admin_id + '-' + dsl['id']
+                    dsl['suggest']['contexts'] = {'adminId': [admin_id]}
+                body.append(dsl)
+            es7_adapter.batch_create(es_config, body)
+        else:
+            body = []
+            for word in word_list:
+                weight = None
+                if isinstance(word, dict):
+                    weight = word.get('weight')
+                    word = word['word']
+
+                if not isinstance(word, (str, unicode)):
+                    raise ValueError('{} is not string type.'.format(word))
+
+                input_value = pingyin_utils.get_pingyin_combination(word) + [word]
+                dsl = {
+                    'id': self._encode_unicode(word),
+                    'word': word,
+                    'suggest': {
+                        'input': input_value,
+                        'output': word
+                    }
+                }
+
+                if weight is not None:
+                    dsl['suggest']['weight'] = weight
+                if admin_id is not None:
+                    dsl['id'] = admin_id + '-' + dsl['id']
+                    dsl['suggest']['context'] = {'adminId': admin_id}
+                body.append(dsl)
+            es_adapter.batch_create(es_config, body)
 
     def delete(self, es_config, index_name, doc_type, product, parse_fields, timestamp, redo):
         """
@@ -781,7 +920,11 @@ class EsCommonSuggestManager(object):
         if admin_id is not None:
             word = admin_id + '-' + word
         app_log.info('Delete common suggest word, {}, {}'.format(word, index_name))
-        es_adapter.batch_delete_by_ids(es_config, word)
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 兼容elasticsearch7.5.2的suggester操作
+            es7_adapter.batch_delete_by_ids(es_config, word)
+        else:
+            es_adapter.batch_delete_by_ids(es_config, word)
 
     def _get_suggest_dsl(self, query_params, admin_id):
         """
@@ -817,32 +960,74 @@ class EsCommonSuggestManager(object):
         """
         if not isinstance(word, unicode):
             raise RuntimeError('{} is not unicode type'.format(word))
-        word.encode('raw_unicode_escape').decode('utf-8', errors='ignore').encode('utf-8')
+        return word.encode('raw_unicode_escape').decode('utf-8', errors='ignore').encode('utf-8')
 
 
 class EsSuggestManager(object):
-    connection_pool = EsConnectionFactory
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
-        查询Suggest数据
+        查询Suggest数据（该查询目前只用于云小店商品数据的查询）
         :param index_name:
         :param doc_type:
         :param args:
         :return:
         """
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args, parse_fields)
-        app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
-                     qdsl)
-        try:
-            es_result = es_connection.suggest(index=index_name, body=qdsl)
-
-            result = self.parse_es_result(es_result, args)
-            return result
-        except Exception as e:
-            app_log.error('Get suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
-            return []
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 兼容elasticsearch7.5.2的suggester操作
+            word = get_dict_value(args, 'q')
+            suggest_size = get_dict_value(args, 'size', DEFAULT_VALUE['suggest_size']['default'],
+                                          DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
+            qdsl = {
+                'suggest': {
+                    'completion_suggest': {
+                        'prefix': word,
+                        'completion': {
+                            'field': 'suggest',
+                            'size': int(suggest_size),
+                            'contexts': {
+                                'adminId': [
+                                    parse_fields['adminId'] if parse_fields else 'A000000'
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+            app_log.info('Get elasticsearch-7.5.2 suggest qdsl index={0} , args={1}, qdsl={2}',
+                         index_name, args, qdsl)
+            try:
+                es_result = es_connection.search(index=index_name, body=qdsl)
+                options = es_result['suggest']['completion_suggest'][0]['options']
+                result = []
+                for option in options:
+                    result.append({
+                        'key': option['_source']['output'],
+                        'doc_count': option['_source']['payload']['hits']['default']
+                    })
+                return result
+            except Exception as e:
+                app_log.error('Get elasticsearch-7.5.2 suggest error, index={0} , args={1}',
+                              e, index_name, args)
+                return []
+        else:
+            qdsl = qdsl_parser.get_suggest_qdl(index_name, doc_type, args, parse_fields)
+            app_log.info('Get elasticsearch-1.5.2 suggest qdsl index={0} , type={1} , args={2}, qdsl={3}',
+                         index_name, doc_type, args, qdsl)
+            try:
+                es_result = es_connection.suggest(index=index_name, body=qdsl)
+                result = self.parse_es_result(es_result, args)
+                return result
+            except Exception as e:
+                app_log.error('Get elasticsearch-1.5.2 suggest error, index={0} , type={1} , args={2}', e, index_name,
+                              doc_type, args)
+                return []
 
     def parse_es_result(self, es_result, args):
         """
@@ -868,7 +1053,10 @@ class EsSuggestManager(object):
 
 
 class YxdShopSuggestManager(object):
-    connection_pool = EsConnectionFactory
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -880,23 +1068,57 @@ class YxdShopSuggestManager(object):
         :param parse_fields:
         :return:
         """
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
-        qdsl = qdsl_parser.get_yxd_suggest_qdl(args, parse_fields)
-        app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
-        try:
-            es_result = es_connection.suggest(index=index_name, body=qdsl)
-            es_result = es_result['completion_suggest'][0]['options']
-            result = []
-            for value in es_result:
-                result.append(value['text'])
-            return result
-        except Exception as e:
-            app_log.error('Get suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
-            return []
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            # 兼容elasticsearch7.5.2的suggester操作
+            word = get_dict_value(args, 'q')
+            suggest_size = get_dict_value(args, 'size', DEFAULT_VALUE['suggest_size']['default'],
+                                          DEFAULT_VALUE['suggest_size']['min'], DEFAULT_VALUE['suggest_size']['max'])
+            qdsl = {
+                'suggest': {
+                    'completion_suggest': {
+                        'prefix': word,
+                        'completion': {
+                            'field': 'suggest',
+                            'size': int(suggest_size)
+                        }
+                    }
+                }
+            }
+            app_log.info('Get elasticsearch-7.5.2 suggest qdsl index={0} , args={1}, qdsl={2}',
+                         index_name, args, qdsl)
+            try:
+                es_result = es_connection.search(index=index_name, body=qdsl)
+                options = es_result['suggest']['completion_suggest'][0]['options']
+                result = []
+                for option in options:
+                    result.append(option['_source']['output'])
+                return result
+            except Exception as e:
+                app_log.error('Get elasticsearch-7.5.2 suggest error, index={0} , args={1}',
+                              e, index_name, args)
+                return []
+        else:
+            qdsl = qdsl_parser.get_yxd_suggest_qdl(args, parse_fields)
+            app_log.info('Get suggest qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args, qdsl)
+            try:
+                es_result = es_connection.suggest(index=index_name, body=qdsl)
+                es_result = es_result['completion_suggest'][0]['options']
+                result = []
+                for value in es_result:
+                    result.append(value['text'])
+                return result
+            except Exception as e:
+                app_log.error('Get suggest error, index={0} , type={1} , args={2}', e, index_name, doc_type, args)
+                return []
 
 
 class EsSearchManager(object):
-    connection_pool = EsConnectionFactory
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -908,8 +1130,12 @@ class EsSearchManager(object):
         :return:
         """
         start_time = time.time()
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
         qdsl = qdsl_parser.get_search_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection)
+        # Elasticsearch7返回所有的数据条数
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            qdsl['track_total_hits'] = True
         qdsl_end_time = time.time()
         app_log.info('Get search dsl finish, spend time {4},  index={0} , type={1} , args={2}, dsl={3}', index_name,
                      doc_type, args, qdsl, qdsl_end_time - start_time)
@@ -918,8 +1144,11 @@ class EsSearchManager(object):
             # 根据sku聚合搜索spu场景
             result, es_result = spu_search_scene.get_spu_by_sku(qdsl, es_config, args, parse_fields, es_search_params)
         else:
-            es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
-                                             **es_search_params)
+            es_result = es_connection.search(
+                index=index_name,
+                doc_type=doc_type if doc_type != 'None' else None,
+                body=qdsl,
+                **es_search_params)
             es_end_time = time.time()
             app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
                          es_end_time - qdsl_end_time)
@@ -953,6 +1182,10 @@ class SearchPlatformDocManager(EsSearchManager):
     """
     搜索平台文档管理接口
     """
+    connection_pools = {
+        'elasticsearch': EsConnectionFactory,
+        'elasticsearch7': Es7ConnectionFactory
+    }
 
     def get(self, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -963,12 +1196,18 @@ class SearchPlatformDocManager(EsSearchManager):
         :param args:
         :return:
         """
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
         if not es_connection:
             raise EsConnectionError()
 
         qdsl = qdsl_parser.get_search_qdl(es_config, index_name, doc_type, args, parse_fields, es_connection,
                                           ignore_default_agg=True)
+
+        # Elasticsearch7返回所有的数据条数
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            qdsl['track_total_hits'] = True
+
         app_log.info('Get doc qdsl index={0} , type={1} , args={2}, qdsl={3}', index_name, doc_type, args,
                      qdsl)
 
@@ -977,8 +1216,12 @@ class SearchPlatformDocManager(EsSearchManager):
             es_result = self.__scroll_search(qdsl, es_config, index_name, doc_type, args, parse_fields)
         else:
             es_search_params = get_es_search_params(es_config, index_name, doc_type, args, parse_fields)
-            es_result = es_connection.search(index_name, doc_type if doc_type != 'None' else None, body=qdsl,
-                                             **es_search_params)
+            es_result = es_connection.search(
+                index=index_name,
+                doc_type=doc_type if doc_type != 'None' else None,
+                body=qdsl,
+                **es_search_params
+            )
         result = self.parse_es_result(es_result, args)
         debug_log.print_log('SearchPlatformDocManager get return size is {0}',
                             result['total'] if 'total' in result else 'omitted')
@@ -1025,7 +1268,8 @@ class SearchPlatformDocManager(EsSearchManager):
         if not product:
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
         _bulk_body = self._build_index_body(es_config, index_name, doc_type, product, parse_fields, timestamp)
@@ -1034,8 +1278,15 @@ class SearchPlatformDocManager(EsSearchManager):
         if redo:
             _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                      timestamp)
-        es_bulk_result = es_connection.bulk(_bulk_body,
-                                            params={'request_timeout': BATCH_REQUEST_TIMEOUT, 'timeout': BATCH_TIMEOUT})
+        # 对elasticsearch7版本进行兼容
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            es_bulk_result = es_connection.bulk(_bulk_body,
+                                                params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                        'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+        else:
+            es_bulk_result = es_connection.bulk(_bulk_body,
+                                                params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                        'timeout': BATCH_TIMEOUT})
         return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def _filter_has_update_doc(self, es_config, index_name, doc_type, es_connection, _bulk_body, timestamp,
@@ -1142,7 +1393,8 @@ class SearchPlatformDocManager(EsSearchManager):
         if not product:
             app_log.error('Search update input product is invalid')
             raise InvalidParamError()
-        es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=True)
+        connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+        es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=True)
         if not es_connection:
             raise EsConnectionError()
         if parse_fields and 'id' in parse_fields and parse_fields['id']:
@@ -1154,8 +1406,13 @@ class SearchPlatformDocManager(EsSearchManager):
         if redo:
             _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                      timestamp, 'update')
-        es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
-                                                                'timeout': BATCH_TIMEOUT})
+        # 对elasticsearch7版本进行兼容
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+        else:
+            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                    'timeout': BATCH_TIMEOUT})
         return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def _build_update_body(self, es_config, index_name, doc_type, product, parse_fields, timestamp, doc_id=None):
@@ -1224,7 +1481,8 @@ class SearchPlatformDocManager(EsSearchManager):
         if product.get('ex_body_type') == 'scroll':
             return self.__delete_scroll_cache(es_config, index_name, doc_type, product, parse_fields)
         else:
-            es_connection = self.connection_pool.get_es_connection(es_config=es_config, create_index=False)
+            connection_pool = self.connection_pools[es_config.get('destination_type', 'elasticsearch')]
+            es_connection = connection_pool.get_es_connection(es_config=es_config, create_index=False)
             if not es_connection:
                 raise EsConnectionError()
             doc_id_list = parse_delete_doc_ids()
@@ -1233,8 +1491,14 @@ class SearchPlatformDocManager(EsSearchManager):
             if redo:
                 _bulk_body = self._filter_has_update_doc(es_config, index_name, doc_type, es_connection, _bulk_body,
                                                          timestamp, 'delete')
-            es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
-                                                                    'timeout': BATCH_TIMEOUT})
+            # 对elasticsearch7版本进行兼容
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+                es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                        'timeout': '{}ms'.format(BATCH_TIMEOUT)})
+            else:
+                es_bulk_result = es_connection.bulk(_bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
+                                                                        'timeout': BATCH_TIMEOUT})
+
             return es_adapter.get_es_bulk_result(es_bulk_result)
 
     def __scroll_search(self, qdsl, es_config, index_name, doc_type, args, parse_fields=None):
@@ -1254,9 +1518,14 @@ class SearchPlatformDocManager(EsSearchManager):
         :return:
         """
         scroll_time = args.get('scroll_time') or config.get_value('/consts/query/scroll_time')
-        return es_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
-                                 scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
-                                 host=es_config.get('host'))
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            return es7_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
+                                      scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                      host=es_config.get('host'))
+        else:
+            return es_adapter.scroll(scroll_time, qdsl, search_type=args.get('search_type'),
+                                     scroll_id=args.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                     host=es_config.get('host'))
 
     def __scan_search(self, qdsl, es_config, index_name, doc_type, args, parse_fields=None):
         """
@@ -1290,8 +1559,12 @@ class SearchPlatformDocManager(EsSearchManager):
         :param parse_fields:
         :return:
         """
-        return es_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
-                                        host=es_config.get('host'))
+        if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+            return es7_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                             host=es_config.get('host'))
+        else:
+            return es_adapter.delete_scroll(product.get('_scroll_id'), index=index_name, doc_type=doc_type,
+                                            host=es_config.get('host'))
 
 
 class StatsManager(object):
