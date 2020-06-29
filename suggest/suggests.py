@@ -91,8 +91,10 @@ def yxd_suggest_task():
         admins = _get_vip_yxd()
         for admin in admins:
             admin_id = admin['adminId']
+            # 为云小店的每一个店铺进行商品提示数据初始化工作
             suggest.init_suggest_index(admin_id)
 
+        # 初始化云小店所有的店铺名称提示关键词
         yxd_shop_suggest.init_suggest()
     except Exception as e:
         app_log.exception(e)
