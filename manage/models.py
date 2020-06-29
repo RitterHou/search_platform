@@ -16,7 +16,7 @@ from common.msg_bus import message_bus, Event
 from common.configs import config, config_holder
 from common.exceptions import UpdateDataNotExistError, InvalidParamError
 from common.loggers import query_log as app_log
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.pingyin_utils import pingyin_utils
 from common.registers import register_center
 from common.utils import get_dict_value_by_path, bind_dict_variable, merge, unbind_variable
@@ -678,26 +678,48 @@ class YxdShopSuggest(object):
         初始化云小店的店铺名称的搜索提示关键词
         :return:
         """
-        _es_config = config.get_value('es_index_setting/yxd_shop_suggest')
-        es_adapter.delete_all_doc(_es_config, None)
         admins = self._get_vip_yxd()
 
-        body = []
-        for admin in admins:
-            store_name = admin['storeName']
+        _es_config = config.get_value('es_index_setting/yxd_shop_suggest')
+        if _es_config.get('elasticsearch_version') == 7:
+            _es_config['mapping'] = _es_config['mapping_elasticsearch7']  # 更换mapping配置
+            es7_adapter.delete_all_doc(_es_config, None)
 
-            input_value = pingyin_utils.get_pingyin_combination(store_name)
-            body.append(
-                {
-                    'id': store_name,
-                    'name': store_name,
-                    'suggest': {
-                        'input': input_value,
+            body = []
+            for admin in admins:
+                store_name = admin['storeName']
+
+                input_value = pingyin_utils.get_pingyin_combination(store_name)
+                body.append(
+                    {
+                        'id': store_name,
+                        'name': store_name,
+                        'suggest': {
+                            'input': input_value
+                        },
                         'output': store_name
                     }
-                }
-            )
-        es_adapter.batch_create(_es_config, body)
+                )
+            es7_adapter.batch_create(_es_config, body)
+        else:
+            es_adapter.delete_all_doc(_es_config, None)
+
+            body = []
+            for admin in admins:
+                store_name = admin['storeName']
+
+                input_value = pingyin_utils.get_pingyin_combination(store_name)
+                body.append(
+                    {
+                        'id': store_name,
+                        'name': store_name,
+                        'suggest': {
+                            'input': input_value,
+                            'output': store_name
+                        }
+                    }
+                )
+            es_adapter.batch_create(_es_config, body)
 
     def _get_vip_yxd(self):
         """
@@ -705,7 +727,7 @@ class YxdShopSuggest(object):
         :return:
         """
         search_platform_host = settings.SERVICE_BASE_CONFIG['search_platform_host']
-        search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)'
+        search_url = search_platform_host + '/usercenter/shops?ex_q_sceneBname=terms(cloudShop)&ex_q_signStatus=terms(2)&ex_fields=storeName'
         response = urllib2.urlopen(urllib2.Request(search_url)).read()
         result = json.loads(response)
 
