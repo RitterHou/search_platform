@@ -2,13 +2,12 @@
 
 from elasticsearch import ElasticsearchException
 
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.configs import config
-from common.connections import EsConnectionFactory
+from common.connections import EsConnectionFactory, Es7ConnectionFactory
 from common.es_routers import es_router
-from common.utils import merge, bind_dict_variable, upper_admin_id
 from common.loggers import app_log
-
+from common.utils import merge, bind_dict_variable, upper_admin_id
 
 __author__ = 'liuzhaoming'
 
@@ -116,10 +115,54 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
 
         es_config = es_router.merge_es_config(destination_config)
 
+        if es_config.get('elasticsearch_version') == 7:
+            # 与Elasticsearch7做兼容
+            def data_format(source):
+                """
+                将数据的格式改为兼容elasticsearch-7.5.2的格式
+                :param source:
+                :return:
+                """
+                suggest = source['suggest']
+                return {
+                    'id': source['id'],
+                    'suggest': {
+                        'input': suggest['input'],
+                        'contexts': {'adminId': [suggest['context']['adminId']]},
+                        'weight': suggest['weight']
+                    },
+                    'payload': suggest['payload'],
+                    'output': suggest['output'],
+                    'adminId': source['adminId'],
+                    'name': source['name'],
+                    'source_type': source['source_type']
+                }
 
-        # bind_dict_variable(es_config, param, False)
+            bulk_body_list = []
+            for (data, param) in data_list:
+                index, doc_id = es7_adapter.get_es_doc_keys(es_config, kwargs=param)
+                operation = es_config.get('operation', 'create')
+                if operation == 'delete':
+                    bulk_body_list.append({"delete": {"_index": index, "_id": doc_id}})
+                else:
+                    if 'script' in data:  # 只有update操作才支持脚本
+                        bulk_body_list.append({"update": {"_index": index, "_id": doc_id}})
+                        bulk_body_list.append(data)
+                    else:
+                        data = data_format(data)  # 对数据进行格式化
+                        bulk_body_list.append({"index": {"_index": index, "_id": doc_id}})
+                        bulk_body_list.append(data)
 
-        self.__batch_hybrid_es_opearate(es_config, data_list)
+            es_config = es_router.route(es_config, input_param=data_list[0][1])
+            es_connection = Es7ConnectionFactory.get_es_connection(
+                es_config=dict(es_config, index=index, version=config.get_value('version')))
+            try:
+                es_bulk_result = es_connection.bulk(bulk_body_list)
+                es7_adapter.process_es_bulk_result(es_bulk_result)
+            except ElasticsearchException as e:
+                app_log.error('es7 operation input param is {0}', e, list(bulk_body_list))
+        else:
+            self.__batch_hybrid_es_opearate(es_config, data_list)
 
     def clear(self, destination_config, data_list):
         """
@@ -137,16 +180,27 @@ class ElasticsearchProcessedSuggestDestination(ElasticsearchSuggestDestination):
 
         es_config = es_router.merge_es_config(destination_config)
 
-
-        data, param = data_list[0]
-        clear_policy = destination_config.get('clear_policy')
-        if clear_policy == 'every_msg,all':
-            es_adapter.delete_all_doc(es_config, param)
-        elif clear_policy == 'every_msg,auto_term':
-            es_adapter.delete_by_query(es_config=es_config, doc=param,
-                                       body={"query": {"bool": {
-                                           "must": [{"term": {"source_type": "1"}},
-                                                    {"term": {"adminId": data['adminId']}}]}}})
+        if es_config.get('elasticsearch_version') == 7:
+            # 与Elasticsearch7做兼容
+            data, param = data_list[0]
+            clear_policy = destination_config.get('clear_policy')
+            if clear_policy == 'every_msg,all':
+                es7_adapter.delete_all_doc(es_config, param)
+            elif clear_policy == 'every_msg,auto_term':
+                es7_adapter.delete_by_query(es_config=es_config, doc=param,
+                                            body={"query": {"bool": {
+                                                "must": [{"term": {"payload.source_type": "1"}},
+                                                         {"term": {"adminId": data['adminId']}}]}}})
+        else:
+            data, param = data_list[0]
+            clear_policy = destination_config.get('clear_policy')
+            if clear_policy == 'every_msg,all':
+                es_adapter.delete_all_doc(es_config, param)
+            elif clear_policy == 'every_msg,auto_term':
+                es_adapter.delete_by_query(es_config=es_config, doc=param,
+                                           body={"query": {"bool": {
+                                               "must": [{"term": {"source_type": "1"}},
+                                                        {"term": {"adminId": data['adminId']}}]}}})
 
     def __batch_hybrid_es_opearate(self, es_config, data_list):
         bulk_body_list = []
