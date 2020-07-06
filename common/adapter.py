@@ -490,6 +490,10 @@ class Es7IndexAdapter(object):
         search_type = search_type or 'query_then_fetch'
         search_params['search_type'] = search_type
         if first_run:
+            if 'from' in body:
+                # 在新版本的es中，scroll不允许包含from参数
+                # https://www.elastic.co/guide/en/elasticsearch/reference/6.8/breaking-changes-6.0.html#_scroll
+                del body['from']
             resp = es_connection.search(body=body, scroll=scroll_time, **search_params)
         else:
             resp = es_connection.scroll(scroll_id=scroll_id, scroll=scroll_time)
