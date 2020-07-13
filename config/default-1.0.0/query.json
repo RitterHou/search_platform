@@ -703,7 +703,7 @@
             "operator": "is",
             "type": "regex",
             "field": "url",
-            "expression": "^/marketings/(?!(items|trades|usercoupons|fans|integral))"
+            "expression": "^/marketings/(?!(items|trades|usercoupons|fans|integral|giftcard))"
           }
         ]
       },
@@ -3753,6 +3753,300 @@
         "reference": "general_vip",
         "index": "marketing-activity-item-exclude",
         "type": "Item",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "市场客户数据查询，负责人：张志川",
+      "name": "b2b_market_customer_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "b2b/market/customers",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2b/market/customers$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "pc_es_cluster",
+        "index": "b2b-market-customer",
+        "type": "Customer"
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心用户礼品卡数据查询，负责人：张睿",
+      "name": "marketing_gift_card_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/(?!(user|record|store))"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-gift-card",
+        "type": "Card",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心用户礼品卡数据查询，负责人：张睿",
+      "name": "marketing_user_gift_card_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard/user",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/user/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/user/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-user-gift-card",
+        "type": "Card",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心礼品卡使用记录数据查询，负责人：张睿",
+      "name": "marketing_gift_card_use_record_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard/reocrd/use",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/record/use/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/record/use/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-gift-card-use-record",
+        "type": "Record",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心礼品卡赠送记录数据查询，负责人：张睿",
+      "name": "marketing_gift_card_give_record_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard/reocrd/give",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/record/give/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/record/give/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-gift-card-give-record",
+        "type": "Record",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心礼品卡店铺数据查询，负责人：张睿",
+      "name": "marketing_gift_card_store_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard/store",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/store/(?!(user))"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/store/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-gift-card-store",
+        "type": "Store",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "营销中心用户礼品卡店铺数据查询，负责人：张睿",
+      "name": "marketing_user_gift_card_store_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "^marketings/giftcard/store/user",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketings/giftcard/store/user/"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/marketings/giftcard/store/user/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "marketing-user-gift-card-store",
+        "type": "Store",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "订单中心流水收款单数据查询，负责人：郭鹏",
+      "name": "d2c_cash_receive_receipt_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "/view/retail/receivereceipt",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/view/retail/receivereceipt/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/view/retail/receivereceipt/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-cash-receive-receipt",
+        "type": "Receipt",
+        "add_admin_id_field": true
+      },
+      "response": {}
+    },
+    {
+      "desc": "订单中心流水退款单数据查询，负责人：戴万标",
+      "name": "d2c_cash_refund_info_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "/view/retail/refunds",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/view/retail/refunds/[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "/view/retail/refunds/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_vip",
+        "index": "d2c-cash-refund-info",
+        "type": "Info",
         "add_admin_id_field": true
       },
       "response": {}

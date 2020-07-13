@@ -15609,6 +15609,1596 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "市场客户数据初始化，负责人：张志川",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.usercenter.es.b2bCustomerInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "b2b_market_customer"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "b2b_market_customer_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllB2BCustomer",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "pc_es_cluster",
+              "operation": "create",
+              "index": "b2b-market-customer",
+              "type": "Customer",
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "市场客户数据变更，负责人：张志川",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.es.b2bCustomerChange",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "b2b_market_customer"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "b2b_market_customer_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
+            "request": {
+              "method": "listB2BCustomerByIds",
+              "timeout": 10,
+              "body": {
+                "ids": "{ids}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "pc_es_cluster",
+              "index": "b2b-market-customer",
+              "type": "Customer",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "b2b_market_customer_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "pc_es_cluster",
+              "index": "b2b-market-customer",
+              "type": "Customer",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心礼品卡相关数据的初始化，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_es_init",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "gift_card_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"giftcard\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryGiftCard",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "marketing-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "user_gift_card_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"userGiftCard\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryUserGiftCard",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "marketing-user-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_use_record_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"giftCardUseRecord\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryGiftCardUseRecord",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "store.geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-use-record",
+              "type": "Record",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_give_record_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"giftCardGiveRecord\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryGiftCardGiveRecord",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "store.geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-give-record",
+              "type": "Record",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_store_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"giftCardStore\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryGiftCardStore",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "user_gift_card_store_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"userGiftCardStore\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryUserGiftCardStore",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}",
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-user-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心礼品卡数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "gift_card_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryGiftCardByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "marketing-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心用户礼品卡数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_usergiftcard_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "user_gift_card_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryUserGiftCardByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "marketing-user-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "user_gift_card_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-user-gift-card",
+              "type": "Card",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心礼品卡使用记录数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_userecord_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "gift_card_use_record_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryGiftCardUseRecordByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "store.geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-use-record",
+              "type": "Record",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_use_record_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-gift-card-use-record",
+              "type": "Record",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心礼品卡赠送记录数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_giverecord_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "gift_card_give_record_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryGiftCardGiveRecordByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "store.geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-give-record",
+              "type": "Record",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_give_record_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-gift-card-give-record",
+              "type": "Record",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心礼品卡店铺数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_store_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "gift_card_store_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryGiftCardStoreByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "gift_card_store_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销中心用户礼品卡店铺数据变更，负责人：张睿",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_giftcard_usergiftcard_store_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "user_gift_card_store_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "domainType": "domainType\":\"(?P<domainType>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchGiftCardQueryProvider",
+            "request": {
+              "method": "queryUserGiftCardStoreByIds",
+              "timeout": 10,
+              "body": {
+                "adminId": "{adminId}",
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "domainType": "{domainType}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "marketing-user-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "user_gift_card_store_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "delete",
+              "index": "marketing-user-gift-card-store",
+              "type": "Store",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "订单中心流水收款单数据初始化，负责人：郭鹏",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_d2c_cash_receiveReceipt_init",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cash_receive_receipt_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryReceiveReceiptPage",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-cash-receive-receipt",
+              "type": "Receipt",
+              "id": "{recTid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "订单中心流水收款单数据变更，负责人：郭鹏",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_d2c_cash_receiveReceipt_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cash_receive_receipt_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "request": {
+              "method": "queryReceiveReceiptListByIds",
+              "timeout": 10,
+              "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-cash-receive-receipt",
+              "type": "Receipt",
+              "id": "{recTid}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "订单中心流水退款单数据初始化，负责人：戴万标",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_d2c_cash_refundInfo_init",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cash_refund_info_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryRefundedInfoPage",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "operation": "create",
+              "index": "d2c-cash-refund-info",
+              "type": "Info",
+              "id": "{refId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "订单中心流水退款单数据变更，负责人：戴万标",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_d2c_cash_refundInfo_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "d2c_cash_refund_info_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "request": {
+              "method": "queryRefundedInfoListByIds",
+              "timeout": 10,
+              "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_vip",
+              "index": "d2c-cash-refund-info",
+              "type": "Info",
+              "id": "{refId}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }
