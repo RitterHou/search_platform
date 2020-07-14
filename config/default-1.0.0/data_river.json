@@ -15673,7 +15673,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "operation": "create",
               "index": "b2b-market-customer",
               "type": "Customer",
@@ -15741,7 +15741,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-customer",
               "type": "Customer",
               "id": "{id}"
@@ -15776,7 +15776,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "pc_es_cluster",
+              "reference": "general_experience",
               "index": "b2b-market-customer",
               "type": "Customer",
               "id": "{ids}",

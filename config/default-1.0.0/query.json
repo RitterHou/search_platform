@@ -3781,7 +3781,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "pc_es_cluster",
+        "reference": "general_experience",
         "index": "b2b-market-customer",
         "type": "Customer"
       },
