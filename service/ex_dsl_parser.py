@@ -389,6 +389,73 @@ class ExtendQdslParser(object):
                 }
             } if qdsl_must_list else {}
 
+    def upgrade_ex_dsl(self, ex_dsl):
+        """
+        更新查询elasticsearch的原生dsl，以实现对新版本elasticsearch-7.x的兼容
+        :param ex_dsl:
+        :return:
+        """
+
+        def get_nested_dict(keys, value):
+            for key in keys:
+                if isinstance(value, dict) and key in value:
+                    value = value[key]
+                else:
+                    return None
+            return value
+
+        def upgrade_filter_missing(key, value):
+            """
+            更新filtered的存在检测dsl
+            :param key:
+            :param value:
+            :return:
+            """
+            if key == 'filtered':
+                field_name_missing = get_nested_dict(['filter', 'missing', 'field'], value)
+                if field_name_missing:
+                    return {"must_not": {"exists": {"field": field_name_missing}}}
+
+                field_name_exists = get_nested_dict(['filter', 'exists', 'field'], value)
+                if field_name_exists:
+                    return {"must": {"exists": {"field": field_name_exists}}}
+
+        def del_match_type(key, value):
+            """
+            删除match查询中的type字段
+            :param key:
+            :param value:
+            :return:
+            """
+            if key == 'match' and isinstance(value, dict):
+                values = value.values()
+                if len(values) > 0 and isinstance(values[0], dict) and 'type' in values[0]:
+                    del values[0]['type']
+
+        def upgrade(dsl):
+            """
+            更新dsl
+            :param dsl:
+            :return:
+            """
+            if isinstance(dsl, dict):
+                for key, value in dsl.iteritems():
+                    del_match_type(key, value)
+                    dsl_missing = upgrade_filter_missing(key, value)
+                    if dsl_missing:
+                        # 移除之前的空过滤查询语句
+                        del dsl['filtered']
+                        # 设置新的过滤查询语句
+                        dsl['bool'] = dsl_missing
+                    upgrade(value)
+            elif isinstance(dsl, list):
+                for value in dsl:
+                    upgrade(value)
+
+        upgrade(ex_dsl)
+
+        return ex_dsl
+
     def get_request_dsl_qdsl(self, query_params, es_config):
         """
         处理客户端请求中的DSL，输入格式为: ex_dsl :  tmpl={json},param={json}
@@ -411,7 +478,7 @@ class ExtendQdslParser(object):
 
         if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
             # 处理DSL在elasticsearch7中的兼容性问题
-            pass
+            dsl = self.upgrade_ex_dsl(dsl)
 
         return dsl
 
