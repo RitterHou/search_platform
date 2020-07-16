@@ -129,7 +129,7 @@ class ExtendQdslParser(object):
             sub_query_dsls = []
             for sub_query in sub_queries:
                 _, sub_query = unbind_variable(r'<(?P<value>[\d\D]+?)>', 'value', sub_query)
-                item_name, item_value = sub_query.split('=')
+                item_name, item_value = sub_query.split('=', 1)
                 item_query_dsl = self.get_query_qdsl_single_fragment(item_name[len('ex_q_'):], item_value, es_config)
 
                 sub_query_dsl = {
@@ -1273,7 +1273,7 @@ class ExtendQdslParser(object):
 
         item_query_dsl_list = []
         for item_query_str in item_query_str_list:
-            field_name, field_str = item_query_str.split('=')
+            field_name, field_str = item_query_str.split('=', 1)
             field_name = field_name[len('eq_q_'):]
             item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str, es_config)
             item_query_dsl_list.append(item_query_dsl)
@@ -1312,7 +1312,7 @@ class ExtendQdslParser(object):
 
         item_query_dsl_list = []
         for item_query_str in item_query_str_list:
-            field_name, field_str = item_query_str.split('=')
+            field_name, field_str = item_query_str.split('=', 1)
             field_name = field_name[len('eq_q_'):]
             item_query_dsl = self.get_query_qdsl_single_fragment(field_name, field_str, es_config)
             item_query_dsl_list.append(item_query_dsl)
