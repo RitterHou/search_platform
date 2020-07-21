@@ -10108,6 +10108,7 @@
               "id": "{cid}"
             },
             {
+              "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "b2c-connection-grandview",
               "id": "{cid}"
@@ -10171,6 +10172,7 @@
               }
             },
             {
+              "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "b2c-connection-grandview",
               "id": "{ids}",
