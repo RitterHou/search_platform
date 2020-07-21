@@ -10106,6 +10106,11 @@
               "index": "b2c-connection-grandview",
               "type": "View",
               "id": "{cid}"
+            },
+            {
+              "reference": "search_platform_default",
+              "index": "b2c-connection-grandview",
+              "id": "{cid}"
             }
           ]
         }
@@ -10158,6 +10163,16 @@
               "reference": "general_vip",
               "index": "b2c-connection-grandview",
               "type": "View",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "reference": "search_platform_default",
+              "index": "b2c-connection-grandview",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {

@@ -1709,5 +1709,64 @@
   "log_server_cluster": {
     "host": "{log_server_es_host}",
     "destination_type": "elasticsearch"
+  },
+  "search_platform_default": {
+    "desc": "搜索引擎Elasticsearch-7.x默认的集群",
+    "destination_type": "elasticsearch7",
+    "host": "{default_es_host}",
+    "mapping": {
+      "dynamic_templates": [
+        {
+          "long_fields": {
+            "mapping": {
+              "type": "long",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "long",
+            "match": "*"
+          }
+        },
+        {
+          "double_fields": {
+            "mapping": {
+              "type": "double",
+              "fields": {
+                "double": {
+                  "type": "double"
+                },
+                "long": {
+                  "type": "long"
+                }
+              }
+            },
+            "match_mapping_type": "double",
+            "match": "*"
+          }
+        },
+        {
+          "string_fields": {
+            "mapping": {
+              "ignore_above": 256,
+              "type": "keyword",
+              "fields": {
+                "analyzed": {
+                  "analyzer": "qm_standard",
+                  "type": "text"
+                }
+              }
+            },
+            "match_mapping_type": "string",
+            "match": "*"
+          }
+        }
+      ]
+    }
   }
 }
