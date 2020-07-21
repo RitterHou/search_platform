@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import time
+
 from common.adapter import es_adapter, es7_adapter
 from common.es_routers import es_router
 from common.loggers import app_log
@@ -133,6 +135,7 @@ class ElasticSearch7Destination(DataDestination):
         :param param
         :return:
         """
+        start_time = time.time()
         es_config = es_router.merge_es_config(destination_config)
 
         if not isinstance(data, (list, tuple)):
@@ -150,6 +153,9 @@ class ElasticSearch7Destination(DataDestination):
             es7_adapter.batch_delete(es_config, data, input_param)
         elif operation == 'ids_same_prop_update':
             es7_adapter.batch_update_with_props_by_ids(es_config, data, input_param)
+
+        app_log.info('ES push spend time {}, config is {}, data is {}'.format(
+            time.time() - start_time, destination_config, data))
 
     def clear(self, destination_config, data, param=None):
         """

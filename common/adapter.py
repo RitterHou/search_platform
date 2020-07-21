@@ -47,10 +47,8 @@ class Es7IndexAdapter(object):
             es_config=dict(es_config, index=index, version=config.get_value('version')))
         bulk_body = self.__build_batch_create_body(es_config, doc_list=doc_list, input_index=index)
         try:
-            es_start_time = time.time()
             es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                    'timeout': '{}ms'.format(BATCH_TIMEOUT)})
-            app_log.info('es spend time {0}, param is {1}'.format(time.time() - es_start_time, list(bulk_body)))
             return self.process_es_bulk_result(es_bulk_result)
         except elasticsearch7.ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))
