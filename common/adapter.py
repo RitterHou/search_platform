@@ -135,7 +135,6 @@ class Es7IndexAdapter(object):
         doc_id_list = ids_str.strip().strip(';').split(separator)
         bulk_body = self.__build_batch_delete_body_by_ids(index, doc_id_list)
         try:
-            interface_log.print_log('delete data body {0}', bulk_body)
             es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                    'timeout': '{}ms'.format(BATCH_TIMEOUT)})
             return self.process_es_bulk_result(es_bulk_result)
