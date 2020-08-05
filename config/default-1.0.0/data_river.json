@@ -7087,6 +7087,13 @@
               "type": "DeliveryNote",
               "id": "{deliveryNo}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-oms-{hashcode}-{version}",
+              "id": "{deliveryNo}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -7128,6 +7135,17 @@
               "operation": "delete",
               "index": "qm-oms-{hashcode}-{version}",
               "type": "DeliveryNote",
+              "id": "{deliveryNos}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "qm-oms-{hashcode}-{version}",
               "id": "{deliveryNos}",
               "id_process": {
                 "type": "seperate",
@@ -7207,6 +7225,13 @@
               "reference": "general_vip",
               "index": "qm-oms-{hashcode}-{version}",
               "type": "DeliveryNote",
+              "id": "{deliveryNo}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-oms-{hashcode}-{version}",
               "id": "{deliveryNo}",
               "add_admin_id_field": true
             }
