@@ -9470,6 +9470,15 @@
               "id": "{tid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades",
+              "id": "{tid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -9527,6 +9536,14 @@
               "operation": "create",
               "index": "view-retail-trades-new",
               "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades",
               "id": "{tid}",
               "add_admin_id_field": true
             }
@@ -9588,6 +9605,14 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -9645,6 +9670,14 @@
               "operation": "create",
               "index": "view-retail-trades-new",
               "type": "Trade",
+              "id": "{tid}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades",
               "id": "{tid}",
               "add_admin_id_field": true
             }
@@ -9950,6 +9983,13 @@
               "reference": "trade_tid_wildcard_vip",
               "index": "view-retail-trades-new",
               "type": "Trade",
+              "add_admin_id_field": true,
+              "id": "{tid}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "view-retail-trades",
               "add_admin_id_field": true,
               "id": "{tid}"
             }
