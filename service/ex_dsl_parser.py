@@ -211,6 +211,7 @@ class ExtendQdslParser(object):
         """
         获取fields查询dsl，格式为：ex_fields=spuId,salePrice,skuId
         :param query_params:
+        :param es_config:
         :return:
         """
         fields_str = query_params.get('ex_fields')
@@ -220,9 +221,15 @@ class ExtendQdslParser(object):
 
         dsl = {'_source': {}}
         if fields_str and fields_str.split(','):
-            dsl['_source']['include'] = fields_str.split(',')
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+                dsl['_source']['includes'] = fields_str.split(',')
+            else:
+                dsl['_source']['include'] = fields_str.split(',')
         if exclude_fields_str and exclude_fields_str.split(','):
-            dsl['_source']['exclude'] = exclude_fields_str.split(',')
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7':
+                dsl['_source']['excludes'] = exclude_fields_str.split(',')
+            else:
+                dsl['_source']['exclude'] = exclude_fields_str.split(',')
         return dsl
 
     def get_script_fields_dsl(self, query_params, es_config):
