@@ -11304,6 +11304,13 @@
               "index": "acct-uniorders",
               "type": "Order",
               "id": "{uniformOrderId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "acct-uniorders",
+              "id": "{uniformOrderId}"
             }
           ]
         }
@@ -11367,6 +11374,12 @@
               "index": "acct-uniorders",
               "type": "Order",
               "id": "{uniformOrderId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-uniorders",
+              "id": "{uniformOrderId}"
             }
           ]
         },
@@ -11401,6 +11414,17 @@
               "reference": "general_vip",
               "index": "acct-uniorders",
               "type": "Order",
+              "id": "{uniformOrderIds}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-uniorders",
               "id": "{uniformOrderIds}",
               "operation": "delete",
               "id_process": {

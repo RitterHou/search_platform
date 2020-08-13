@@ -3042,10 +3042,9 @@
         "fields": {}
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "acct-uniorders",
-        "type": "Order"
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "acct-uniorders"
       },
       "response": {}
     },
