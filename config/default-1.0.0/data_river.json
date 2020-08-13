@@ -15485,6 +15485,12 @@
               "index": "acct-refund",
               "type": "Reconciliation",
               "id": "{finReconciliationMerRefundNo}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-refund",
+              "id": "{finReconciliationMerRefundNo}"
             }
           ]
         },
@@ -15519,6 +15525,17 @@
               "reference": "general_vip",
               "index": "acct-refund",
               "type": "Reconciliation",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-refund",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
