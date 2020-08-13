@@ -15379,6 +15379,12 @@
               "index": "acct-sell-out",
               "type": "Reconciliation",
               "id": "{finReconciliationSellOutId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-sell-out",
+              "id": "{finReconciliationSellOutId}"
             }
           ]
         },
@@ -15413,6 +15419,17 @@
               "reference": "general_vip",
               "index": "acct-sell-out",
               "type": "Reconciliation",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "acct-sell-out",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {

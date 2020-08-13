@@ -3684,10 +3684,9 @@
         "fields": {}
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "acct-sell-out",
-        "type": "Reconciliation"
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "acct-sell-out"
       },
       "response": {}
     },
