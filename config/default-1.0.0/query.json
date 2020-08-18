@@ -1912,10 +1912,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "qm-uc-{version}",
-        "type": "Plan",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "qm-uc-plan-{version}",
         "add_admin_id_field": true
       },
       "response": {}
@@ -1944,10 +1943,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "qm-uc-{version}",
-        "type": "Record",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "qm-uc-record-{version}",
         "add_admin_id_field": true
       },
       "response": {}
