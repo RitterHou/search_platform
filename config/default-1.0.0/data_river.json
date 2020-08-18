@@ -6809,6 +6809,12 @@
               "index": "qm-user-{version}",
               "type": "User",
               "id": "{ticketId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-user-{version}",
+              "id": "{ticketId}"
             }
           ]
         },
@@ -6844,6 +6850,17 @@
               "operation": "delete",
               "index": "qm-user-{version}",
               "type": "User",
+              "id": "{ticketId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "qm-user-{version}",
               "id": "{ticketId}",
               "id_process": {
                 "type": "seperate",
@@ -7013,6 +7030,12 @@
               "reference": "general_vip",
               "index": "qm-user-{version}",
               "type": "User",
+              "id": "{ticketId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-user-{version}",
               "id": "{ticketId}"
             }
           ]
