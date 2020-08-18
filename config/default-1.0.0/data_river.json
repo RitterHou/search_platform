@@ -6930,6 +6930,12 @@
               "index": "qm-usershop-{version}",
               "type": "Shop",
               "id": "{adminId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-usershop-{version}",
+              "id": "{adminId}"
             }
           ]
         },
@@ -6965,6 +6971,17 @@
               "operation": "delete",
               "index": "qm-usershop-{version}",
               "type": "Shop",
+              "id": "{adminId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "qm-usershop-{version}",
               "id": "{adminId}",
               "id_process": {
                 "type": "seperate",
@@ -7097,6 +7114,12 @@
               "reference": "general_vip",
               "index": "qm-usershop-{version}",
               "type": "Shop",
+              "id": "{adminId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-usershop-{version}",
               "id": "{adminId}"
             }
           ]
@@ -8937,6 +8960,12 @@
               "index": "qm-usershop-{version}",
               "type": "Shop",
               "id": "{adminId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-usershop-{version}",
+              "id": "{adminId}"
             }
           ]
         },
@@ -8972,6 +9001,17 @@
               "operation": "delete",
               "index": "qm-usershop-{version}",
               "type": "Shop",
+              "id": "{adminId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "qm-usershop-{version}",
               "id": "{adminId}",
               "id_process": {
                 "type": "seperate",

@@ -1844,10 +1844,9 @@
         "fields": {}
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "qm-usershop-{version}",
-        "type": "Shop"
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "qm-usershop-{version}"
       },
       "response": {}
     },
