@@ -7760,6 +7760,13 @@
               "type": "Employee",
               "id": "{employeeId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-uc-employee-{version}",
+              "id": "{employeeId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -7795,6 +7802,17 @@
               "operation": "delete",
               "index": "qm-uc-employee-{version}",
               "type": "Employee",
+              "id": "{employeeId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "qm-uc-employee-{version}",
               "id": "{employeeId}",
               "id_process": {
                 "type": "seperate",
@@ -7869,6 +7887,14 @@
               "reference": "general_vip",
               "index": "qm-uc-employee-{version}",
               "type": "Employee",
+              "id": "{employeeId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "qm-uc-employee-{version}",
               "id": "{employeeId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
