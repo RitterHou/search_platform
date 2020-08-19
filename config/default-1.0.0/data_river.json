@@ -15494,6 +15494,12 @@
               "index": "uc-circle-grandview",
               "type": "View",
               "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-circle-grandview",
+              "id": "{id}"
             }
           ]
         },
@@ -15528,6 +15534,17 @@
               "reference": "general_vip",
               "index": "uc-circle-grandview",
               "type": "View",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-circle-grandview",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
