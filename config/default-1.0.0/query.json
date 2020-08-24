@@ -1226,10 +1226,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "d2p-trade-{hashcode}-{version}-new",
-        "type": "Trade",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "d2p-trade-{hashcode}-{version}",
         "id": "{id}",
         "add_admin_id_field": true
       },
