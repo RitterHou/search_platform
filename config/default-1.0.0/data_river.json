@@ -14942,7 +14942,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "product_vip",
+              "reference": "general_vip",
               "operation": "create",
               "index": "uc-card-group",
               "type": "Group",
@@ -15010,7 +15010,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "product_vip",
+              "reference": "general_vip",
               "index": "uc-card-group",
               "type": "Group",
               "id": "{groupId}"
@@ -15045,7 +15045,7 @@
           "destination": [
             {
               "destination_type": "elasticsearch",
-              "reference": "product_vip",
+              "reference": "general_vip",
               "index": "uc-card-group",
               "type": "Group",
               "id": "{ids}",

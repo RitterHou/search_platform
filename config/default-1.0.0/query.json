@@ -3520,7 +3520,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch",
-        "reference": "product_vip",
+        "reference": "general_vip",
         "index": "uc-card-group",
         "type": "Group"
       },
