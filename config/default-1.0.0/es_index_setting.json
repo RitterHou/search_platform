@@ -1,6 +1,6 @@
 {
   "product_vip": {
-    "host": "{vip_es_host}",
+    "host": "{experience_es_host}",
     "index": "qmshop-{hashcode}-{version}",
     "type": "Product",
     "id": "{skuId}",
@@ -621,7 +621,7 @@
     }
   },
   "spu_vip": {
-    "host": "{vip_es_host}",
+    "host": "{experience_es_host}",
     "index": "qmshop-{hashcode}-{version}",
     "type": "Spu",
     "id": "{spuId}",
