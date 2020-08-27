@@ -2854,6 +2854,13 @@
               "type": "Item",
               "id": "{oid}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-trade-item-{hashcode}-{version}",
+              "id": "{oid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -2895,6 +2902,18 @@
               "operation": "delete",
               "index": "d2c-trade-item-{hashcode}-{version}",
               "type": "Item",
+              "id": "{oid}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "d2c-trade-item-{hashcode}-{version}",
               "id": "{oid}",
               "id_process": {
                 "type": "seperate",
@@ -3798,6 +3817,15 @@
               "operation": "create",
               "index": "d2c-trade-item-{hashcode}-{version}",
               "type": "Item",
+              "id": "{oid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-trade-item-{hashcode}-{version}",
               "id": "{oid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
