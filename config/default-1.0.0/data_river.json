@@ -1863,6 +1863,14 @@
               "type": "Fans",
               "id": "{openId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-fans-{hashcode}-{version}",
+              "id": "{openId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -1904,6 +1912,18 @@
               "operation": "delete",
               "index": "marketing-fans-{hashcode}-{version}",
               "type": "Fans",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "marketing-fans-{hashcode}-{version}",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
@@ -2371,6 +2391,15 @@
               "operation": "create",
               "index": "marketing-fans-{hashcode}-{version}",
               "type": "Fans",
+              "id": "{openId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-fans-{hashcode}-{version}",
               "id": "{openId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
