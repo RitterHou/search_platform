@@ -552,7 +552,7 @@
     }
   },
   "suggest_vip": {
-    "host": "{vip_es_host}",
+    "host": "{experience_es_host}",
     "index": "suggest-product-{version}",
     "type": "Suggest",
     "id": "{id}",
@@ -597,7 +597,7 @@
     }
   },
   "yxd_shop_suggest": {
-    "host": "{vip_es_host}",
+    "host": "{experience_es_host}",
     "index": "yxd-shop-suggest-{version}",
     "type": "ShopSuggest",
     "id": "{id}",
@@ -1684,7 +1684,7 @@
     }
   },
   "common_suggest_reference": {
-    "host": "{vip_es_host}",
+    "host": "{experience_es_host}",
     "type": "Suggest",
     "id": "{id}",
     "mapping": {
