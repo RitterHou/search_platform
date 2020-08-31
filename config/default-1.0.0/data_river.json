@@ -1495,6 +1495,14 @@
               "type": "Item",
               "id": "{id}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-item-{hashcode}-{version}",
+              "id": "{id}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -1536,6 +1544,18 @@
               "operation": "delete",
               "index": "marketing-item-{hashcode}-{version}",
               "type": "Item",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "marketing-item-{hashcode}-{version}",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
@@ -2237,6 +2257,15 @@
               "operation": "create",
               "index": "marketing-item-{hashcode}-{version}",
               "type": "Item",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-item-{hashcode}-{version}",
               "id": "{id}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
