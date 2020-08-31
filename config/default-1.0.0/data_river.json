@@ -3567,6 +3567,13 @@
               "type": "Receipt",
               "id": "{receiptId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-trade-receive-{hashcode}-{version}",
+              "id": "{receiptId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -3608,6 +3615,18 @@
               "operation": "delete",
               "index": "d2c-trade-receive-{hashcode}-{version}",
               "type": "Receipt",
+              "id": "{receiptId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "d2c-trade-receive-{hashcode}-{version}",
               "id": "{receiptId}",
               "id_process": {
                 "type": "seperate",
@@ -4210,6 +4229,15 @@
               "operation": "create",
               "index": "d2c-trade-receive-{hashcode}-{version}",
               "type": "Receipt",
+              "id": "{receiptId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-trade-receive-{hashcode}-{version}",
               "id": "{receiptId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
