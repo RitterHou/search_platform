@@ -3122,6 +3122,13 @@
               "type": "Application",
               "id": "{applyId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "id": "{applyId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -3176,6 +3183,18 @@
               "operation": "delete",
               "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "type": "Application",
+              "id": "{applyId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "id": "{applyId}",
               "id_process": {
                 "type": "seperate",
@@ -4059,6 +4078,16 @@
               "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "desc": "售后单的数据也需要初始化到标准售后单订单中",
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "id": "{applyId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -4122,6 +4151,15 @@
               "operation": "create",
               "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "type": "Application",
+              "id": "{refundReceiptId}",
+              "add_admin_id_field": true
+            },
+            {
+              "desc": "收银售后单只需要被初始化到标准售后单索引中，不需要单独存在",
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "id": "{refundReceiptId}",
               "add_admin_id_field": true
             }
@@ -9434,6 +9472,13 @@
               "type": "Application",
               "id": "{refundReceiptId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
+              "id": "{refundReceiptId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -9475,6 +9520,16 @@
               "operation": "create",
               "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "type": "Application",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-standard-trade-application-{hashcode}-{version}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
