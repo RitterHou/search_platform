@@ -2706,6 +2706,15 @@
               "id": "{userCardId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "user-count-card",
+              "id": "{userCardId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         }
@@ -13920,6 +13929,13 @@
               "type": "Card",
               "id": "{userCardId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "user-count-card",
+              "id": "{userCardId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -13955,6 +13971,17 @@
               "operation": "delete",
               "index": "user-count-card",
               "type": "Card",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "user-count-card",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
