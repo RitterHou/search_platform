@@ -15402,6 +15402,14 @@
               "type": "Notice",
               "id": "{id}",
               "clear_policy": "every_msg,all"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "uc-notice",
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
             }
           ]
         }
@@ -15468,6 +15476,12 @@
               "index": "uc-notice",
               "type": "Notice",
               "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-notice",
+              "id": "{id}"
             }
           ]
         },
@@ -15502,6 +15516,17 @@
               "reference": "general_vip",
               "index": "uc-notice",
               "type": "Notice",
+              "id": "{nid}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-notice",
               "id": "{nid}",
               "operation": "delete",
               "id_process": {
@@ -15565,6 +15590,12 @@
               "operation": "ids_same_prop_update",
               "index": "uc-notice",
               "type": "Notice"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "ids_same_prop_update",
+              "index": "uc-notice"
             }
           ]
         }

@@ -3570,10 +3570,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
-        "index": "uc-notice",
-        "type": "Notice"
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "uc-notice"
       },
       "response": {}
     },
