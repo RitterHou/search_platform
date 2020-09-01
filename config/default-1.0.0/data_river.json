@@ -9660,6 +9660,13 @@
               "type": "View",
               "id": "{no}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "tms-view-{version}",
+              "id": "{no}",
+              "add_admin_id_field": true
             }
           ]
         }
