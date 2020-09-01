@@ -18394,6 +18394,15 @@
               "id": "{refId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2c-cash-refund-info",
+              "id": "{refId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         }
@@ -18461,6 +18470,13 @@
               "reference": "general_vip",
               "index": "d2c-cash-refund-info",
               "type": "Info",
+              "id": "{refId}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-cash-refund-info",
               "id": "{refId}",
               "add_admin_id_field": true
             }
