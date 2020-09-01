@@ -15540,6 +15540,14 @@
               "type": "Group",
               "id": "{groupId}",
               "clear_policy": "every_msg,all"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "uc-card-group",
+              "id": "{groupId}",
+              "clear_policy": "every_msg,all"
             }
           ]
         }
@@ -15606,6 +15614,12 @@
               "index": "uc-card-group",
               "type": "Group",
               "id": "{groupId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-group",
+              "id": "{groupId}"
             }
           ]
         },
@@ -15640,6 +15654,17 @@
               "reference": "general_vip",
               "index": "uc-card-group",
               "type": "Group",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-group",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
