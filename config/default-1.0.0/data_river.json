@@ -13278,6 +13278,13 @@
               "type": "Album",
               "id": "{id}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-album",
+              "id": "{id}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -13312,6 +13319,17 @@
               "reference": "general_vip",
               "index": "uc-card-album",
               "type": "Album",
+              "id": "{nid}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-album",
               "id": "{nid}",
               "operation": "delete",
               "id_process": {
