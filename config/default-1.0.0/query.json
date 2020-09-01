@@ -3262,10 +3262,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
         "index": "uc-card-data-bank",
-        "type": "DataBank",
         "add_admin_id_field": true
       },
       "response": {}

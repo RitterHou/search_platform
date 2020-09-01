@@ -13328,6 +13328,13 @@
               "type": "DataBank",
               "id": "{archiveId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-data-bank",
+              "id": "{archiveId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -13362,6 +13369,17 @@
               "reference": "general_vip",
               "index": "uc-card-data-bank",
               "type": "DataBank",
+              "id": "{archiveId}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-card-data-bank",
               "id": "{archiveId}",
               "operation": "delete",
               "id_process": {
