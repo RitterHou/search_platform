@@ -11104,6 +11104,14 @@
               "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2p-marketing-trade-{hashcode}-{version}",
+              "id": "{tid}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -11145,6 +11153,18 @@
               "operation": "delete",
               "index": "d2p-marketing-trade-{hashcode}-{version}",
               "type": "Trade",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "d2p-marketing-trade-{hashcode}-{version}",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
@@ -11606,6 +11626,15 @@
               "operation": "create",
               "index": "d2p-marketing-trade-{hashcode}-{version}",
               "type": "Trade",
+              "id": "{tid}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "d2p-marketing-trade-{hashcode}-{version}",
               "id": "{tid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
