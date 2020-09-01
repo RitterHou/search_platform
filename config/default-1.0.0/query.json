@@ -3802,10 +3802,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
         "index": "marketing-user-gift-card",
-        "type": "Card",
         "add_admin_id_field": true
       },
       "response": {}

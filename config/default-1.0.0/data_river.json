@@ -17146,6 +17146,15 @@
               "id": "{id}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-user-gift-card",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -17609,6 +17618,14 @@
               "type": "Card",
               "id": "{id}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-user-gift-card",
+              "id": "{id}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -17645,6 +17662,18 @@
               "operation": "delete",
               "index": "marketing-user-gift-card",
               "type": "Card",
+              "id": "{id}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "marketing-user-gift-card",
               "id": "{id}",
               "id_process": {
                 "type": "seperate",
