@@ -10332,6 +10332,15 @@
               "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades-applies",
+              "id": "{applyId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -10389,6 +10398,14 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
+              "id": "{applyId}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades-applies",
               "id": "{applyId}",
               "add_admin_id_field": true
             }
@@ -10450,6 +10467,14 @@
               "type": "Trade",
               "id": "{applyId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades-applies",
+              "id": "{applyId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -10507,6 +10532,14 @@
               "operation": "create",
               "index": "view-retail-trades-applies",
               "type": "Trade",
+              "id": "{applyId}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "view-retail-trades-applies",
               "id": "{applyId}",
               "add_admin_id_field": true
             }
@@ -10650,6 +10683,13 @@
               "reference": "trade_apply_tid_wildcard_vip",
               "index": "view-retail-trades-applies",
               "type": "Trade",
+              "add_admin_id_field": true,
+              "id": "{applyId}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "view-retail-trades-applies",
               "add_admin_id_field": true,
               "id": "{applyId}"
             }
