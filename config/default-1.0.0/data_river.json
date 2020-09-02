@@ -6346,6 +6346,13 @@
               "type": "Application",
               "id": "{applyId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "consignment-trade-application-{hashcode}-{version}",
+              "id": "{applyId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -6387,6 +6394,18 @@
               "operation": "delete",
               "index": "consignment-trade-application-{hashcode}-{version}",
               "type": "Application",
+              "id": "{applyId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ";"
+              },
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "delete",
+              "index": "consignment-trade-application-{hashcode}-{version}",
               "id": "{applyId}",
               "id_process": {
                 "type": "seperate",
@@ -7161,6 +7180,15 @@
               "operation": "create",
               "index": "consignment-trade-application-{hashcode}-{version}",
               "type": "Application",
+              "id": "{applyId}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "consignment-trade-application-{hashcode}-{version}",
               "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
