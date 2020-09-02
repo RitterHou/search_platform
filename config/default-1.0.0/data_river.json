@@ -14306,6 +14306,13 @@
               "type": "Appointment",
               "id": "{appointmentId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "user-conn-appointment",
+              "id": "{appointmentId}",
+              "add_admin_id_field": true
             }
           ]
         }
