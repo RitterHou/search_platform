@@ -3855,10 +3855,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_vip",
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
         "index": "marketing-gift-card-give-record",
-        "type": "Record",
         "add_admin_id_field": true
       },
       "response": {}
