@@ -18756,6 +18756,112 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "商圈代理商配置视图数据变更，负责人：蔡超",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_uc_agent_deploy",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc_agent_deploy"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_agent_deploy_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "event": "event\":\"(?P<event>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.division.dubbo.AgentEsProvider",
+            "request": {
+              "method": "findAgentDeploy",
+              "timeout": 10,
+              "body": {
+                "event": "{event}",
+                "msgId": "{msgId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-agent-deploy",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "uc_agent_deploy_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "uc-agent-deploy",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
