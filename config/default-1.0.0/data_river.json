@@ -14440,7 +14440,7 @@
             "version": "1.0.0",
             "request": {
               "method": "query",
-              "timeout": 10,
+              "timeout": 30,
               "body": {
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}",
