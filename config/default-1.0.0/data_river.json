@@ -18564,7 +18564,7 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.trade.view.api.ReceiptViewQueryProvider",
             "request": {
               "method": "queryReceiveReceiptListByIds",
               "timeout": 10,
@@ -18726,9 +18726,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.d2c.tc.cash.api.trade.search.CashierTradeSearchQueryProvider",
+            "service_interface": "com.qianmi.trade.view.api.ReceiptViewQueryProvider",
             "request": {
-              "method": "queryRefundedInfoListByIds",
+              "method": "queryRefundInfoListByIds",
               "timeout": 10,
               "body": {
                 "msgId": "{msgId}",
