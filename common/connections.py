@@ -20,6 +20,17 @@ INDEX_REQUEST_TIMEOUT = 120
 INDEX_TIMEOUT = 120000
 
 
+def not_master_nodes(node_info, host):
+    """
+    由于master节点的性能较差，所以过滤掉master节点
+    :param node_info:
+    :param host:
+    :return:
+    """
+    roles = node_info.get('roles', [])
+    return host if 'master' not in roles else None
+
+
 class Es7Connection(elasticsearch7.Elasticsearch):
     """
     封装的ES7操作接口，添加了多个索引
@@ -87,6 +98,7 @@ class Es7ConnectionPool(object):
         if host not in self.connection_cache:
             try:
                 connection = Es7Connection(host.split(','),
+                                           host_info_callback=not_master_nodes,
                                            sniff_on_start=True,
                                            sniff_on_connection_fail=True,
                                            sniffer_timeout=60)
