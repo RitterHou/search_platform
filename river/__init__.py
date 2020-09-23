@@ -51,4 +51,5 @@ def do_msg_process_error(error):
         raise MsgHandlingFailError(MsgHandlingFailError.DUBBO_ERROR)
     elif isinstance(error, HTTPException):
         raise MsgHandlingFailError(MsgHandlingFailError.HTTP_ERROR)
-from river import rivers
+    else:
+        raise MsgHandlingFailError(MsgHandlingFailError.PROCESS_ERROR)
