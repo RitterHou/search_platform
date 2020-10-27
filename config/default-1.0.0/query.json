@@ -3976,6 +3976,35 @@
         "index": "uc-agent-deploy"
       },
       "response": {}
+    },
+    {
+      "desc": "机构连锁总部关系视图配置查询，负责人：杨金龙",
+      "name": "partners_agent_o2o_relation_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "partners/agent/o2o/relation",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/partners/agent/o2o/relation$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "partners-agent-o2o-relation"
+      },
+      "response": {}
     }
   ]
 }
