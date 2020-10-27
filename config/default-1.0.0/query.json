@@ -4005,6 +4005,37 @@
         "index": "partners-agent-o2o-relation"
       },
       "response": {}
+    },
+    {
+      "desc": "千米标准商品信息接口，负责人：周涛",
+      "name": "product_center_standard_item",
+      "res_type": "default",
+      "http_method": "GET,POST",
+      "url_format": "pc/item/standard",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/pc/item/standard$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "pc-item-standard",
+        "type": "Item",
+        "id": "{id}"
+      },
+      "response": {}
     }
   ]
 }
