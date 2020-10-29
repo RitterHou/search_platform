@@ -4010,7 +4010,7 @@
       "desc": "千米标准商品信息接口，负责人：周涛",
       "name": "product_center_standard_item",
       "res_type": "default",
-      "http_method": "GET,POST",
+      "http_method": "GET,POST,DELETE",
       "url_format": "pc/item/standard",
       "filter": {
         "type": "regex",
