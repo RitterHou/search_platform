@@ -1365,15 +1365,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -1415,19 +1406,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -1508,15 +1486,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -1558,19 +1527,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -1651,15 +1607,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -1701,19 +1648,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -1794,15 +1728,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -1844,19 +1769,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -1936,15 +1848,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{openId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -1986,19 +1889,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -2079,15 +1969,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-integral-items-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -2129,19 +2010,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-integral-items-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -2227,16 +2095,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -2300,16 +2158,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -2375,16 +2223,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -2449,16 +2287,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -2521,16 +2349,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-fans-{hashcode}-{version}",
-              "type": "Fans",
-              "id": "{openId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -2596,16 +2414,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-integral-items-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -2665,106 +2473,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "_all": {
-                  "store": false
-                },
-                "dynamic_templates": [
-                  {
-                    "string_fields": {
-                      "mapping": {
-                        "index": "not_analyzed",
-                        "type": "string",
-                        "fields": {
-                          "analyzed": {
-                            "index": "analyzed",
-                            "analyzer": "qm_standard",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "string",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "long_fields": {
-                      "mapping": {
-                        "type": "long",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "long",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "double_fields": {
-                      "mapping": {
-                        "type": "double",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "double",
-                      "match": "*"
-                    }
-                  }
-                ],
-                "properties": {
-                  "userCardId": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  },
-                  "cardId": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  },
-                  "tid": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  }
-                }
-              },
-              "index": "user-count-card",
-              "type": "Card",
-              "id": "{userCardId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -2845,26 +2553,9 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-{hashcode}-{version}",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
-              "desc": "修改需要被反映到标准订单中",
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
             },
@@ -2911,36 +2602,10 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "delete",
               "index": "d2c-trade-{hashcode}-{version}",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
               "id": "{ids}",
               "id_process": {
                 "type": "seperate",
@@ -3031,14 +2696,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-item-{hashcode}-{version}",
@@ -3079,19 +2736,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -3175,25 +2819,9 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-application-{hashcode}-{version}",
-              "id": "{applyId}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
               "id": "{applyId}",
               "add_admin_id_field": true
             },
@@ -3239,36 +2867,10 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "delete",
               "index": "d2c-trade-application-{hashcode}-{version}",
-              "id": "{applyId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
               "id": "{applyId}",
               "id_process": {
                 "type": "seperate",
@@ -3359,14 +2961,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-refunded-{hashcode}-{version}",
@@ -3407,19 +3001,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -3503,14 +3084,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-returned-{hashcode}-{version}",
@@ -3551,19 +3124,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -3647,14 +3207,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-ship-{hashcode}-{version}",
@@ -3695,19 +3247,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -3791,14 +3330,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-trade-receive-{hashcode}-{version}",
@@ -3839,19 +3370,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -3940,31 +3458,10 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
               "index": "d2c-trade-{hashcode}-{version}",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
-              "desc": "同时把商城订单数据初始化到标准订单的索引中",
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
               "id": "{tid}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
@@ -4036,16 +3533,6 @@
           "destination": [
             {
               "desc": "这里把收银订单的数据初始化到标准订单中，收银订单本身数据的初始化在q.searchPlatform.d2c.cash.tradeInit中",
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
-              "desc": "这里把收银订单的数据初始化到标准订单中，收银订单本身数据的初始化在q.searchPlatform.d2c.cash.tradeInit中",
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -4108,16 +3595,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -4183,31 +3660,10 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
               "index": "d2c-trade-application-{hashcode}-{version}",
-              "id": "{applyId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
-              "desc": "售后单的数据也需要初始化到标准售后单订单中",
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
               "id": "{applyId}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
@@ -4279,16 +3735,6 @@
           "destination": [
             {
               "desc": "收银售后单只需要被初始化到标准售后单索引中，不需要单独存在",
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{refundReceiptId}",
-              "add_admin_id_field": true
-            },
-            {
-              "desc": "收银售后单只需要被初始化到标准售后单索引中，不需要单独存在",
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -4351,16 +3797,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -4426,16 +3862,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -4500,16 +3926,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -4573,16 +3989,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -4663,25 +4069,9 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-cash-trade-{hashcode}-{version}",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
               "id": "{tid}",
               "add_admin_id_field": true
             },
@@ -4727,37 +4117,11 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-cash-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "delete",
               "index": "d2c-cash-trade-{hashcode}-{version}",
               "id": "{tid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-standard-trade-{hashcode}-{version}-new",
-              "type": "Trade",
-              "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
@@ -4847,14 +4211,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-cash-trade-item-{hashcode}-{version}",
@@ -4895,19 +4251,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-cash-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -4991,14 +4334,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-trade-returned-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{retTid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-cash-trade-returned-{hashcode}-{version}",
@@ -5039,19 +4374,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-cash-trade-returned-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{retTid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5135,14 +4457,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-trade-refunded-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-cash-trade-refunded-{hashcode}-{version}",
@@ -5183,19 +4497,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2c-cash-trade-refunded-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5284,16 +4585,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -5357,16 +4648,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5432,16 +4713,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-trade-returned-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{retTid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -5505,16 +4776,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-trade-refunded-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5593,14 +4854,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2p-trade-{hashcode}-{version}-new",
-              "type": "Trade",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2p-trade-{hashcode}-{version}",
@@ -5641,19 +4894,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-trade-{hashcode}-{version}-new",
-              "type": "Trade",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5734,16 +4974,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -5821,14 +5051,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2p-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2p-trade-returned-{hashcode}-{version}",
@@ -5870,19 +5092,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -5963,16 +5172,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-trade-{hashcode}-{version}-new",
-              "type": "Trade",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -6052,14 +5251,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-{hashcode}-{version}",
@@ -6100,19 +5291,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6196,14 +5374,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-item-{hashcode}-{version}",
@@ -6244,19 +5414,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6340,14 +5497,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-application-{hashcode}-{version}",
@@ -6388,19 +5537,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6484,14 +5620,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-refunded-{hashcode}-{version}",
@@ -6532,19 +5660,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6628,14 +5743,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-returned-{hashcode}-{version}",
@@ -6676,19 +5783,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6772,14 +5866,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-ship-{hashcode}-{version}",
@@ -6820,19 +5906,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -6916,14 +5989,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "consignment-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "consignment-trade-receive-{hashcode}-{version}",
@@ -6964,19 +6029,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "consignment-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7065,16 +6117,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -7138,16 +6180,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{oid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7213,16 +6245,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{applyId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -7286,16 +6308,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-refunded-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7361,16 +6373,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-returned-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -7435,16 +6437,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-receive-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -7508,16 +6500,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "consignment-trade-ship-{hashcode}-{version}",
-              "type": "Receipt",
-              "id": "{receiptId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7585,13 +6567,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-user-{version}",
-              "type": "User",
-              "id": "{ticketId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-user-{version}",
@@ -7625,18 +6600,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-user-{version}",
-              "type": "User",
-              "id": "{ticketId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7706,13 +6669,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-usershop-{version}",
-              "type": "Shop",
-              "id": "{adminId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-usershop-{version}",
@@ -7746,18 +6702,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-usershop-{version}",
-              "type": "Shop",
-              "id": "{adminId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7824,13 +6768,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-user-{version}",
-              "type": "User",
-              "id": "{ticketId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-user-{version}",
@@ -7890,13 +6827,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-usershop-{version}",
-              "type": "Shop",
-              "id": "{adminId}"
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -7966,14 +6896,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-oms-{hashcode}-{version}",
-              "type": "DeliveryNote",
-              "id": "{deliveryNo}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-oms-{hashcode}-{version}",
@@ -8014,18 +6936,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-oms-{hashcode}-{version}",
-              "type": "DeliveryNote",
-              "id": "{deliveryNos}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -8106,14 +7016,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-oms-{hashcode}-{version}",
-              "type": "DeliveryNote",
-              "id": "{deliveryNo}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-oms-{hashcode}-{version}",
@@ -8176,14 +7078,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-{version}",
-              "type": "Plan",
-              "id": "{planId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-uc-plan-{version}",
@@ -8220,18 +7114,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-uc-{version}",
-              "type": "Plan",
-              "id": "{planId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -8299,14 +7181,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-{version}",
-              "type": "Record",
-              "id": "{recordId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-uc-record-{version}",
@@ -8343,18 +7217,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-uc-{version}",
-              "type": "Record",
-              "id": "{recordId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -8430,14 +7292,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-{version}",
-              "type": "Plan",
-              "id": "{planId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-uc-plan-{version}",
@@ -8508,14 +7362,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-{version}",
-              "type": "Record",
-              "id": "{recordId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-uc-record-{version}",
@@ -8581,14 +7427,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-employee-{version}",
-              "type": "Employee",
-              "id": "{employeeId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-uc-employee-{version}",
@@ -8623,18 +7461,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-uc-employee-{version}",
-              "type": "Employee",
-              "id": "{employeeId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -8709,15 +7535,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-uc-employee-{version}",
-              "type": "Employee",
-              "id": "{employeeId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -9532,15 +8349,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "b2c-retail-view-{version}",
-              "type": "B2CRetailView",
-              "add_admin_id_field": true,
-              "clear_policy": "every_msg,by_adminId",
-              "id": "{cid}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "b2c-retail-view-{version}",
@@ -9613,14 +8421,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "b2c-retail-view-{version}",
-              "type": "B2CRetailView",
-              "add_admin_id_field": true,
-              "id": "{cid}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "b2c-retail-view-{version}",
@@ -9655,18 +8455,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "b2c-retail-view-{version}",
-              "type": "B2CRetailView",
-              "operation": "delete",
-              "id": "{cids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -9736,13 +8524,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "qm-usershop-{version}",
-              "type": "Shop",
-              "id": "{adminId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "qm-usershop-{version}",
@@ -9776,18 +8557,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "qm-usershop-{version}",
-              "type": "Shop",
-              "id": "{adminId}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -9869,14 +8638,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id": "{refundReceiptId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "d2c-standard-trade-application-{hashcode}-{version}",
@@ -9917,17 +8678,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-standard-trade-application-{hashcode}-{version}",
-              "type": "Application",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -10000,14 +8750,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "tms-view-{version}",
-              "type": "View",
-              "id": "{no}",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11163,84 +9905,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "mapping": {
-                "_all": {
-                  "store": true,
-                  "analyzer": "qm_standard",
-                  "auto_boost": true
-                },
-                "dynamic_templates": [
-                  {
-                    "string_fields": {
-                      "mapping": {
-                        "index": "not_analyzed",
-                        "type": "string",
-                        "fields": {
-                          "analyzed": {
-                            "index": "analyzed",
-                            "analyzer": "qm_standard",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "string",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "long_fields": {
-                      "mapping": {
-                        "type": "long",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "long",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "double_fields": {
-                      "mapping": {
-                        "type": "double",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "double",
-                      "match": "*"
-                    }
-                  }
-                ],
-                "properties": {
-                  "industryPetInfos": {
-                    "type": "nested"
-                  },
-                  "industryBabyInfos": {
-                    "type": "nested"
-                  },
-                  "industryAMInfos": {
-                    "type": "nested"
-                  }
-                }
-              },
-              "index": "b2c-connection-grandview",
-              "type": "View",
-              "id": "{cid}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "b2c-connection-grandview",
@@ -11292,18 +9956,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "b2c-connection-grandview",
-              "type": "View",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11384,15 +10036,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -11434,19 +10077,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11527,15 +10157,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -11577,19 +10198,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11670,15 +10278,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -11720,19 +10319,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11813,15 +10399,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -11863,19 +10440,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "d2p-marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -11961,16 +10525,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-{hashcode}-{version}",
-              "type": "Marketing",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -12034,16 +10588,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-item-{hashcode}-{version}",
-              "type": "Item",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -12109,16 +10653,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-trade-{hashcode}-{version}",
-              "type": "Trade",
-              "id": "{tid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -12182,16 +10716,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2p-marketing-usercoupon-{hashcode}-{version}",
-              "type": "Coupon",
-              "id": "{couponId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -12268,14 +10792,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "acct-uniorders",
-              "type": "Order",
-              "id": "{uniformOrderId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -12339,13 +10855,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-uniorders",
-              "type": "Order",
-              "id": "{uniformOrderId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "acct-uniorders",
@@ -12379,18 +10888,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-uniorders",
-              "type": "Order",
-              "id": "{uniformOrderIds}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -13199,16 +11696,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "uc-card-notice",
-              "type": "Notice",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -13277,14 +11764,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-notice",
-              "type": "Notice",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-card-notice",
@@ -13319,18 +11798,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-notice",
-              "type": "Notice",
-              "id": "{nid}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -13647,14 +12114,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-album",
-              "type": "Album",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-card-album",
@@ -13689,18 +12148,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-album",
-              "type": "Album",
-              "id": "{nid}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -13772,14 +12219,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-data-bank",
-              "type": "DataBank",
-              "id": "{archiveId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-card-data-bank",
@@ -13814,18 +12253,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-data-bank",
-              "type": "DataBank",
-              "id": "{archiveId}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -13900,104 +12327,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "mapping": {
-                "_all": {
-                  "store": false
-                },
-                "dynamic_templates": [
-                  {
-                    "string_fields": {
-                      "mapping": {
-                        "index": "not_analyzed",
-                        "type": "string",
-                        "fields": {
-                          "analyzed": {
-                            "index": "analyzed",
-                            "analyzer": "qm_standard",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "string",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "long_fields": {
-                      "mapping": {
-                        "type": "long",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "long",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "double_fields": {
-                      "mapping": {
-                        "type": "double",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "double",
-                      "match": "*"
-                    }
-                  }
-                ],
-                "properties": {
-                  "userCardId": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  },
-                  "cardId": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  },
-                  "tid": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  }
-                }
-              },
-              "index": "user-count-card",
-              "type": "Card",
-              "id": "{userCardId}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "user-count-card",
@@ -14032,18 +12361,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "user-count-card",
-              "type": "Card",
-              "id": "{ids}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -14115,94 +12432,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "mapping": {
-                "_all": {
-                  "store": false
-                },
-                "dynamic_templates": [
-                  {
-                    "string_fields": {
-                      "mapping": {
-                        "index": "not_analyzed",
-                        "type": "string",
-                        "fields": {
-                          "analyzed": {
-                            "index": "analyzed",
-                            "analyzer": "qm_standard",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "string",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "long_fields": {
-                      "mapping": {
-                        "type": "long",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "long",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "double_fields": {
-                      "mapping": {
-                        "type": "double",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "double",
-                      "match": "*"
-                    }
-                  }
-                ],
-                "properties": {
-                  "phoneNumber": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  },
-                  "appointmentId": {
-                    "type": "string",
-                    "index": "not_analyzed",
-                    "fields": {
-                      "postfix": {
-                        "type": "string",
-                        "analyzer": "postfix"
-                      }
-                    }
-                  }
-                }
-              },
-              "index": "user-conn-appointment",
-              "type": "Appointment",
-              "id": "{appointmentId}",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -15690,15 +13919,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "uc-card-group",
-              "type": "Group",
-              "id": "{groupId}",
-              "clear_policy": "every_msg,all"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -15766,13 +13986,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-group",
-              "type": "Group",
-              "id": "{groupId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-card-group",
@@ -15806,18 +14019,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-card-group",
-              "type": "Group",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ":"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -15895,15 +14096,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "uc-notice",
-              "type": "Notice",
-              "id": "{id}",
-              "clear_policy": "every_msg,all"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -15971,13 +14163,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-notice",
-              "type": "Notice",
-              "id": "{id}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-notice",
@@ -16011,18 +14196,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-notice",
-              "type": "Notice",
-              "id": "{nid}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16084,13 +14257,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "ids_same_prop_update",
-              "index": "uc-notice",
-              "type": "Notice"
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16165,16 +14331,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "guide-commission-record",
-              "type": "Record",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -16245,14 +14401,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "guide-commission-record",
-              "type": "Record",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "guide-commission-record",
@@ -16287,18 +14435,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "guide-commission-record",
-              "type": "Record",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16370,76 +14506,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "mapping": {
-                "_all": {
-                  "enabled": false
-                },
-                "dynamic_templates": [
-                  {
-                    "string_fields": {
-                      "mapping": {
-                        "index": "not_analyzed",
-                        "type": "string",
-                        "fields": {
-                          "analyzed": {
-                            "index": "analyzed",
-                            "analyzer": "qm_standard",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "string",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "long_fields": {
-                      "mapping": {
-                        "type": "long",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "long",
-                      "match": "*"
-                    }
-                  },
-                  {
-                    "double_fields": {
-                      "mapping": {
-                        "type": "double",
-                        "fields": {
-                          "double": {
-                            "type": "double"
-                          },
-                          "long": {
-                            "type": "long"
-                          }
-                        }
-                      },
-                      "match_mapping_type": "double",
-                      "match": "*"
-                    }
-                  }
-                ],
-                "properties": {
-                  "geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "uc-circle-grandview",
-              "type": "View",
-              "id": "{id}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "uc-circle-grandview",
@@ -16473,18 +14539,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "uc-circle-grandview",
-              "type": "View",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16556,13 +14610,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-sell-out",
-              "type": "Reconciliation",
-              "id": "{finReconciliationSellOutId}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "acct-sell-out",
@@ -16596,18 +14643,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-sell-out",
-              "type": "Reconciliation",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16679,13 +14714,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-refund",
-              "type": "Reconciliation",
-              "id": "{finReconciliationMerRefundNo}"
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "acct-refund",
@@ -16719,18 +14747,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "acct-refund",
-              "type": "Reconciliation",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -16811,16 +14827,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-activity-item-exclude",
-              "type": "Item",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -16892,14 +14898,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "marketing-activity-item-exclude",
-              "type": "Item",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "index": "marketing-activity-item-exclude",
@@ -16934,18 +14932,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "marketing-activity-item-exclude",
-              "type": "Item",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17206,16 +15192,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17274,16 +15250,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-user-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17344,23 +15310,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "store.geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-use-record",
-              "type": "Record",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17419,23 +15368,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "store.geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-give-record",
-              "type": "Record",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17496,23 +15428,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17571,23 +15486,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-user-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17661,15 +15559,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17706,19 +15595,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17795,15 +15671,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "marketing-user-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17840,19 +15707,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-user-gift-card",
-              "type": "Card",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -17929,22 +15783,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "store.geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-use-record",
-              "type": "Record",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -17981,19 +15819,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-gift-card-use-record",
-              "type": "Record",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -18070,22 +15895,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "store.geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-give-record",
-              "type": "Record",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -18122,19 +15931,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-gift-card-give-record",
-              "type": "Record",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -18211,22 +16007,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -18263,19 +16043,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -18352,22 +16119,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "mapping": {
-                "properties": {
-                  "geoLocation": {
-                    "type": "geo_point"
-                  }
-                }
-              },
-              "index": "marketing-user-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -18404,19 +16155,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "delete",
-              "index": "marketing-user-gift-card-store",
-              "type": "Store",
-              "id": "{id}",
-              "id_process": {
-                "type": "seperate",
-                "separator": ";"
-              },
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -18497,16 +16235,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-receive-receipt",
-              "type": "Receipt",
-              "id": "{recTid}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -18576,14 +16304,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-receive-receipt",
-              "type": "Receipt",
-              "id": "{recTid}",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
@@ -18659,16 +16379,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "operation": "create",
-              "index": "d2c-cash-refund-info",
-              "type": "Info",
-              "id": "{refId}",
-              "clear_policy": "every_msg,by_adminId",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
               "operation": "create",
@@ -18738,14 +16448,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_vip",
-              "index": "d2c-cash-refund-info",
-              "type": "Info",
-              "id": "{refId}",
-              "add_admin_id_field": true
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "search_platform_default",
