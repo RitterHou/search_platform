@@ -101,6 +101,7 @@ class Es7ConnectionPool(object):
                                            host_info_callback=not_master_nodes,
                                            sniff_on_start=True,
                                            sniff_on_connection_fail=True,
+                                           sniff_timeout=2,
                                            sniffer_timeout=60)
             except elasticsearch7.TransportError as e:
                 app_log.error('create elasitcsearch connection fail, host={0}', e, host)
