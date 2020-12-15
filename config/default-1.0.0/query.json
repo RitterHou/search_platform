@@ -4065,6 +4065,36 @@
         "index": "uc-card-change-log"
       },
       "response": {}
+    },
+    {
+      "desc": "接口日志查询，负责人：刘兆明",
+      "name": "service_log_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "log/servicebean",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/log/servicebean$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch7",
+        "host": "{huawei_log_server_host}",
+        "index": "service-*",
+        "sniff": false
+      },
+      "response": {}
     }
   ]
 }

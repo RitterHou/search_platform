@@ -66,7 +66,7 @@ class Es7ConnectionPool(object):
         from common.configs import config
         _host = host or [es_config['host'] if es_config and 'host' in es_config else None][0]
         _host = _host.format(**config.get_value('consts/custom_variables'))
-        conn = self.__create_connection(_host)
+        conn = self.__create_connection(_host, es_config.get('sniff', True))
 
         try:
             if create_index and es_config and 'index' in es_config and 'mapping' in es_config \
@@ -89,7 +89,7 @@ class Es7ConnectionPool(object):
 
         return conn
 
-    def __create_connection(self, host):
+    def __create_connection(self, host, sniff=True):
         """
         创建连接器，如果cache中存在该host的连接，则不再创建
         :param host:
@@ -97,12 +97,15 @@ class Es7ConnectionPool(object):
         """
         if host not in self.connection_cache:
             try:
-                connection = Es7Connection(host.split(','),
-                                           host_info_callback=not_master_nodes,
-                                           sniff_on_start=True,
-                                           sniff_on_connection_fail=True,
-                                           sniff_timeout=2,
-                                           sniffer_timeout=60)
+                if sniff:
+                    connection = Es7Connection(host.split(','),
+                                               host_info_callback=not_master_nodes,
+                                               sniff_on_start=True,
+                                               sniff_on_connection_fail=True,
+                                               sniff_timeout=2,
+                                               sniffer_timeout=60)
+                else:
+                    connection = Es7Connection(host.split(','))
             except elasticsearch7.TransportError as e:
                 app_log.error('create elasitcsearch connection fail, host={0}', e, host)
                 if 'Unable to sniff hosts' in str(e):
