@@ -66,7 +66,7 @@ class Es7ConnectionPool(object):
         from common.configs import config
         _host = host or [es_config['host'] if es_config and 'host' in es_config else None][0]
         _host = _host.format(**config.get_value('consts/custom_variables'))
-        conn = self.__create_connection(_host, es_config.get('sniff', True))
+        conn = self.__create_connection(_host, es_config.get('sniff', True) if es_config else True)
 
         try:
             if create_index and es_config and 'index' in es_config and 'mapping' in es_config \
