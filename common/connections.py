@@ -191,6 +191,7 @@ class EsConnectionPool(object):
                 connection = EsConnection(host.split(','),
                                           sniff_on_start=True,
                                           sniff_on_connection_fail=True,
+                                          sniff_timeout=2,
                                           sniffer_timeout=60)
             except TransportError as e:
                 app_log.error('create elasitcsearch connection fail, host={0}', e, host)
