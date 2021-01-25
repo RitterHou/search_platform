@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import time
 
 from common.scripts import python_invoker
 from common.utils import get_dict_value_by_path, unbind_variable, COMBINE_SIGN, hash_encode
@@ -147,21 +148,50 @@ class HashModulusItemParser(ItemParser):
         return field_name, hash_code
 
 
+class DatetimeItemParser(ItemParser):
+    def parse_item(self, data, item_config, field_name, parse_result):
+        """
+        根据指定的格式生成当前的时间，配置参考：
+        "fields": {
+            "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+            "es_index_datetime": {
+                "type": "datetime",
+                "format": "day"
+            }
+        }
+        :param data:
+        :param item_config:
+        :param field_name:
+        :param parse_result:
+        :return:
+        """
+        date_format = item_config.get('format') or 'year'
+        if date_format == 'year':
+            current_time = time.strftime('%Y')
+        elif date_format == 'month':
+            current_time = time.strftime('%Y%m')
+        elif date_format == 'day':
+            current_time = time.strftime('%Y%m%d')
+        else:
+            app_log.warning('DatetimeItemParser parse item fail, because invalid date format, {0} , {1}', item_config,
+                            field_name)
+            return field_name, None
+        return field_name, current_time
+
+
 _ITEM_PARSER_CONTAINER = {
     'dict': DictItemParser(),
     'regex': RegexItemParser(),
     'fixed': FixedItemParser(),
     'source': SourceItemParser(),
     'script' + COMBINE_SIGN + 'python': PythonScriptItemParser(),
-    'hash_modulus': HashModulusItemParser()
+    'hash_modulus': HashModulusItemParser(),
+    'datetime': DatetimeItemParser()
 }
-
 data_parser = DataParser()
 item_parser = ItemParser()
 
 if __name__ == '__main__':
-    import time
-
     parser_config = {
         "type": "regex",
         "fields": {
