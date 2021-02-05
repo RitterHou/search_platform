@@ -15510,7 +15510,7 @@
               "reference": "search_platform_default",
               "operation": "delete",
               "index": "marketing-gift-card",
-              "id": "{id}",
+              "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
