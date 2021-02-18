@@ -26,7 +26,7 @@ def process_message(self, message, river_key):
     :return:
     """
     start_time = time.time()
-    app_log.info('Celery process_message ia called  {0}  {1}', message, river_key)
+    # app_log.info('Celery process_message ia called  {0}  {1}', message, river_key)
     try:
         message_process_chain = data_rivers.get_message_process_chain(river_key)
         if not message_process_chain:
@@ -34,7 +34,7 @@ def process_message(self, message, river_key):
             return
 
         message_process_chain.process(message)
-        app_log.info('Celery process message spend {0}', time.time() - start_time)
+        # app_log.info('Celery process message spend {0}', time.time() - start_time)
     except Exception as e:
         app_log.error('Process_message has error, message={0}, river_key={1}', e, message, river_key)
         if isinstance(e, MsgHandlingFailError):

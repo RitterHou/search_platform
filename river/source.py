@@ -198,9 +198,9 @@ class DubboDataSource(DataSource):
         :param app_params:
         :return:
         """
-        app_log.info(
-            'Call JsonRPC method start by param : host = {0}, service_interface={1}, method={2}, body={3}, '
-            'version={4}, timeout={5}', host, service_interface, method, body, version, timeout)
+        # app_log.info(
+        #     'Call JsonRPC method start by param : host = {0}, service_interface={1}, method={2}, body={3}, '
+        #     'version={4}, timeout={5}', host, service_interface, method, body, version, timeout)
         start_time = time.time()
         result = None
         # reflect_method = getattr(dubbo_client, method)
@@ -210,9 +210,9 @@ class DubboDataSource(DataSource):
                 result = dubbo_client.call_method(method, timeout, body)
             else:
                 result = dubbo_client.call_method(method, timeout)
-            app_log.info(
-                'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}',
-                host, service_interface, method, body)
+            # app_log.info(
+            #     'Call JsonRPC method finished successfully host = {0}, service_interface={1}, method={2}, body={3}',
+            #     host, service_interface, method, body)
 
             cost_time = int((time.time() - start_time) * 1000)
             json_log_record = {'cost_time': cost_time, 'sender_host': local_host_name, 'sender_name': 'search_platform',

@@ -29,7 +29,7 @@ class MessageProcessor(object):
         if not self.__match(message):
             return None
         message_parse_result = self.parse_message(message)
-        app_log.info('Message_parse_result finish message={0} result={1}', message, message_parse_result)
+        # app_log.info('Message_parse_result finish message={0} result={1}', message, message_parse_result)
         if message_parse_result is None:
             app_log.error(
                 "The message parse result is None, there may be something wrong with message = {0}",

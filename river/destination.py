@@ -154,8 +154,8 @@ class ElasticSearch7Destination(DataDestination):
         elif operation == 'ids_same_prop_update':
             es7_adapter.batch_update_with_props_by_ids(es_config, data, input_param)
 
-        app_log.info('ES push spend time {}, config is {}, data is {}'.format(
-            time.time() - start_time, destination_config, data))
+        # app_log.info('ES push spend time {}, config is {}, data is {}'.format(
+        #     time.time() - start_time, destination_config, data))
 
     def clear(self, destination_config, data, param=None):
         """
