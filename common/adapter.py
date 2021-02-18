@@ -728,7 +728,7 @@ class EsIndexAdapter(object):
             es_start_time = time.time()
             es_bulk_result = es_connection.bulk(bulk_body, params={'request_timeout': BATCH_REQUEST_TIMEOUT,
                                                                    'timeout': BATCH_TIMEOUT})
-            app_log.info('es spend time {0}'.format(time.time() - es_start_time))
+            # app_log.info('es spend time {0}'.format(time.time() - es_start_time))
             return self.process_es_bulk_result(es_bulk_result)
         except ElasticsearchException as e:
             app_log.error('ES operation input param is {0}', e, list(bulk_body))

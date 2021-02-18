@@ -223,7 +223,7 @@ class DestinationHelp(object):
 
     def push(self, river_config, data, param=None):
         if not data:
-            app_log.info('data is null')
+            # app_log.info('data is null')
             return
         if 'destination' not in river_config:
             app_log.warning("The test_river doesn't have destination, river_config={0}", river_config)
