@@ -108,11 +108,11 @@ class EsProductManager(object):
                     **es_search_params
                 )
             es_end_time = time.time()
-            app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
-                         es_end_time - qdsl_end_time)
+            # app_log.info('Elasticsearch search index={0} , type={1} , spend time {2}', index_name, doc_type,
+            #              es_end_time - qdsl_end_time)
             result = self.parse_es_result(es_result, args)
-            app_log.info('Parse elasticsearch search result index={0} , type={1} , spend time {2}', index_name,
-                         doc_type, time.time() - es_end_time)
+            # app_log.info('Parse elasticsearch search result index={0} , type={1} , spend time {2}', index_name,
+            #              doc_type, time.time() - es_end_time)
 
         return result
 
@@ -616,7 +616,7 @@ class EsAggManager(object):
             doc_type=doc_type if doc_type != 'None' else None,
             body=cur_qdsl)
         result = self.parse_es_agg_range_result(es_result, args)
-        app_log.info('EsAggManager get agg range return is {0}', result)
+        # app_log.info('EsAggManager get agg range return is {0}', result)
         debug_log.print_log('get_agg_range_result spends {0}'.format(time.time() - start_time))
         return result
 
@@ -1261,10 +1261,10 @@ class SearchPlatformDocManager(EsSearchManager):
         :param product:
         :return:
         """
-        app_log.info(
-            'Product save is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
-            'timestamp={4} , redo={5}',
-            index_name, doc_type, product, parse_fields, timestamp, redo)
+        # app_log.info(
+        #     'Product save is called index_name={0} , doc_type={1} , product={2} , parse_fields={3} , '
+        #     'timestamp={4} , redo={5}',
+        #     index_name, doc_type, product, parse_fields, timestamp, redo)
         if not product:
             app_log.error('Product save input product is invalid')
             raise InvalidParamError()
