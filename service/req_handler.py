@@ -42,7 +42,7 @@ class RequestHandler(object):
         start_time = time.time()
         try:
             request_desc = desc_request(request)
-            app_log.info("Receive http request : {0} , timestamp={1} , redo={2}", request_desc, timestamp, redo)
+            # app_log.info("Receive http request : {0} , timestamp={1} , redo={2}", request_desc, timestamp, redo)
             destination_config = self.handler_config.get('destination')
             if not destination_config:
                 # app_log.error('The destination_config is invalid, {0}'.format(self.handler_config))
@@ -61,7 +61,7 @@ class RequestHandler(object):
             else:
                 response = Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
             cost_time = int((time.time() - start_time) * 1000)
-            app_log.info('Finish handle http request {0}, and spend {1}'.format(request_desc, cost_time))
+            # app_log.info('Finish handle http request {0}, and spend {1}'.format(request_desc, cost_time))
             json_log_record = {'cost_time': cost_time, 'sender_host': get_client_ip(request),
                                'receiver_name': 'search_platform',
                                'receiver_host': local_host_name,
@@ -204,7 +204,7 @@ class RequestHandler(object):
         data_parser_config = self.handler_config['data_parser']
 
         if 'fields' not in data_parser_config or not data_parser_config['fields']:
-            app_log.info('The data_parser fields is none')
+            # app_log.info('The data_parser fields is none')
             return {}
 
         data = {'url': get_url(request), 'param': get_request_data(request)}

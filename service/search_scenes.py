@@ -132,7 +132,7 @@ class SpuSearchBySku(object):
         # start_time = time.time()
         spu_id_list = list(page_spu_sku_dict.get_spu_ids())
         # app_log.info("spu by sku get spu id list spends {0}  {1}", time.time() - start_time, parse_fields)
-        app_log.info("spu by sku build ids spends {0}  {1}", time.time() - build_start_time, parse_fields)
+        # app_log.info("spu by sku build ids spends {0}  {1}", time.time() - build_start_time, parse_fields)
         start_time = time.time()
 
         if 'spu_index' in es_cfg:

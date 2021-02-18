@@ -564,7 +564,7 @@ class ExtendQdslParser(object):
         temp_name, op_type = unbind_variable(self.regex_field_str, 'op_type', input_str)
         temp_name, field_str = unbind_variable(self.regex_field_str, 'field_str', input_str)
         if field_str is None:
-            query_log.info('Get query qdsl fragment the field_str is null')
+            # query_log.info('Get query qdsl fragment the field_str is null')
             return None
         if op_type not in self.QUERY_QDSL_PARSER_DICT:
             query_log.warning('Get query qdsl fragment has not support op type {0}', op_type)
