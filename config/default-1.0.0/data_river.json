@@ -17187,6 +17187,62 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "机构连锁总部关系视图配置局部更新，负责人：杨金龙",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_partners_agent_o2o_direct_update",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "partners-agent-o2o-relation"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "partners_agent_o2o_relation_update_partition",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "data": {
+                  "type": "dict"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "ids_same_prop_update",
+              "index": "partners-agent-o2o-relation"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
