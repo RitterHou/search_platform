@@ -14926,6 +14926,14 @@
               "type": "Customer",
               "id": "{id}",
               "clear_policy": "every_msg,all"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "operation": "create",
+              "index": "b2b-market-customer",
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
             }
           ]
         }
@@ -14992,6 +15000,12 @@
               "index": "b2b-market-customer",
               "type": "Customer",
               "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-customer",
+              "id": "{id}"
             }
           ]
         },
@@ -15026,6 +15040,17 @@
               "reference": "general_experience",
               "index": "b2b-market-customer",
               "type": "Customer",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-customer",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
