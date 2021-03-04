@@ -8967,6 +8967,14 @@
               "add_admin_id_field": true,
               "clear_policy": "every_msg,by_adminId",
               "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-purchaser-sku",
+              "add_admin_id_field": true,
+              "clear_policy": "every_msg,by_adminId",
+              "id": "{id}"
             }
           ]
         },
@@ -9022,6 +9030,13 @@
               "reference": "general_experience",
               "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
+              "add_admin_id_field": true,
+              "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-purchaser-sku",
               "add_admin_id_field": true,
               "id": "{id}"
             }
@@ -9094,6 +9109,13 @@
               "type": "Sku",
               "add_admin_id_field": true,
               "id": "{id}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-purchaser-sku",
+              "add_admin_id_field": true,
+              "id": "{id}"
             }
           ]
         },
@@ -9130,6 +9152,17 @@
               "reference": "general_experience",
               "index": "qmshop-purchaser-sku-new",
               "type": "Sku",
+              "operation": "delete",
+              "id": "{ids}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-purchaser-sku",
               "operation": "delete",
               "id": "{ids}",
               "id_process": {
