@@ -2602,10 +2602,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "qmshop-purchaser-sku-new",
-        "type": "Sku",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
+        "index": "qmshop-purchaser-sku",
         "add_admin_id_field": true
       },
       "response": {}
