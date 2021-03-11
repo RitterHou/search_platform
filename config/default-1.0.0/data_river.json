@@ -17328,6 +17328,596 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "市场入驻店铺商品SKU数据初始化，负责人：安哲",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.qmpc.b2bMarketSkuInit",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "b2b_market_sku_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketSkuViewQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "query",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "chainMasterId": "{adminId}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "mapping": {
+                "_all": {
+                  "store": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "marketRelated": {
+                    "type": "nested"
+                  },
+                  "props": {
+                    "type": "nested"
+                  },
+                  "brand": {
+                    "index": "not_analyzed",
+                    "type": "string",
+                    "fields": {
+                      "standard": {
+                        "analyzer": "qm_standard",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "title": {
+                    "index": "not_analyzed",
+                    "type": "string",
+                    "fields": {
+                      "standard": {
+                        "analyzer": "qm_standard",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "cats": {
+                    "type": "nested",
+                    "properties": {
+                      "childs": {
+                        "type": "nested",
+                        "properties": {
+                          "childs": {
+                            "type": "nested",
+                            "properties": {
+                              "childs": {
+                                "type": "nested",
+                                "properties": {
+                                  "childs": {
+                                    "type": "nested",
+                                    "properties": {
+                                      "childs": {
+                                        "type": "nested",
+                                        "properties": {
+                                          "childs": {
+                                            "type": "nested"
+                                          },
+                                          "id": {
+                                            "type": "string",
+                                            "index": "not_analyzed"
+                                          },
+                                          "name": {
+                                            "type": "string",
+                                            "index": "not_analyzed",
+                                            "fields": {
+                                              "standard": {
+                                                "type": "string",
+                                                "analyzer": "qm_standard"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "index": "not_analyzed"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "index": "not_analyzed",
+                                        "fields": {
+                                          "standard": {
+                                            "type": "string",
+                                            "analyzer": "qm_standard"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "id": {
+                                    "type": "string",
+                                    "index": "not_analyzed"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "index": "not_analyzed",
+                                    "fields": {
+                                      "standard": {
+                                        "type": "string",
+                                        "analyzer": "qm_standard"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                              },
+                              "name": {
+                                "type": "string",
+                                "index": "not_analyzed",
+                                "fields": {
+                                  "standard": {
+                                    "type": "string",
+                                    "analyzer": "qm_standard"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "id": {
+                            "type": "string",
+                            "index": "not_analyzed"
+                          },
+                          "name": {
+                            "type": "string",
+                            "index": "not_analyzed",
+                            "fields": {
+                              "standard": {
+                                "type": "string",
+                                "analyzer": "qm_standard"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                      },
+                      "name": {
+                        "type": "string",
+                        "index": "not_analyzed",
+                        "fields": {
+                          "standard": {
+                            "type": "string",
+                            "analyzer": "qm_standard"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "operation": "create",
+              "index": "b2b-market-sku",
+              "type": "Sku",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "市场入驻店铺商品SKU数据变更，负责人：安哲",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.qmpc.b2bMarketSkuChange",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "b2b_market_sku_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"type\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.gcs.purchase.view.api.EsB2BMarketSkuViewQueryProvider",
+            "request": {
+              "method": "listByIds",
+              "timeout": 10,
+              "body": {
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "chainMasterId": "{adminId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "mapping": {
+                "_all": {
+                  "store": false
+                },
+                "dynamic_templates": [
+                  {
+                    "string_fields": {
+                      "mapping": {
+                        "index": "not_analyzed",
+                        "type": "string",
+                        "fields": {
+                          "analyzed": {
+                            "index": "analyzed",
+                            "analyzer": "qm_standard",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "string",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "long_fields": {
+                      "mapping": {
+                        "type": "long",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "long",
+                      "match": "*"
+                    }
+                  },
+                  {
+                    "double_fields": {
+                      "mapping": {
+                        "type": "double",
+                        "fields": {
+                          "double": {
+                            "type": "double"
+                          },
+                          "long": {
+                            "type": "long"
+                          }
+                        }
+                      },
+                      "match_mapping_type": "double",
+                      "match": "*"
+                    }
+                  }
+                ],
+                "properties": {
+                  "marketRelated": {
+                    "type": "nested"
+                  },
+                  "props": {
+                    "type": "nested"
+                  },
+                  "brand": {
+                    "index": "not_analyzed",
+                    "type": "string",
+                    "fields": {
+                      "standard": {
+                        "analyzer": "qm_standard",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "title": {
+                    "index": "not_analyzed",
+                    "type": "string",
+                    "fields": {
+                      "standard": {
+                        "analyzer": "qm_standard",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "cats": {
+                    "type": "nested",
+                    "properties": {
+                      "childs": {
+                        "type": "nested",
+                        "properties": {
+                          "childs": {
+                            "type": "nested",
+                            "properties": {
+                              "childs": {
+                                "type": "nested",
+                                "properties": {
+                                  "childs": {
+                                    "type": "nested",
+                                    "properties": {
+                                      "childs": {
+                                        "type": "nested",
+                                        "properties": {
+                                          "childs": {
+                                            "type": "nested"
+                                          },
+                                          "id": {
+                                            "type": "string",
+                                            "index": "not_analyzed"
+                                          },
+                                          "name": {
+                                            "type": "string",
+                                            "index": "not_analyzed",
+                                            "fields": {
+                                              "standard": {
+                                                "type": "string",
+                                                "analyzer": "qm_standard"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "index": "not_analyzed"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "index": "not_analyzed",
+                                        "fields": {
+                                          "standard": {
+                                            "type": "string",
+                                            "analyzer": "qm_standard"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "id": {
+                                    "type": "string",
+                                    "index": "not_analyzed"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "index": "not_analyzed",
+                                    "fields": {
+                                      "standard": {
+                                        "type": "string",
+                                        "analyzer": "qm_standard"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                              },
+                              "name": {
+                                "type": "string",
+                                "index": "not_analyzed",
+                                "fields": {
+                                  "standard": {
+                                    "type": "string",
+                                    "analyzer": "qm_standard"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "id": {
+                            "type": "string",
+                            "index": "not_analyzed"
+                          },
+                          "name": {
+                            "type": "string",
+                            "index": "not_analyzed",
+                            "fields": {
+                              "standard": {
+                                "type": "string",
+                                "analyzer": "qm_standard"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                      },
+                      "name": {
+                        "type": "string",
+                        "index": "not_analyzed",
+                        "fields": {
+                          "standard": {
+                            "type": "string",
+                            "analyzer": "qm_standard"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "index": "b2b-market-sku",
+              "type": "Sku",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        },
+        {
+          "name": "b2b_market_sku_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"type\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch",
+              "reference": "general_experience",
+              "index": "b2b-market-sku",
+              "type": "Sku",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

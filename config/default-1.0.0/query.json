@@ -4276,6 +4276,36 @@
         "index": "partners-agent-order-relation"
       },
       "response": {}
+    },
+    {
+      "desc": "市场入驻店铺商品SKU数据查询，负责人：安哲",
+      "name": "b2b_market_sku_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "b2b/market/skus",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/b2b/market/skus$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch",
+        "reference": "general_experience",
+        "index": "b2b-market-sku",
+        "type": "Sku"
+      },
+      "response": {}
     }
   ]
 }
