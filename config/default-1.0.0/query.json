@@ -3354,10 +3354,9 @@
         "fields": {}
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "b2b-market-item",
-        "type": "Item"
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
+        "index": "b2b-market-item"
       },
       "response": {}
     },
