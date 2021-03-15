@@ -17655,6 +17655,15 @@
               "id": "{id}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "operation": "create",
+              "index": "b2b-market-sku",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         }
@@ -17926,6 +17935,13 @@
               "type": "Sku",
               "id": "{id}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-sku",
+              "id": "{id}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -17960,6 +17976,17 @@
               "reference": "general_experience",
               "index": "b2b-market-sku",
               "type": "Sku",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-sku",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
