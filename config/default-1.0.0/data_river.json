@@ -13648,6 +13648,15 @@
               "id": "{id}",
               "clear_policy": "every_msg,by_adminId",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "operation": "create",
+              "index": "b2b-market-return-trade",
+              "id": "{id}",
+              "clear_policy": "every_msg,by_adminId",
+              "add_admin_id_field": true
             }
           ]
         }
@@ -13782,6 +13791,13 @@
               "type": "Trade",
               "id": "{id}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-return-trade",
+              "id": "{id}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -13816,6 +13832,17 @@
               "reference": "general_experience",
               "index": "b2b-market-return-trade",
               "type": "Trade",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "b2b-market-return-trade",
               "id": "{ids}",
               "operation": "delete",
               "id_process": {
