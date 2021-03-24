@@ -18024,6 +18024,73 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "小店收款码交易流水数据变更，负责人：郭鹏",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_transaction_flow_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "transaction_flow_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.d2c.tc.cash.api.pay.search.TransactionFlowQueryProvider",
+            "request": {
+              "method": "queryByIds",
+              "timeout": 10,
+              "body": {
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "d2c-cash-transaction-flow",
+              "id": "{id}",
+              "add_admin_id_field": true
+            }
+          ]
+        }
+      ]
     }
   ]
 }
