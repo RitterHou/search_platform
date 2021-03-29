@@ -2571,10 +2571,9 @@
       },
       "data_parser": {},
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "qm-system-order-{version}",
-        "type": "Order"
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
+        "index": "qm-system-order-{version}"
       },
       "response": {}
     },

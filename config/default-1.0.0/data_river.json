@@ -8820,6 +8820,12 @@
               "index": "qm-system-order-{version}",
               "type": "Order",
               "id": "{orderNo}"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qm-system-order-{version}",
+              "id": "{orderNo}"
             }
           ]
         }
@@ -8886,6 +8892,13 @@
               "reference": "general_experience",
               "index": "qm-system-order-{version}",
               "type": "Order",
+              "id": "{orderNo}",
+              "clear_policy": "every_msg,all"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qm-system-order-{version}",
               "id": "{orderNo}",
               "clear_policy": "every_msg,all"
             }
