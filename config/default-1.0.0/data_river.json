@@ -7606,6 +7606,13 @@
               "type": "PartnerCustomer",
               "id": "{customerQmId}",
               "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qm-uc-partner-customer-{version}",
+              "id": "{customerQmId}",
+              "add_admin_id_field": true
             }
           ]
         },
@@ -7641,6 +7648,17 @@
               "operation": "delete",
               "index": "qm-uc-partner-customer-{version}",
               "type": "PartnerCustomer",
+              "id": "{customerId}",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "operation": "delete",
+              "index": "qm-uc-partner-customer-{version}",
               "id": "{customerId}",
               "id_process": {
                 "type": "seperate",
@@ -7715,6 +7733,13 @@
               "reference": "general_experience",
               "index": "qm-uc-partner-customer-{version}",
               "type": "PartnerCustomer",
+              "id": "{customerQmId}",
+              "add_admin_id_field": true
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qm-uc-partner-customer-{version}",
               "id": "{customerQmId}",
               "add_admin_id_field": true
             }
