@@ -1760,10 +1760,9 @@
         "fields": {}
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
         "index": "boss-cellphone-sms-{version}",
-        "type": "CellphoneSMS",
         "id": "{testPhone}"
       },
       "response": {}
