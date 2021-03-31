@@ -2483,10 +2483,9 @@
       },
       "data_parser": {},
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
         "index": "shop-pay-type-statistics",
-        "type": "Statistics",
         "id": "{sid}"
       },
       "response": {}
