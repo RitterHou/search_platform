@@ -512,45 +512,6 @@
       }
     },
     {
-      "name": "cloudshop_marketing_query",
-      "res_type": "default",
-      "http_method": "GET,PUT,POST,DELETE",
-      "url_format": "^cloudshop/marketings/[\\d\\D]+",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/cloudshop/marketings/"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {
-          "adminId": "marketings/(?P<adminId>[^/]+)",
-          "id": "marketings/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
-          "hashcode": {
-            "type": "hash_modulus",
-            "modulus": 1,
-            "origin_filed": "adminId"
-          }
-        }
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "cloudshop-marketing-{hashcode}-{version}",
-        "type": "Marketing",
-        "id": "{marketingId}",
-        "add_admin_id_field": true
-      },
-      "response": {}
-    },
-    {
       "name": "billstock_basic_query",
       "res_type": "default",
       "http_method": "GET,PUT,POST,DELETE",
