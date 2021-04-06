@@ -2951,12 +2951,10 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
         "index": "direct-store-sku-{hashcode}",
-        "type": "Sku",
         "spu_index": "direct-store-spu-{hashcode}",
-        "spu_type": "Spu",
         "add_admin_id_field": true
       },
       "response": {}
