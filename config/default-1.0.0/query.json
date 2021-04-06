@@ -2991,10 +2991,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
         "index": "direct-store-spu-{hashcode}",
-        "type": "Spu",
         "add_admin_id_field": true
       },
       "response": {}
@@ -3029,10 +3028,9 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
+        "destination_type": "elasticsearch7",
+        "reference": "product_center",
         "index": "direct-store-sku-{hashcode}",
-        "type": "Sku",
         "add_admin_id_field": true
       },
       "response": {}
