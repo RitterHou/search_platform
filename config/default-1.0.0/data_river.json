@@ -4648,7 +4648,7 @@
               "reference": "search_platform_default",
               "operation": "delete",
               "index": "d2p-trade-{hashcode}-{version}",
-              "id": "{id}",
+              "id": "{ids}",
               "id_process": {
                 "type": "seperate",
                 "separator": ";"
