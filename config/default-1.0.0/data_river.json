@@ -11533,14 +11533,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "index": "direct-store-spu-{hashcode}",
-              "type": "Spu",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "direct-store-spu-{hashcode}",
@@ -11599,14 +11591,6 @@
           },
           "destination": [
             {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "index": "direct-store-sku-{hashcode}",
-              "type": "Sku",
-              "id": "{id}",
-              "add_admin_id_field": true
-            },
-            {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "direct-store-sku-{hashcode}",
@@ -11654,18 +11638,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "index": "direct-store-spu-{hashcode}",
-              "type": "Spu",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
@@ -11717,18 +11689,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "general_experience",
-              "index": "direct-store-sku-{hashcode}",
-              "type": "Sku",
-              "id": "{ids}",
-              "operation": "delete",
-              "id_process": {
-                "type": "seperate",
-                "separator": ","
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
