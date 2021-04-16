@@ -97,6 +97,34 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}",
+                  "hashcode": {}
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -171,6 +199,34 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "product_experience",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}",
+                  "hashcode": {}
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -256,6 +312,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -335,6 +418,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -396,6 +506,41 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "product_experience",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ":"
+                    },
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ":"
+                    },
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -474,6 +619,33 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -559,6 +731,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -632,6 +831,33 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -715,6 +941,41 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ","
+                    },
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ","
+                    },
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -824,6 +1085,35 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "clear_policy": "every_msg,by_adminId",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "clear_policy": "every_msg,by_adminId",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -896,6 +1186,35 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "clear_policy": "every_msg,by_adminId",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "clear_policy": "every_msg,by_adminId",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "create",
                     "id": "{spuId}",
                     "clear_policy": "every_msg,by_adminId",
@@ -984,6 +1303,15 @@
               "id": "{skuId}",
               "clear_policy": "every_msg,by_adminId",
               "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-{hashcode}-{version}-sku",
+              "operation": "create",
+              "id": "{skuId}",
+              "clear_policy": "every_msg,by_adminId",
+              "tag": "vip"
             }
           ]
         },
@@ -1041,6 +1369,15 @@
             {
               "destination_type": "elasticsearch",
               "reference": "spu_vip",
+              "operation": "create",
+              "id": "{spuId}",
+              "clear_policy": "every_msg,by_adminId",
+              "tag": "vip"
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "qmshop-{hashcode}-{version}-spu",
               "operation": "create",
               "id": "{spuId}",
               "clear_policy": "every_msg,by_adminId",
@@ -10650,6 +10987,34 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}",
+                  "hashcode": {}
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -10724,6 +11089,34 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "product_experience",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}",
+                  "hashcode": {}
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -10809,6 +11202,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -10888,6 +11308,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "operation": "create",
+                    "id": "{skuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -10949,6 +11396,41 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "product_experience",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ":"
+                    },
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ":"
+                    },
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-sku",
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -11027,6 +11509,33 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -11112,6 +11621,33 @@
                   }
                 ]
               }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -11185,6 +11721,33 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "create",
+                    "id": "{spuId}",
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -11268,6 +11831,41 @@
                   {
                     "destination_type": "elasticsearch",
                     "reference": "spu_experience",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ","
+                    },
+                    "tag": "default"
+                  }
+                ]
+              }
+            },
+            {
+              "destination_type": "elasticsearch7",
+              "router": {
+                "type": "vip_router",
+                "fields": {
+                  "adminId": "{adminId}"
+                },
+                "target": [
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "operation": "delete",
+                    "id": "{ids}",
+                    "id_process": {
+                      "type": "seperate",
+                      "separator": ","
+                    },
+                    "tag": "vip"
+                  },
+                  {
+                    "destination_type": "elasticsearch7",
+                    "reference": "product_center",
+                    "index": "qmshop-experience-{hashcode}-{version}-spu",
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
