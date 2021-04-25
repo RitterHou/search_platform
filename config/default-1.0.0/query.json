@@ -511,84 +511,6 @@
       }
     },
     {
-      "name": "billstock_basic_query",
-      "res_type": "default",
-      "http_method": "GET,PUT,POST,DELETE",
-      "url_format": "^billstock/[\\d\\D]+?/basic[\\d\\D]*",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/billstock/[^/]+?/basic"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {
-          "adminId": "billstock/(?P<adminId>[^/]+)/basic",
-          "id": "/basic/[^/]+?/(?P<id>[\\d\\D]+)",
-          "hashcode": {
-            "type": "hash_modulus",
-            "modulus": 1,
-            "origin_filed": "adminId"
-          }
-        }
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "billstock-{version}",
-        "type": "basic",
-        "id": "{billId}",
-        "add_admin_id_field": true
-      },
-      "response": {}
-    },
-    {
-      "name": "billstock_detail_query",
-      "res_type": "default",
-      "http_method": "GET,PUT,POST,DELETE",
-      "url_format": "^billstock/[\\d\\D]+?/detail[\\d\\D]*",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/billstock/[\\d\\D]+?/detail"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {
-          "adminId": "billstock/(?P<adminId>[^/]+)/detail",
-          "id": "/detail/[\\d\\D]+?/(?P<id>[\\d\\D]+)",
-          "hashcode": {
-            "type": "hash_modulus",
-            "modulus": 1,
-            "origin_filed": "adminId"
-          }
-        }
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "billstock-{version}",
-        "type": "detail",
-        "id": "{id}",
-        "add_admin_id_field": true
-      },
-      "response": {}
-    },
-    {
       "name": "open_api_qmcs_log",
       "res_type": "default",
       "http_method": "GET",
@@ -1668,36 +1590,6 @@
       "response": {}
     },
     {
-      "name": "boss_shops",
-      "res_type": "default",
-      "http_method": "GET,POST",
-      "url_format": "boss/shops",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "^/boss/shops$"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "boss-shops-{version}",
-        "type": "Shops",
-        "id": "{shopId}"
-      },
-      "response": {}
-    },
-    {
       "name": "boss_cellphone_sms",
       "res_type": "default",
       "http_method": "GET,POST",
@@ -1906,70 +1798,6 @@
         "reference": "product_center",
         "index": "pc-goods-barcode-{version}",
         "id": "{barcode}"
-      },
-      "response": {}
-    },
-    {
-      "name": "x_site_site_info",
-      "res_type": "default",
-      "http_method": "GET,POST,DELETE",
-      "url_format": "x/site/site/info",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "^/x/site/site/info"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {
-          "id": "site/info/(?P<id>[\\d\\D]+)"
-        }
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "x-site-site-info-{version}",
-        "type": "SiteInfo",
-        "id": "{id}"
-      },
-      "response": {}
-    },
-    {
-      "name": "x_site_page_info",
-      "res_type": "default",
-      "http_method": "GET,POST,DELETE",
-      "url_format": "x/site/page/info",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "^/x/site/page/info"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {
-          "id": "page/info/(?P<id>[\\d\\D]+)"
-        }
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "x-site-page-info-{version}",
-        "type": "PageInfo",
-        "id": "{id}"
       },
       "response": {}
     },
