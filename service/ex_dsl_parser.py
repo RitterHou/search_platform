@@ -622,6 +622,9 @@ class ExtendQdslParser(object):
         """
 
         def parse_bool_term_item_query(_term_value):
+            if es_config.get('destination_type', 'elasticsearch') == 'elasticsearch7' and not _term_value:
+                return {"bool": {"must_not": {"exists": {"field": field_name}}}}
+
             if _term_value == '\\null\\':
                 return {
                     "filtered": {
