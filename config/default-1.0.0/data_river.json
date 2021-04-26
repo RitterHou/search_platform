@@ -111,6 +111,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -119,6 +120,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -219,6 +221,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -227,6 +230,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -325,6 +329,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -333,6 +338,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -431,6 +437,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -439,6 +446,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -529,6 +537,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -541,6 +550,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -638,6 +648,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -646,6 +657,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -744,6 +756,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -752,6 +765,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -850,6 +864,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -858,6 +873,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -964,6 +980,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -976,6 +993,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -1098,6 +1116,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "clear_policy": "every_msg,by_adminId",
@@ -1107,6 +1126,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "clear_policy": "every_msg,by_adminId",
@@ -1206,6 +1226,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "clear_policy": "every_msg,by_adminId",
@@ -1215,6 +1236,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "clear_policy": "every_msg,by_adminId",
@@ -1308,6 +1330,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "operation": "create",
               "id": "{skuId}",
               "clear_policy": "every_msg,by_adminId",
@@ -1378,6 +1401,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "operation": "create",
               "id": "{spuId}",
               "clear_policy": "every_msg,by_adminId",
@@ -10443,6 +10467,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -10451,6 +10476,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -10551,6 +10577,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -10559,6 +10586,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -10657,6 +10685,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -10665,6 +10694,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -10763,6 +10793,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "vip"
@@ -10771,6 +10802,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
                     "tag": "default"
@@ -10861,6 +10893,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -10873,6 +10906,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -10970,6 +11004,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -10978,6 +11013,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -11076,6 +11112,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -11084,6 +11121,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -11182,6 +11220,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "vip"
@@ -11190,6 +11229,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
                     "tag": "default"
@@ -11296,6 +11336,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
@@ -11308,6 +11349,7 @@
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
                     "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
                     "id_process": {
