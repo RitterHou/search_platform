@@ -70,6 +70,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "vip"
@@ -78,6 +79,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-experience-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "default"
@@ -127,6 +129,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "vip"
             },
@@ -134,6 +137,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "default"
             }
@@ -183,6 +187,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "vip"
@@ -191,6 +196,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-experience-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "default"
@@ -240,6 +246,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "vip"
             },
@@ -247,6 +254,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "default"
             }
@@ -331,6 +339,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "vip"
@@ -339,6 +348,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-experience-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "default"
@@ -388,6 +398,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "vip"
             },
@@ -395,6 +406,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-spu",
+              "add_admin_id_field": true,
               "id": "{spuId}",
               "tag": "default"
             }
@@ -523,6 +535,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "vip"
@@ -531,6 +544,7 @@
               "destination_type": "elasticsearch7",
               "reference": "product_center",
               "index": "qmshop-experience-{hashcode}-{version}-sku",
+              "add_admin_id_field": true,
               "spu_index": "qmshop-experience-{hashcode}-{version}-spu",
               "id": "{skuId}",
               "tag": "default"
