@@ -16248,9 +16248,9 @@
             "protocol": "dubbo",
             "host": "{zookeeper_host}",
             "version": "1.0.0",
-            "service_interface": "com.qianmi.division.dubbo.AgentOrderEsProvider",
+            "service_interface": "com.qianmi.es.provider.order.PartnerOrderProvider",
             "request": {
-              "method": "findAgentOrder",
+              "method": "findStoreOrder",
               "timeout": 10,
               "body": {
                 "event": "{event}",
