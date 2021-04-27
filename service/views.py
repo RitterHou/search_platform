@@ -13,6 +13,20 @@ from service.req_router import request_router
 
 __author__ = 'liuzhaoming'
 
+import urllib2
+import json
+
+# 查询商品数据的连接
+product_urls = (
+    '/products/',
+    '/spus/',
+    '/aggregations/',
+    '/spu_aggregations/',
+    '/search/',
+    '/spu_search/',
+    '/recommendations/'
+)
+
 
 class RestfulFacadeView(APIView):
     def get(self, request, format=None):
@@ -54,6 +68,18 @@ class RestfulFacadeView(APIView):
     def __handle_request(self, request, format):
         try:
             timestamp = int(time.time() * 100)
+
+            if request.get_full_path().startswith(product_urls):
+                if request.QUERY_PARAMS.get('ex_body_type') == 'scroll':
+                    if request.method == 'GET':
+                        full_path = 'http://192.168.65.222:18100' + request.get_full_path()
+                        try:
+                            result = urllib2.urlopen(full_path)
+                        except urllib2.HTTPError as e:
+                            return Response(json.loads(e.read()), status=e.getcode())
+                        else:
+                            return Response(json.loads(result.read()))
+
             req_handler = request_router.route(request)
             if req_handler:
                 result = req_handler.handle(request, format, timestamp)
