@@ -72,7 +72,7 @@ class RestfulFacadeView(APIView):
             if request.get_full_path().startswith(product_urls):
                 if request.QUERY_PARAMS.get('ex_body_type') == 'scroll':
                     if request.method == 'GET':
-                        full_path = 'http://192.168.65.222:18100' + request.get_full_path()
+                        full_path = 'http://172.17.18.175:8009' + request.get_full_path()
                         try:
                             result = urllib2.urlopen(full_path)
                         except urllib2.HTTPError as e:
