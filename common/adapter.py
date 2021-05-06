@@ -511,8 +511,10 @@ class Es7IndexAdapter(object):
         es_connection = Es7ConnectionFactory.get_es_connection(host=host)
 
         search_params = {'index': es_cfg['index'], 'search_type': 'query_then_fetch'}
-        # 在新版本的ES中scroll使用_doc排序可以得到和旧版本中scan一样的效果
-        body['sort'] = ['_doc']
+        # 当body中没有设置sort字段时，设置默认的sort为_doc
+        if 'sort' not in body:
+            # 在新版本的ES中scroll使用_doc排序可以得到和旧版本中scan一样的效果
+            body['sort'] = ['_doc']
         return es_connection.search(body=body, scroll=scroll_time, **search_params)
 
     def delete_scroll(self, scroll_ids, **es_cfg):
