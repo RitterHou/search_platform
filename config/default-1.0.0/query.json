@@ -554,68 +554,6 @@
       }
     },
     {
-      "name": "open_api_qmcs_log",
-      "res_type": "default",
-      "http_method": "GET",
-      "url_format": "^openapi/logs/qmcs$",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/openapi/logs/qmcs"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "openapi-srvlog-*",
-        "type": "SRV_LOG",
-        "host": "{log_es_host}",
-        "id": "generate"
-      },
-      "response": {}
-    },
-    {
-      "name": "d2c_service_log",
-      "res_type": "default",
-      "http_method": "GET",
-      "url_format": "^d2c/logs/service$",
-      "filter": {
-        "type": "regex",
-        "union_operator": "and",
-        "conditions": [
-          {
-            "operator": "is",
-            "type": "regex",
-            "field": "url",
-            "expression": "/d2c/logs/service"
-          }
-        ]
-      },
-      "data_parser": {
-        "type": "regex",
-        "fields": {}
-      },
-      "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "general_experience",
-        "index": "d2c-srvlog",
-        "type": "SRV_LOG",
-        "host": "{log_es_host}",
-        "id": "generate"
-      },
-      "response": {}
-    },
-    {
       "name": "marketing_query",
       "res_type": "default",
       "http_method": "GET",
