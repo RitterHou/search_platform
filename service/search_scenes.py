@@ -94,7 +94,7 @@ class SpuSearchBySku(object):
         # elasticsearch-1.5.2和elasticsearch-7.5.2使用的是不同的scan查询接口
         if es_cfg.get('destination_type', 'elasticsearch') == 'elasticsearch7':
             spu_dsl['_source'] = spu_dsl.pop('fields')
-            es_scan_result = es7_adapter.scan('1m', body=spu_dsl, preserve_order=True,
+            es_scan_result = es7_adapter.scan('10s', body=spu_dsl, preserve_order=True,
                                               es_search_params=es_search_params, **es_cfg)
             # 这里的格式搞的这么复杂纯粹是为了向前兼容
             es_scan_result = map(lambda r: {'fields': {
