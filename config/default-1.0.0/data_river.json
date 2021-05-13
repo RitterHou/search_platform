@@ -74,31 +74,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}",
-                  "hashcode": {}
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -183,31 +158,6 @@
             }
           },
           "destination": [
-            {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}",
-                  "hashcode": {}
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "router": {
@@ -294,30 +244,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -402,30 +328,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -493,38 +395,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "delete",
-                    "id": "{ids}",
-                    "id_process": {
-                      "type": "seperate",
-                      "separator": ":"
-                    },
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "delete",
-                    "id": "{ids}",
-                    "id_process": {
-                      "type": "seperate",
-                      "separator": ":"
-                    },
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "router": {
@@ -1079,32 +949,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "clear_policy": "every_msg,by_adminId",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "clear_policy": "every_msg,by_adminId",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -1318,14 +1162,6 @@
             }
           },
           "destination": [
-            {
-              "destination_type": "elasticsearch",
-              "reference": "product_vip",
-              "operation": "create",
-              "id": "{skuId}",
-              "clear_policy": "every_msg,by_adminId",
-              "tag": "vip"
-            },
             {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
@@ -10430,31 +10266,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}",
-                  "hashcode": {}
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -10539,31 +10350,6 @@
             }
           },
           "destination": [
-            {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}",
-                  "hashcode": {}
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "router": {
@@ -10650,30 +10436,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -10758,30 +10520,6 @@
           },
           "destination": [
             {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "create",
-                    "id": "{skuId}",
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
-            {
               "destination_type": "elasticsearch7",
               "router": {
                 "type": "vip_router",
@@ -10849,38 +10587,6 @@
             "fields_reference": "fields"
           },
           "destination": [
-            {
-              "router": {
-                "type": "vip_router",
-                "fields": {
-                  "adminId": "{adminId}"
-                },
-                "target": [
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_vip",
-                    "operation": "delete",
-                    "id": "{ids}",
-                    "id_process": {
-                      "type": "seperate",
-                      "separator": ":"
-                    },
-                    "tag": "vip"
-                  },
-                  {
-                    "destination_type": "elasticsearch",
-                    "reference": "product_experience",
-                    "operation": "delete",
-                    "id": "{ids}",
-                    "id_process": {
-                      "type": "seperate",
-                      "separator": ":"
-                    },
-                    "tag": "default"
-                  }
-                ]
-              }
-            },
             {
               "destination_type": "elasticsearch7",
               "router": {
