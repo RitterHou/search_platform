@@ -96,6 +96,8 @@ class SpuSearchBySku(object):
             spu_dsl['_source'] = spu_dsl.pop('fields')
             es_scan_result = es7_adapter.scan('10s', body=spu_dsl, preserve_order=True,
                                               es_search_params=es_search_params, **es_cfg)
+            # 商品scroll之后立即删除相应的scroll以减小scroll_context的数量
+            es7_adapter.delete_scroll(es_scan_result['_scroll_id'], **es_cfg)
             # 这里的格式搞的这么复杂纯粹是为了向前兼容
             es_scan_result = map(lambda r: {'fields': {
                 'spuId': [r['_source']['spuId']] if 'spuId' in r['_source'] else None,
