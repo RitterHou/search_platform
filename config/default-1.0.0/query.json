@@ -53,7 +53,7 @@
           "ids": "ids=(?P<ids>[\\d\\D]+?);",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -112,7 +112,7 @@
           "adminId": "spus/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -170,7 +170,7 @@
           "ids": "ids=(?P<ids>[\\d\\D]+?);",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -229,7 +229,7 @@
           "adminId": "spu_aggregations/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -322,7 +322,7 @@
           "adminId": "search/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -381,7 +381,7 @@
           "adminId": "spu_search/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -518,7 +518,7 @@
           "scene": "/scenes/(?P<scene>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 50,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -2655,7 +2655,7 @@
           "adminId": "/products/store/direct/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 10,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -2693,7 +2693,7 @@
           "adminId": "store/direct/spu/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 10,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }
@@ -2730,7 +2730,7 @@
           "adminId": "store/direct/sku/(?P<adminId>[\\d\\D]+)",
           "hashcode": {
             "type": "hash_modulus",
-            "modulus": 10,
+            "modulus": 1,
             "origin_filed": "adminId"
           }
         }

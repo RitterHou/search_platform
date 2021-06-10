@@ -51,7 +51,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -136,7 +136,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -221,7 +221,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -305,7 +305,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -384,7 +384,7 @@
                 "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -460,7 +460,7 @@
                 "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -544,7 +544,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -628,7 +628,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -723,7 +723,7 @@
                 },
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -814,7 +814,7 @@
                 "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -898,7 +898,7 @@
                 "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -1002,7 +1002,7 @@
                 "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -1065,7 +1065,7 @@
                 "fromSys": "sys\":(?P<fromSys>[\\d]+?)",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10105,7 +10105,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10190,7 +10190,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10275,7 +10275,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10359,7 +10359,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10438,7 +10438,7 @@
                 "ids": "\"deleteSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10514,7 +10514,7 @@
                 "ids": "\"ids\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10598,7 +10598,7 @@
                 "ids": "\"addSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10682,7 +10682,7 @@
                 "ids": "\"updateSkuIds\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -10777,7 +10777,7 @@
                 },
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 50,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -11056,7 +11056,7 @@
                 "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 10,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -11114,7 +11114,7 @@
                 "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 10,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -11173,7 +11173,7 @@
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 10,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
@@ -11224,7 +11224,7 @@
                 "adminId": "chainMasterId\":\"(?P<adminId>[\\d\\D]+?)\"",
                 "hashcode": {
                   "type": "hash_modulus",
-                  "modulus": 10,
+                  "modulus": 1,
                   "origin_filed": "adminId"
                 }
               }
