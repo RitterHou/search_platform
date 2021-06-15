@@ -85,7 +85,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -94,7 +94,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -170,7 +170,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -179,7 +179,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -254,7 +254,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -263,7 +263,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -338,7 +338,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -347,7 +347,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -406,7 +406,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -419,7 +419,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -493,7 +493,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -502,7 +502,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -577,7 +577,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -586,7 +586,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -661,7 +661,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -670,7 +670,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -745,7 +745,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -758,7 +758,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -855,7 +855,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -865,7 +865,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -939,7 +939,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -949,7 +949,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -1035,7 +1035,7 @@
             {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
-              "index": "qmshop-{hashcode}-{version}-sku",
+              "index": "qmshop-{version}-sku",
               "add_admin_id_field": true,
               "operation": "create",
               "id": "{skuId}",
@@ -1098,7 +1098,7 @@
             {
               "destination_type": "elasticsearch7",
               "reference": "product_center",
-              "index": "qmshop-{hashcode}-{version}-spu",
+              "index": "qmshop-{version}-spu",
               "add_admin_id_field": true,
               "operation": "create",
               "id": "{spuId}",
@@ -10139,7 +10139,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10148,7 +10148,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10224,7 +10224,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10233,7 +10233,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10308,7 +10308,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10317,7 +10317,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10392,7 +10392,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10401,7 +10401,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{skuId}",
@@ -10460,7 +10460,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-sku",
+                    "index": "qmshop-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -10473,7 +10473,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-sku",
+                    "index": "qmshop-experience-{version}-sku",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -10547,7 +10547,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10556,7 +10556,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10631,7 +10631,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10640,7 +10640,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10715,7 +10715,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10724,7 +10724,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "create",
                     "id": "{spuId}",
@@ -10799,7 +10799,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-{hashcode}-{version}-spu",
+                    "index": "qmshop-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
@@ -10812,7 +10812,7 @@
                   {
                     "destination_type": "elasticsearch7",
                     "reference": "product_center",
-                    "index": "qmshop-experience-{hashcode}-{version}-spu",
+                    "index": "qmshop-experience-{version}-spu",
                     "add_admin_id_field": true,
                     "operation": "delete",
                     "id": "{ids}",
