@@ -3959,6 +3959,35 @@
         "add_admin_id_field": true
       },
       "response": {}
+    },
+    {
+      "desc": "云小店合作伙伴订单分账明细数据查询，负责人：陈留飞",
+      "name": "partners_order_fee_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "partners/order/fee",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/partners/order/fee$"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {}
+      },
+      "destination": {
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "partners-order-fee"
+      },
+      "response": {}
     }
   ]
 }
