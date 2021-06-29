@@ -16076,6 +16076,119 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "云小店合作伙伴订单分账明细数据变更，负责人：陈留飞",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_partners_order_fee",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "partners-order-fee"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "partners_order_fee_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "event": "event\":\"(?P<event>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.account.provider.AccountEsProvider",
+            "request": {
+              "method": "findOrderFee",
+              "timeout": 10,
+              "body": {
+                "event": "{event}",
+                "msgId": "{msgId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "mapping": {
+                "properties": {
+                  "agentFeeList": {
+                    "type": "nested"
+                  }
+                }
+              },
+              "index": "partners-order-fee",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "partners_order_fee_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "partners-order-fee",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
