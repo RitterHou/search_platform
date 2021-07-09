@@ -1,12 +1,22 @@
 {
   "product_vip": {
-    "host": "{experience_es_host}",
-    "index": "qmshop-{hashcode}-{version}",
+    "host": "{vip_es_host}",
+    "index": "qmshop-{adminId}-{version}",
     "type": "Product",
     "id": "{skuId}",
     "add_admin_id_field": true,
     "mapping": {
       "properties": {
+        "barCode": {
+          "type": "string",
+          "index": "not_analyzed",
+          "fields": {
+            "postfix": {
+              "type": "string",
+              "analyzer": "postfix"
+            }
+          }
+        },
         "category": {
           "index": "not_analyzed",
           "type": "string"
@@ -277,12 +287,22 @@
   },
   "product_experience": {
     "host": "{experience_es_host}",
-    "index": "qmshop-experience-{hashcode}-{version}",
+    "index": "qmshop-experience-{version}",
     "type": "Product",
     "id": "{skuId}",
     "add_admin_id_field": true,
     "mapping": {
       "properties": {
+        "barCode": {
+          "type": "string",
+          "index": "not_analyzed",
+          "fields": {
+            "postfix": {
+              "type": "string",
+              "analyzer": "postfix"
+            }
+          }
+        },
         "category": {
           "index": "not_analyzed",
           "type": "string"
@@ -552,7 +572,7 @@
     }
   },
   "suggest_vip": {
-    "host": "{experience_es_host}",
+    "host": "{vip_es_host}",
     "index": "suggest-product-{version}",
     "type": "Suggest",
     "id": "{id}",
@@ -621,8 +641,8 @@
     }
   },
   "spu_vip": {
-    "host": "{experience_es_host}",
-    "index": "qmshop-{hashcode}-{version}",
+    "host": "{vip_es_host}",
+    "index": "qmshop-{adminId}-{version}",
     "type": "Spu",
     "id": "{spuId}",
     "add_admin_id_field": true,
@@ -898,7 +918,7 @@
   },
   "spu_experience": {
     "host": "{experience_es_host}",
-    "index": "qmshop-experience-{hashcode}-{version}",
+    "index": "qmshop-experience-{version}",
     "type": "Spu",
     "id": "{spuId}",
     "add_admin_id_field": true,

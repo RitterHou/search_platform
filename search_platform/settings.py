@@ -110,35 +110,24 @@ LOGGING = {
         }
     },
     'filters': {
-        'sms_alarm_filter': {
-            '()': 'redislog.tdummy.filters.QmHTTPAlarmFilter',
-            'url': 'http://172.17.16.211:8080/sms/sendSms.do',
-            'phone_numbers': '15051885330,15195935889',
-            'error_log_num': ERROR_LOG_NUM,
-            'error_log_repr_list': [
-                'elasticsearch.exceptions.ConnectionError',
-                'elasticsearch.exceptions.ConnectionTimeout',
-                # 'DubboError',
-                'MsgQueueFullError',
-                'RedoMsgQueueFullError',
-                'FinalFailMsgQueueFullError'
-            ]
-        },
         'redis_alarm_filter': {
             '()': 'redislog.tdummy.filters.QmRedisAlarmFilter',
-            'host': '172.17.8.198',
+            'host': '172.21.4.216',
             'db': 6,
             'error_log_repr_list': [
-                'elasticsearch.exceptions.ConnectionError',
-                'elasticsearch.exceptions.ConnectionTimeout',
-                'DubboError',
-                'MsgQueueFullError',
-                'RedoMsgQueueFullError',
-                'FinalFailMsgQueueFullError'
+                'Error'
             ]
-        },
+        }
     },
     'handlers': {
+        'logstash_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(os.path.dirname(__file__), '../logs', 'logstash.log'),
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 40,
+            'formatter': 'verbose',
+        },
         'django_logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -203,68 +192,109 @@ LOGGING = {
         'app_logstash_log': {
             'level': 'INFO',
             'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
-            'host': '192.168.65.224',
+            'host': '172.19.0.161',
             'key': 'LOGSTASH_APP_LOG',
-            'app_module': 'search_platform_test',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-app.log'),
             'is_interface_handler': False
         },
         'interface_logstash_log': {
             'level': 'INFO',
             'class': 'redislog.tdummy.handlers.LogstashRedisHandler',
-            'host': '192.168.65.224',
+            'host': '172.19.0.161',
             'key': 'LOGSTASH_INTF_LOG',
-            'app_module': 'search_platform_test',
             'file_name': os.path.join(os.path.dirname(__file__), '../logs', 'logstatsh-redis-inf.log')
         },
     },
     'loggers': {
-        'app': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+        'logstash': {
+            'handlers': ['logstash_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
-        'dubbo': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
+        'app': {
+            'handlers': ['logfile'],
+            'propagate': True,
             'level': 'DEBUG',
         },
         'error': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
-            'filters': ['sms_alarm_filter', 'redis_alarm_filter']
+            'handlers': ['error_logfile'],
+            'propagate': True,
+            'level': 'ERROR',
+            'filters': ['redis_alarm_filter']
         },
         'interface': {
-            'handlers': ['interface_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+            'handlers': ['interface_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
         'listener': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+            'handlers': ['listener_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
         'debug': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+            'handlers': ['debug_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
         'query': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+            'handlers': ['query_logfile'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
         'django': {
-            'handlers': ['app_logstash_log'],
-            'propagate': False,
-            'level': 'INFO',
+            'handlers': ['django_logfile'],
+            'propagate': True,
+            'level': 'WARNING',
         },
         'django.request': {
-            'handlers': ['app_logstash_log'],
-            'level': 'INFO',
+            'handlers': ['django_logfile'],
+            'level': 'WARNING',
             'propagate': False,
         },
+
+        ####################################################
+        # 'app': {
+        # 'handlers': ['app_logstash_log'],
+        # 'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'error': {
+        #     'handlers': ['app_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        #     'filters': ['sms_alarm_filter']
+        # },
+        # 'interface': {
+        #     'handlers': ['interface_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'listener': {
+        #     'handlers': ['app_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'debug': {
+        #     'handlers': ['app_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'query': {
+        #     'handlers': ['app_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'django': {
+        #     'handlers': ['app_logstash_log'],
+        #     'propagate': True,
+        #     'level': 'INFO',
+        # },
+        # 'django.request': {
+        #     'handlers': ['app_logstash_log'],
+        #     'level': 'INFO',
+        #     'propagate': False,
+        # },
     },
 }
 
@@ -291,24 +321,26 @@ REST_FRAMEWORK = {
 
 SERVICE_BASE_CONFIG = {
     'meta_file': '/config',
-    'redis': 'redis://172.17.8.253:6379/2',
-    'elasticsearch': 'http://192.168.65.133:9200,http://192.168.65.134:9200,http://172.17.20.138:9200',
+    'redis': 'redis://172.19.65.149:6379/2',
+    'elasticsearch': 'http://172.19.66.5:9200',
     'meta_es_index': 'sp_search_platform_cfg',
     'meta_es_type': 'config',
     'meta_es_id': 'config_data',
     'message_bus_channel': 'search_platform_message_bus_channel',
-    'celery_broker_url': 'redis://172.17.8.253:6379/0',
+    'celery_broker_url': 'redis://172.19.65.149:6379/0',
     'register_center_key': 'SEARCH_PLATFORM_REGISTER_CENTER',
-    'msg_queue': 'redis://172.17.8.253:6379/4',
-    'redis_admin_id_config': 'redis://172.17.8.253:6379/3',
-    'register_zk_host': '192.168.65.183:2181,192.168.65.184:2181,192.168.65.185:2181',
-    'keywords_redis_host': 'redis://172.17.8.253:6379/1',
-    'search_platform_host': 'http://192.168.65.222:18082'
+    'msg_queue': 'redis://172.19.65.149:6379/4',
+    'redis_admin_id_config': 'redis://172.19.65.149:6379/3',
+    'register_zk_host': '172.19.66.49:2181',
+    'keywords_redis_host': 'redis://172.19.65.149:6379/1',
+    'search_platform_host': 'http://search.testp.dev.qianmi.com'
 }
 
 # 测量结果ES别名
 MEASUERE_ALIAS = 'sp_measure-alias'
 
 VERSION = '1.3.0'
+
+# CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 
 # from river import rivers
