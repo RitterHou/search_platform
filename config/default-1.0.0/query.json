@@ -286,8 +286,8 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "suggest_vip"
+        "destination_type": "elasticsearch7",
+        "reference": "suggest_vip_elasticsearch7"
       },
       "response": {
         "json": {
