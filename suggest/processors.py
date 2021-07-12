@@ -45,6 +45,8 @@ class SuggestProcessor(object):
 
                 if pos_from == 0:
                     total = source_docs.get('total', 0)
+                    if isinstance(total, dict):
+                        total = total['value']
                 cur_size = source_docs.get('curSize', 0)
                 pos_from += cur_size
                 notification_data['from'] = pos_from

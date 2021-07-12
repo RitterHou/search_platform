@@ -6,7 +6,7 @@ import time
 from common.adapter import es_adapter
 from common.admin_config import admin_config
 from common.configs import config
-from common.connections import EsConnectionFactory
+from common.connections import EsConnectionFactory, Es7ConnectionFactory
 from common.es_routers import es_router
 from filters import notification_filter
 from common.utils import get_dict_value_by_path, hash_encode
@@ -92,10 +92,14 @@ class AdminSuggestNotification(SuggestNotification):
         notify_data['hashcode'] = hash_encode(notify_data.get('adminId'), modulus=modulus)
         is_vip = admin_config.is_vip(notify_data.get('adminId'))
         index, doc_type, doc_id = es_adapter.get_es_doc_keys(_es_config, kwargs=notify_data)
-        _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
-        if not _es_connection.indices.exists_type(index, doc_type):
-            return []
-        return [{'index': index, 'type': doc_type, 'hashcode': not is_vip, 'adminId': notify_data['adminId']}]
+        if _es_config.get('version') == 7:
+            _es_connection = Es7ConnectionFactory.get_es_connection(host=_es_config['host'])
+            return [{'index': index, 'hashcode': not is_vip, 'adminId': notify_data['adminId']}]
+        else:
+            _es_connection = EsConnectionFactory.get_es_connection(host=_es_config['host'])
+            if not _es_connection.indices.exists_type(index, doc_type):
+                return []
+            return [{'index': index, 'type': doc_type, 'hashcode': not is_vip, 'adminId': notify_data['adminId']}]
 
 
 class EsRegularlyScanNotification(SuggestNotification):

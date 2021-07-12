@@ -7,7 +7,7 @@ from common.configs import config
 from common.connections import EsConnectionFactory
 from common.es_routers import es_router
 from common.utils import get_dict_value_by_path, unbind_variable
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.loggers import app_log
 from service.dsl_parser import qdsl_parser
 
@@ -45,27 +45,34 @@ class SuggestSource(object):
 
 class ElasticsearchDataSource(SuggestSource):
     def pull(self, suggest_config, request_param, suggest_term_dict):
-        if 'index' not in request_param or 'type' not in request_param:
-            app_log.error('request_param is invalid, {0} {1}', suggest_config, request_param)
-            return 0, None
+        es_version = suggest_config['notification'].get('es_cfg').get('version')
+        if es_version != 7:  # 向前兼容
+            if 'index' not in request_param or 'type' not in request_param:
+                app_log.error('request_param is invalid, {0} {1}', suggest_config, request_param)
+                return 0, None
 
         host = get_dict_value_by_path('notification/host', suggest_config) or get_dict_value_by_path(
             'notification/es_cfg/host', suggest_config)
         source_config = get_dict_value_by_path('source', suggest_config)
         additional_param = self._parse_param(source_config, request_param)
         query_fields = self.__get_es_query_fields(source_config)
-        source_docs = self.__query_source_docs(source_config, request_param, host, query_fields)
+        source_docs = self.__query_source_docs(source_config, request_param, host, query_fields, es_version)
         if source_docs['total'] == 0:
             return source_docs
 
-        field_mapping_result = es_adapter.get_fields_mapping(host, request_param['index'], request_param['type'],
-                                                             query_fields)
-        field_mapping_dict = field_mapping_result[request_param['index']]['mappings'][request_param['type']]
+        if es_version == 7:
+            field_mapping_result = es7_adapter.get_fields_mapping(host, request_param['index'], None, query_fields)
+            field_mapping_dict = field_mapping_result[request_param['index']]['mappings']
+        else:
+            field_mapping_result = es_adapter.get_fields_mapping(host, request_param['index'], request_param['type'],
+                                                                 query_fields)
+            field_mapping_dict = field_mapping_result[request_param['index']]['mappings'][request_param['type']]
+
         keyword_filter_regex = str(get_dict_value_by_path('data_parser/keyword_filter_regex',
                                                           source_config) or u'[\u4e00-\u9fa5A-Za-z0-9]+')
         temp_list_list = [
             self.__get_keywords_from_doc(host, keyword_filter_regex, query_fields, source_doc, field_mapping_dict,
-                                         request_param) for source_doc in source_docs['root']]
+                                         request_param, es_version) for source_doc in source_docs['root']]
         keyword_list = list(chain(*temp_list_list))
         for _keyword in keyword_list:
             if suggest_term_dict.get(_keyword):
@@ -122,7 +129,7 @@ class ElasticsearchDataSource(SuggestSource):
         return tags_hits_list
 
     def __get_keywords_from_doc(self, host, keyword_filter_regex, query_fields, source_doc, field_mapping_dict,
-                                request_param):
+                                request_param, es_version):
         """
         根据field mapping中指定的分词器对关键词进行分词
         :param host:
@@ -141,19 +148,31 @@ class ElasticsearchDataSource(SuggestSource):
                 field_mapping = get_dict_value_by_path(field_name + '/mapping/' + field_name, field_mapping_dict)
                 field_analyzer = field_mapping.get('analyzer') or field_mapping.get('index_analyzer')
             if field_analyzer:
-                analyzed_words = es_adapter.query_text_analyze_result(host, field_analyzer, text,
-                                                                      keyword_filter_regex, request_param)
+                if es_version == 7:
+                    analyzed_words = es7_adapter.query_text_analyze_result(host, field_analyzer, text,
+                                                                           keyword_filter_regex, request_param)
+                else:
+                    analyzed_words = es_adapter.query_text_analyze_result(host, field_analyzer, text,
+                                                                          keyword_filter_regex, request_param)
                 keyword_list.extend(analyzed_words)
             else:
                 keyword_list.append(text)
         return keyword_list
 
-    def __query_source_docs(self, source_config, request_param, host, query_fields):
+    def __query_source_docs(self, source_config, request_param, host, query_fields, es_version):
         try:
             query_body = self.__get_es_query_body(source_config, request_param)
-            # query_param = {'fields': query_fields} if query_fields else {}
-            es_result = es_adapter.query_docs(query_body, host, index=request_param['index'],
-                                              doc_type=request_param['type'])
+            if es_version == 7:
+                query_body['track_total_hits'] = True
+                # 针对ES7的"Result window is too large"问题，把ES7的查询改为scroll的方式
+                es_result = es7_adapter.scroll(body=query_body, scroll_id=request_param.get('_scroll_id'), **{
+                    'host': host,
+                    'index': request_param['index']
+                })
+                request_param['_scroll_id'] = es_result.pop('_scroll_id')
+            else:
+                es_result = es_adapter.query_docs(query_body, host, index=request_param['index'],
+                                                  doc_type=request_param['type'])
 
         except Exception as e:
             app_log.error('pull has exception with {0} {1}', e, source_config, request_param)

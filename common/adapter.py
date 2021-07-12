@@ -297,7 +297,7 @@ class Es7IndexAdapter(object):
         """
         es_connection = Es7ConnectionFactory.get_es_connection(host=host)
         analyze_result = es_connection.indices.analyze(index=request_param['index'],
-                                                       params={'analyzer': analyzer, 'text': text})
+                                                       body={'analyzer': analyzer, 'text': text})
         return [ele['token'] for ele in analyze_result['tokens'] if
                 re.search(keyword_filter_regex, str(ele['token'])) and len(ele['token']) > 1]
 

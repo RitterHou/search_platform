@@ -175,7 +175,10 @@
       "notification": {
         "type": "elasticsearch_admin",
         "es_cfg": {
-          "reference": "product_vip"
+          "version": 7,
+          "host": "{pc_es_host}",
+          "index": "qmshop-{adminId}-{version}-sku",
+          "id": "{skuId}"
         }
       },
       "source": {
@@ -193,9 +196,9 @@
           "type": "regex",
           "fields": {
             "adminId": {
-              "field": "index",
+              "field": "adminId",
               "type": "regex",
-              "expression": "^qmshop-(?P<adminId>[\\d\\D]+?)-"
+              "expression": "^(?P<adminId>.+)"
             }
           }
         },
@@ -228,7 +231,7 @@
       "destination": [
         {
           "destination_type": "elasticsearch_processed",
-          "reference": "suggest_vip",
+          "reference": "suggest_vip_elasticsearch7",
           "operation": "create",
           "clear_policy": "every_msg,auto_term"
         }
@@ -239,7 +242,10 @@
       "notification": {
         "type": "elasticsearch_admin",
         "es_cfg": {
-          "reference": "product_experience"
+          "version": 7,
+          "host": "{pc_es_host}",
+          "index": "qmshop-experience-{version}-sku",
+          "id": "{skuId}"
         }
       },
       "source": {
@@ -257,9 +263,9 @@
           "type": "regex",
           "fields": {
             "adminId": {
-              "field": "type",
+              "field": "adminId",
               "type": "regex",
-              "expression": "^Product-(?P<adminId>[\\d\\D]+)"
+              "expression": "^(?P<adminId>.+)"
             }
           }
         },
@@ -296,7 +302,7 @@
       "destination": [
         {
           "destination_type": "elasticsearch_processed",
-          "reference": "suggest_vip",
+          "reference": "suggest_vip_elasticsearch7",
           "operation": "create",
           "clear_policy": "every_msg,auto_term"
         }
