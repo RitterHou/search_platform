@@ -170,6 +170,8 @@ class ElasticsearchDataSource(SuggestSource):
                     'index': request_param['index']
                 })
                 request_param['_scroll_id'] = es_result.pop('_scroll_id')
+                if len(es_result['hits']['hits']) == 0:
+                    es7_adapter.delete_scroll(request_param['_scroll_id'], **{'host': host})
             else:
                 es_result = es_adapter.query_docs(query_body, host, index=request_param['index'],
                                                   doc_type=request_param['type'])
