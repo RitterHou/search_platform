@@ -2384,9 +2384,10 @@
       },
       "data_parser": {},
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "common_suggest_reference",
-        "index": "uc-card-position-category-suggest"
+        "destination_type": "elasticsearch7",
+        "host": "{pc_es_host}",
+        "index": "uc-card-position-category-suggest",
+        "id": "{id}"
       },
       "response": {}
     },
@@ -2795,9 +2796,10 @@
       },
       "data_parser": {},
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "common_suggest_reference",
-        "index": "b2b-market-shop-keyword-suggest"
+        "destination_type": "elasticsearch7",
+        "host": "{pc_es_host}",
+        "index": "b2b-market-shop-keyword-suggest",
+        "id": "{id}"
       },
       "response": {}
     },
@@ -2858,9 +2860,10 @@
         }
       },
       "destination": {
-        "destination_type": "elasticsearch",
-        "reference": "common_suggest_reference",
-        "index": "suggest-shop-cloud-product"
+        "destination_type": "elasticsearch7",
+        "host": "{pc_es_host}",
+        "index": "suggest-shop-cloud-product",
+        "id": "{id}"
       },
       "response": {}
     },

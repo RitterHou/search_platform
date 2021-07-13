@@ -1355,29 +1355,6 @@
       ]
     }
   },
-  "common_suggest_reference": {
-    "host": "{experience_es_host}",
-    "type": "Suggest",
-    "id": "{id}",
-    "mapping": {
-      "properties": {
-        "name": {
-          "index": "not_analyzed",
-          "store": true,
-          "type": "string"
-        },
-        "suggest": {
-          "max_input_length": 50,
-          "preserve_separators": true,
-          "payloads": true,
-          "index_analyzer": "standard",
-          "search_analyzer": "standard",
-          "preserve_position_increments": true,
-          "type": "completion"
-        }
-      }
-    }
-  },
   "log_server_cluster": {
     "host": "{log_server_es_host}",
     "destination_type": "elasticsearch"
