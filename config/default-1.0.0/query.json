@@ -1863,7 +1863,7 @@
       },
       "data_parser": {},
       "destination": {
-        "destination_type": "elasticsearch",
+        "destination_type": "elasticsearch7",
         "reference": "yxd_shop_suggest"
       },
       "response": {}
