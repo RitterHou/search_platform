@@ -551,6 +551,29 @@
       }
     }
   },
+  "suggest_vip_elasticsearch7": {
+    "host": "{pc_es_host}",
+    "index": "suggest-product-{version}",
+    "id": "{id}",
+    "elasticsearch_version": 7,
+    "mapping": {
+      "properties": {
+        "suggest": {
+          "max_input_length": 50,
+          "preserve_separators": true,
+          "preserve_position_increments": true,
+          "analyzer": "standard",
+          "type": "completion",
+          "contexts": [
+            {
+              "name": "adminId",
+              "type": "category"
+            }
+          ]
+        }
+      }
+    }
+  },
   "suggest_vip": {
     "host": "{experience_es_host}",
     "index": "suggest-product-{version}",
@@ -597,9 +620,10 @@
     }
   },
   "yxd_shop_suggest": {
-    "host": "{experience_es_host}",
+    "host": "{pc_es_host}",
     "index": "yxd-shop-suggest-{version}",
     "type": "ShopSuggest",
+    "elasticsearch_version": 7,
     "id": "{id}",
     "mapping": {
       "properties": {
@@ -615,6 +639,17 @@
           "index_analyzer": "standard",
           "search_analyzer": "standard",
           "preserve_position_increments": true,
+          "type": "completion"
+        }
+      }
+    },
+    "mapping_elasticsearch7": {
+      "properties": {
+        "suggest": {
+          "max_input_length": 50,
+          "preserve_separators": true,
+          "preserve_position_increments": true,
+          "analyzer": "standard",
           "type": "completion"
         }
       }

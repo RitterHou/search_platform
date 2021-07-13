@@ -566,11 +566,11 @@ class Suggest(object):
         if size > 200 and params.get('whoami') != 'god':
             size = 200
         from_size = params.get('from') or 0
-        query_result = es_adapter.search(query_body={'from': from_size, 'size': size}, index=index,
-                                         host=es_config['host'], doc_type=es_type)
+        query_result = es7_adapter.search(query_body={'from': from_size, 'size': size}, index=index,
+                                          host=es_config['host'])
 
         return {'root': map(lambda es_suggest_doc: self.to_suggestion(es_suggest_doc, ''), query_result['root']),
-                'total': query_result['total']}
+                'total': query_result['total']['value']}
 
     def add_suggest_term(self, suggestion):
         """
@@ -656,8 +656,8 @@ class Suggest(object):
         :return:
         """
         suggestion = {'word': es_suggest_doc['name'],
-                      'source_type': u'自动分词' if es_suggest_doc['suggest']['payload']['source_type'] == '1' else u'手工添加',
-                      'hits': es_suggest_doc['suggest']['payload']['hits']}
+                      'source_type': u'自动分词' if es_suggest_doc['payload']['source_type'] == '1' else u'手工添加',
+                      'hits': es_suggest_doc['payload']['hits']}
         return suggestion
 
     def _get_admin_suggest_river(self, admin_id):
