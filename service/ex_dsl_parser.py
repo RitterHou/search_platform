@@ -5,7 +5,7 @@ import re
 
 from algorithm.section_partitions import equal_section_partitions
 from common.configs import config
-from common.connections import EsConnectionFactory
+from common.connections import Es7ConnectionFactory
 from common.exceptions import InvalidParamError, GenericError
 from common.loggers import query_log
 from common.scripts import python_invoker
@@ -274,7 +274,7 @@ class ExtendQdslParser(object):
         sum_highlight_dsl = {}
         global_query_string = get_dict_value(query_params, 'q')
         global_query_string_dsl = None
-        es_connection = EsConnectionFactory.get_es_connection(host=settings.SERVICE_BASE_CONFIG['elasticsearch'])
+        es_connection = Es7ConnectionFactory.get_es_connection(host=settings.SERVICE_BASE_CONFIG['elasticsearch'])
         for (key, value_list) in ex_query_params_dict.iteritems():
             var_name, field_name = unbind_variable('ex_highlight_(?P<field_name>[\\d\\D]+)', 'field_name', key)
             temp, value = unbind_variable('\\((?P<value>[\\d\\D]+)\\)', 'value', value_list[0])

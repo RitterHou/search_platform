@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from itertools import *
 
-from common.adapter import es_adapter
+from common.adapter import es_adapter, es7_adapter
 from common.configs import config
 from common.utils import get_dict_value, unbind_variable, deep_merge
 from service.ex_dsl_parser import extend_parser
@@ -179,9 +179,9 @@ class QdslParser(object):
         default_index_name = config.get_value('/consts/query/default_index')
         field = config.get_value('/consts/query/query_string/match_all/fields') or field
         if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
-                                                                                     query_string,
-                                                                                     index=default_index_name)
+            analyze_token_list = es7_adapter.query_text_analyze_result_without_filter(es_connection, analyzer,
+                                                                                      query_string,
+                                                                                      index=default_index_name)
             if analyze_token_list:
                 return map(lambda analyze_token: {'match': {field: analyze_token}}, analyze_token_list)
         return [{'match': {field: query_string}} if query_string else {'match_all': {}}]
@@ -236,9 +236,9 @@ class QdslParser(object):
         default_index_name = config.get_value('/consts/query/default_index')
         fields_cfg = config.get_value('/consts/query/query_string/match_selected_fields/fields') or {}
         if query_string:
-            analyze_token_list = es_adapter.query_text_analyze_result_without_filter(es_connection, _analyzer,
-                                                                                     query_string,
-                                                                                     index=default_index_name)
+            analyze_token_list = es7_adapter.query_text_analyze_result_without_filter(es_connection, _analyzer,
+                                                                                      query_string,
+                                                                                      index=default_index_name)
             if analyze_token_list:
                 return [{'bool': {'must': map(lambda analyze_token: _get_fields_match_dsl(fields_cfg, analyze_token),
                                               analyze_token_list)}}]
