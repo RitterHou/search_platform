@@ -311,7 +311,7 @@ class Es7IndexAdapter(object):
         """
         if not es_connection:
             es_connection = Es7ConnectionFactory.get_es_connection(host=host)
-        analyze_result = es_connection.indices.analyze(index=index, params={'analyzer': analyzer, 'text': text})
+        analyze_result = es_connection.indices.analyze(index=index, body={'analyzer': analyzer, 'text': text})
         return list(set([ele['token'] for ele in analyze_result['tokens'] if len(ele['token']) > 0]))
 
     def multi_search(self, body, host, index=None, doc_type=None):
