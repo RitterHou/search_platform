@@ -289,8 +289,8 @@
     "save_sample_data": true
   },
   "custom_variables": {
-    "experience_es_host": "http://172.19.66.5:9200",
-    "vip_es_host": "http://172.19.66.5:9200",
+    "experience_es_host": "http://172.21.3.17:9200",
+    "vip_es_host": "http://172.21.3.17:9200",
     "pc_es_host": "http://172.21.3.17:9200",
     "default_es_host": "http://172.21.3.17:9200",
     "mq_host": "failover:(tcp://172.21.4.29:61616)?randomize=false",

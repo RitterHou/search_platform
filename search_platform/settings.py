@@ -322,7 +322,7 @@ REST_FRAMEWORK = {
 SERVICE_BASE_CONFIG = {
     'meta_file': '/config',
     'redis': 'redis://172.19.65.149:6379/2',
-    'elasticsearch': 'http://172.19.66.5:9200',
+    'elasticsearch': 'http://172.21.3.17:9200',
     'meta_es_index': 'sp_search_platform_cfg',
     'meta_es_type': 'config',
     'meta_es_id': 'config_data',
