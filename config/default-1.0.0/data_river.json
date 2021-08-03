@@ -16189,6 +16189,78 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "会员中心名片夹小程序使用人员位置数据变更，负责人：叶延平",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_qmuc_micro_card_sync_userLocation",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "micro-card-sync-userLocation"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "qmuc_micro_card_userLocation_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "ticketId": "ticketId\":\"(?P<ticketId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.card.api.user.location.UserLocationQueryProvider",
+            "request": {
+              "method": "queryUserLocationByTicketId",
+              "timeout": 10,
+              "body": {
+                "ticketId": "{ticketId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "micro-card-user-location",
+              "id": "{ticketId}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
