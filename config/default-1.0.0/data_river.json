@@ -13669,7 +13669,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryGiftCard",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -13728,7 +13728,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryUserGiftCard",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -13787,7 +13787,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryGiftCardUseRecord",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -13846,7 +13846,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryGiftCardGiveRecord",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -13905,7 +13905,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryGiftCardStore",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
@@ -13964,7 +13964,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryUserGiftCardStore",
-              "timeout": 10,
+              "timeout": 20,
               "body": {
                 "adminId": "{adminId}",
                 "msgId": "{msgId}",
