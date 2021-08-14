@@ -16189,6 +16189,255 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "会员中心名片夹小程序使用人员位置数据变更，负责人：叶延平",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_qmuc_micro_card_sync_userLocation",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "micro-card-sync-userLocation"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "qmuc_micro_card_userLocation_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "ticketId": "ticketId\":\"(?P<ticketId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.card.api.user.location.UserLocationQueryProvider",
+            "request": {
+              "method": "queryUserLocationByTicketId",
+              "timeout": 10,
+              "body": {
+                "ticketId": "{ticketId}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "mapping": {
+                "properties": {
+                  "geoLocation": {
+                    "type": "geo_point"
+                  }
+                }
+              },
+              "index": "micro-card-user-location",
+              "id": "{ticketId}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "分销客户视图数据初始化，负责人：张志川",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "queue": "q.usercenter.es.d2pCustomerInit",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc-d2p-customer"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_d2p_customer_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryAllD2pCustomer",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "operation": "create",
+              "index": "uc-d2p-customer",
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "分销客户视图数据变更，负责人：张志川",
+      "notification": {
+        "type": "MQ",
+        "host": "{mq_host}",
+        "topic": "t.usercenter.es.d2pCustomerChange",
+        "sla": {
+          "data_parser": {
+            "type": "fixed",
+            "fields": {
+              "adminId": "uc-d2p-customer"
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "uc_d2p_customer_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
+            "request": {
+              "method": "listD2pCustomerByIds",
+              "timeout": 10,
+              "body": {
+                "ids": "{ids}",
+                "msgId": "{msgId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "uc-d2p-customer",
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "uc_d2p_customer_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operatorType\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "product_center",
+              "index": "uc-d2p-customer",
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ":"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
