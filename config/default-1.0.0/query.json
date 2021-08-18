@@ -4049,6 +4049,38 @@
         "index": "uc-d2p-customer"
       },
       "response": {}
+    },
+    {
+      "desc": "营销优惠券使用记录数据查询，负责人：易雅琴",
+      "name": "marketing_coupon_use_record_query",
+      "res_type": "default",
+      "http_method": "GET",
+      "url_format": "marketing/coupon/use/records",
+      "filter": {
+        "type": "regex",
+        "union_operator": "and",
+        "conditions": [
+          {
+            "operator": "is",
+            "type": "regex",
+            "field": "url",
+            "expression": "^/marketing/coupon/use/records[\\d\\D]*"
+          }
+        ]
+      },
+      "data_parser": {
+        "type": "regex",
+        "fields": {
+          "adminId": "marketing/coupon/use/records/(?P<adminId>[^/]+)"
+        }
+      },
+      "destination": {
+        "destination_type": "elasticsearch7",
+        "reference": "search_platform_default",
+        "index": "marketing-coupon-use-record",
+        "add_admin_id_field": true
+      },
+      "response": {}
     }
   ]
 }
