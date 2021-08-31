@@ -16308,7 +16308,7 @@
             "version": "1.0.0",
             "request": {
               "method": "queryAllD2pCustomer",
-              "timeout": 10,
+              "timeout": 40,
               "body": {
                 "pageNum": "{page_from}",
                 "pageSize": "{page_size}",
@@ -16382,7 +16382,7 @@
             "service_interface": "com.qianmi.uc.query.api.store.search.QueryStore4SearchProvider",
             "request": {
               "method": "listD2pCustomerByIds",
-              "timeout": 10,
+              "timeout": 40,
               "body": {
                 "ids": "{ids}",
                 "msgId": "{msgId}"
