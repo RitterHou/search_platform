@@ -4045,7 +4045,7 @@
       },
       "destination": {
         "destination_type": "elasticsearch7",
-        "reference": "search_platform_default",
+        "reference": "product_center",
         "index": "uc-d2p-customer"
       },
       "response": {}
