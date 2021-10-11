@@ -16438,6 +16438,325 @@
           ]
         }
       ]
+    },
+    {
+      "desc": "营销优惠券使用记录数据初始化，负责人：易雅琴",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_coupon_use_record_init",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "marketing_coupon_use_record_init",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "."
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "iterator_get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "service_interface": "com.qianmi.mc.api.search.SearchCouponQueryProvider",
+            "version": "1.0.0",
+            "request": {
+              "method": "queryCouponUserRecordByPage",
+              "timeout": 10,
+              "body": {
+                "pageNum": "{page_from}",
+                "pageSize": "{page_size}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
+              }
+            },
+            "response": {
+              "fields": {
+                "total": "totalCount",
+                "data": "dataList"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-coupon-use-record",
+              "add_admin_id_field": true,
+              "id": "{id}",
+              "clear_policy": "every_msg,all"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "营销优惠券使用记录数据变更，负责人：易雅琴",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_coupon_use_record_change",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          },
+          "redo": true
+        }
+      },
+      "branches": [
+        {
+          "name": "marketing_coupon_use_record_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\"",
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.mc.api.search.SearchCouponQueryProvider",
+            "request": {
+              "method": "queryCouponUserRecordByIds",
+              "timeout": 10,
+              "body": {
+                "ids": "{ids}",
+                "msgId": "{msgId}",
+                "adminId": "{adminId}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "operation": "create",
+              "index": "marketing-coupon-use-record",
+              "add_admin_id_field": true,
+              "id": "{id}"
+            }
+          ]
+        },
+        {
+          "name": "marketing_coupon_use_record_delete",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "is",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "passthrough",
+            "fields_reference": "fields"
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "marketing-coupon-use-record",
+              "add_admin_id_field": true,
+              "id": "{ids}",
+              "operation": "delete",
+              "id_process": {
+                "type": "seperate",
+                "separator": ","
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "大订单视图部分特殊数据的变更操作，负责人：郭鹏",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_view_trade_compensate",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "trade_view_special_data_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.trade.view.api.TradeViewQueryProvider",
+            "request": {
+              "method": "compensateOrder",
+              "timeout": 8,
+              "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "view-retail-trades",
+              "add_admin_id_field": true,
+              "id": "{tid}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "desc": "大订单申请单视图部分特殊数据的变更操作，负责人：郭鹏",
+      "notification": {
+        "type": "RocketMQ",
+        "host": "{rocket_mq_host}",
+        "topic": "t_view_trade_apply_compensate",
+        "sla": {
+          "data_parser": {
+            "type": "regex",
+            "fields": {
+              "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\""
+            }
+          }
+        }
+      },
+      "branches": [
+        {
+          "name": "trade_apply_view_special_data_update",
+          "notification": {
+            "filter": {
+              "union_operator": "and",
+              "msg_type": "TextMessage",
+              "conditions": [
+                {
+                  "operator": "not",
+                  "type": "regex",
+                  "expression": "\"operation\":\"delete\""
+                }
+              ]
+            },
+            "data_parser": {
+              "type": "regex",
+              "fields": {
+                "msgId": "msgId\":\"(?P<msgId>[\\d\\D]+?)\"",
+                "adminId": "adminId\":\"(?P<adminId>[\\d\\D]+?)\"",
+                "ids": "ids\":\"(?P<ids>[\\d\\D]+?)\""
+              }
+            }
+          },
+          "source": {
+            "type": "get",
+            "protocol": "dubbo",
+            "host": "{zookeeper_host}",
+            "version": "1.0.0",
+            "service_interface": "com.qianmi.trade.view.api.ApplyViewQueryProvider",
+            "request": {
+              "method": "compensateApply",
+              "timeout": 8,
+              "body": {
+                "msgId": "{msgId}",
+                "adminId": "{adminId}",
+                "ids": "{ids}"
+              }
+            }
+          },
+          "destination": [
+            {
+              "destination_type": "elasticsearch7",
+              "reference": "search_platform_default",
+              "index": "view-retail-trades-applies",
+              "add_admin_id_field": true,
+              "id": "{applyId}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
